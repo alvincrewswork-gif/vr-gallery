@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VR Art Gallery</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: sans-serif; }
+  #vr-button {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 32px;
+    font-size: 16px;
+    background: #1a1a2e;
+    color: white;
+    border: 2px solid #e0c080;
+    border-radius: 8px;
+    z-index: 10;
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
+  #vr-button:disabled { background: #333; color: #666; border-color: #444; }
+  #info {
+    position: absolute;
+    top: 16px;
+    width: 100%;
+    text-align: center;
+    color: #e0c080;
+    font-size: 13px;
+    z-index: 10;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="info">VR Art Gallery — Use controller to walk and look at paintings</div>
+<button id="vr-button" disabled>Checking VR support...</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── PAINTING DATA ────────────────────────────────────────────────────────────
+const PAINTINGS = [
+  {
+    title: "The Great Wave off Kanagawa",
+    artist: "Katsushika Hokusai",
+    year: "ca. 1830–32",
+    description: "One of the most recognized works of Japanese art worldwide. The massive wave threatens boats near Mount Fuji, blending nature's power with artistic mastery.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/1200px-Tsunami_by_hokusai_19th_century.jpg",
+    aspect: 1.48
+  },
+  {
+    title: "Wheat Field with Cypresses",
+    artist: "Vincent van Gogh",
+    year: "1889",
+    description: "Painted during Van Gogh's stay at Saint-Paul-de-Mausole asylum, this swirling landscape captures his emotional response to the Provençal countryside.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/VanGogh-wheatfield_with_cypresses.jpg/1280px-VanGogh-wheatfield_with_cypresses.jpg",
+    aspect: 1.52
+  },
+  {
+    title: "Washington Crossing the Delaware",
+    artist: "Emanuel Leutze",
+    year: "1851",
+    description: "An iconic image of American history depicting General George Washington's famous crossing of the Delaware River on the night of December 25–26, 1776.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Washington_Crossing_the_Delaware_by_Emanuel_Leutze%2C_MMA-NYC%2C_1851.jpg/1280px-Washington_Crossing_the_Delaware_by_Emanuel_Leutze%2C_MMA-NYC%2C_1851.jpg",
+    aspect: 1.79
+  },
+  {
+    title: "Breezing Up (A Fair Wind)",
+    artist: "Winslow Homer",
+    year: "1873–76",
+    description: "Homer's celebrated marine painting shows a man and three boys sailing a catboat. A symbol of American optimism and freedom after the Civil War.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Winslow_Homer_-_Breezing_Up_%28A_Fair_Wind%29_-_Google_Art_Project.jpg/1280px-Winslow_Homer_-_Breezing_Up_%28A_Fair_Wind%29_-_Google_Art_Project.jpg",
+    aspect: 1.52
+  },
+  {
+    title: "Water Lilies",
+    artist: "Claude Monet",
+    year: "1906",
+    description: "Part of Monet's famous series painted in his garden at Giverny, these water lilies reflect his interest in capturing fleeting effects of light on water.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/1280px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
+    aspect: 1.0
+  },
+  {
+    title: "The Dancing Class",
+    artist: "Edgar Degas",
+    year: "1874",
+    description: "Degas captures the disciplined world of ballet with characteristic intimacy. The young dancers practice under the watchful eye of their instructor Jules Perrot.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Degas_-_The_Dance_Class.jpg/905px-Degas_-_The_Dance_Class.jpg",
+    aspect: 0.84
+  },
+  {
+    title: "Young Woman with a Water Pitcher",
+    artist: "Johannes Vermeer",
+    year: "ca. 1662",
+    description: "A masterpiece of Dutch Golden Age painting. Vermeer's precise rendering of light through a window illuminates a scene of quiet domestic virtue.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Johannes_Vermeer_-_Young_Woman_with_a_Water_Pitcher_-_Metropolitan_Museum_of_Art.jpg/800px-Johannes_Vermeer_-_Young_Woman_with_a_Water_Pitcher_-_Metropolitan_Museum_of_Art.jpg",
+    aspect: 0.88
+  },
+  {
+    title: "The Night Watch",
+    artist: "Rembrandt van Rijn",
+    year: "1642",
+    description: "Rembrandt's largest and most famous work. The painting depicts a group of city guards led by Captain Frans Banninck Cocq, rendered with dramatic light and movement.",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Rembrandt_van_Rijn_-_De_Nachtwacht.jpg/1280px-Rembrandt_van_Rijn_-_De_Nachtwacht.jpg",
+    aspect: 1.17
+  }
+];
+
+// ─── SCENE SETUP ─────────────────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1008);
+scene.fog = new THREE.Fog(0x1a1008, 8, 20);
+
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
+camera.position.set(0, 1.6, 6);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.xr.enabled = true;
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+// ─── LIGHTING ────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0xfff5e0, 0.4));
+
+// Warm ceiling lights
+for (let i = -6; i <= 6; i += 4) {
+  const spot = new THREE.PointLight(0xfff5cc, 1.2, 8);
+  spot.position.set(i, 3.2, 0);
+  spot.castShadow = true;
+  scene.add(spot);
+}
+
+// ─── GALLERY ROOM ────────────────────────────────────────────────────────────
+const wallMat = new THREE.MeshStandardMaterial({ color: 0xf5f0e8 });
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x5c4a2a, roughness: 0.8 });
+const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xede8d8 });
+const trimMat = new THREE.MeshStandardMaterial({ color: 0xc8b890 });
+
+// Floor
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 14), floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// Ceiling
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(20, 14), ceilingMat);
+ceiling.rotation.x = Math.PI / 2;
+ceiling.position.y = 4;
+scene.add(ceiling);
+
+// Back wall
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(20, 4), wallMat);
+backWall.position.set(0, 2, -7);
+scene.add(backWall);
+
+// Front wall
+const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(20, 4), wallMat);
+frontWall.rotation.y = Math.PI;
+frontWall.position.set(0, 2, 7);
+scene.add(frontWall);
+
+// Left wall
+const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(14, 4), wallMat);
+leftWall.rotation.y = Math.PI / 2;
+leftWall.position.set(-10, 2, 0);
+scene.add(leftWall);
+
+// Right wall
+const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(14, 4), wallMat);
+rightWall.rotation.y = -Math.PI / 2;
+rightWall.position.set(10, 2, 0);
+scene.add(rightWall);
+
+// Floor trim / baseboard
+function addTrim(x, y, z, w, h, ry) {
+  const trim = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.05), trimMat);
+  trim.position.set(x, y, z);
+  trim.rotation.y = ry || 0;
+  scene.add(trim);
+}
+addTrim(0, 0.1, -6.97, 20, 0.2);
+addTrim(0, 0.1, 6.97, 20, Math.PI);
+addTrim(-9.97, 0.1, 0, 14, 0.2, Math.PI / 2);
+addTrim(9.97, 0.1, 0, 14, 0.2, -Math.PI / 2);
+
+// Crown molding
+addTrim(0, 3.9, -6.97, 20, 0.15);
+addTrim(0, 3.9, 6.97, 20, Math.PI);
+addTrim(-9.97, 3.9, 0, 14, 0.15, Math.PI / 2);
+addTrim(9.97, 3.9, 0, 14, 0.15, -Math.PI / 2);
+
+// ─── PAINTING PLACEMENT ──────────────────────────────────────────────────────
+const loader = new THREE.TextureLoader();
+loader.crossOrigin = 'anonymous';
+
+// Gallery layout: back wall (5), left wall (2), right wall (1 wide)
+const layout = [
+  // Back wall — 5 paintings evenly spaced
+  { x: -7,  y: 2.0, z: -6.9, ry: 0 },
+  { x: -3.5, y: 2.0, z: -6.9, ry: 0 },
+  { x: 0,   y: 2.0, z: -6.9, ry: 0 },
+  { x: 3.5, y: 2.0, z: -6.9, ry: 0 },
+  { x: 7,   y: 2.0, z: -6.9, ry: 0 },
+  // Left wall — 2 paintings
+  { x: -9.85, y: 2.0, z: -2, ry: Math.PI / 2 },
+  { x: -9.85, y: 2.0, z:  2, ry: Math.PI / 2 },
+  // Right wall — 1 painting
+  { x: 9.85, y: 2.0, z: 0,  ry: -Math.PI / 2 },
+];
+
+const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
+const labelCanvas = document.createElement('canvas');
+const ctx = labelCanvas.getContext('2d');
+
+function makeLabel(painting) {
+  labelCanvas.width = 512;
+  labelCanvas.height = 128;
+  ctx.fillStyle = '#1a1008';
+  ctx.fillRect(0, 0, 512, 128);
+  ctx.fillStyle = '#e0c080';
+  ctx.font = 'bold 22px Georgia, serif';
+  ctx.fillText(painting.title, 16, 32);
+  ctx.fillStyle = '#c8a060';
+  ctx.font = '18px Georgia, serif';
+  ctx.fillText(`${painting.artist}  ·  ${painting.year}`, 16, 58);
+  ctx.fillStyle = '#a08858';
+  ctx.font = '14px Arial, sans-serif';
+  // Word-wrap description
+  const words = painting.description.split(' ');
+  let line = '';
+  let y = 84;
+  for (const word of words) {
+    const test = line + word + ' ';
+    if (ctx.measureText(test).width > 490 && line) {
+      ctx.fillText(line, 16, y);
+      line = word + ' ';
+      y += 18;
+      if (y > 118) break;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line, 16, y);
+  return new THREE.CanvasTexture(labelCanvas);
+}
+
+PAINTINGS.forEach((painting, i) => {
+  if (i >= layout.length) return;
+  const pos = layout[i];
+  const paintingW = 1.6;
+  const paintingH = paintingW / painting.aspect;
+  const frameThick = 0.06;
+  const frameDepth = 0.05;
+
+  // Frame
+  const frameGroup = new THREE.Group();
+  frameGroup.position.set(pos.x, pos.y, pos.z);
+  frameGroup.rotation.y = pos.ry;
+
+  // Frame border pieces
+  [[0, (paintingH + frameThick) / 2, paintingW + frameThick * 2, frameThick],
+   [0, -(paintingH + frameThick) / 2, paintingW + frameThick * 2, frameThick],
+   [(paintingW + frameThick) / 2, 0, frameThick, paintingH],
+   [-(paintingW + frameThick) / 2, 0, frameThick, paintingH]
+  ].forEach(([fx, fy, fw, fh]) => {
+    const piece = new THREE.Mesh(
+      new THREE.BoxGeometry(fw, fh, frameDepth),
+      frameMat
+    );
+    piece.position.set(fx, fy, 0);
+    frameGroup.add(piece);
+  });
+
+  // Canvas texture
+  loader.load(
+    painting.url,
+    (texture) => {
+      texture.encoding = THREE.sRGBEncoding;
+      const mat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.8 });
+      const canvas = new THREE.Mesh(new THREE.PlaneGeometry(paintingW, paintingH), mat);
+      canvas.position.z = frameDepth / 2 + 0.001;
+      frameGroup.add(canvas);
+    },
+    undefined,
+    () => {
+      // Fallback: colored placeholder
+      const mat = new THREE.MeshStandardMaterial({ color: 0x334455 });
+      const canvas = new THREE.Mesh(new THREE.PlaneGeometry(paintingW, paintingH), mat);
+      canvas.position.z = frameDepth / 2 + 0.001;
+      frameGroup.add(canvas);
+    }
+  );
+
+  // Label plate below painting
+  const labelTex = makeLabel(painting);
+  const labelMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 0.4),
+    new THREE.MeshStandardMaterial({ map: labelTex, roughness: 0.9 })
+  );
+  labelMesh.position.set(0, -(paintingH / 2 + 0.28), frameDepth / 2 + 0.002);
+  frameGroup.add(labelMesh);
+
+  // Spotlight above each painting
+  const spot = new THREE.SpotLight(0xfff8e0, 2, 5, Math.PI / 8, 0.3);
+  spot.position.set(0, 2.5, 0.5);
+  spot.target.position.set(0, 0, -0.5);
+  frameGroup.add(spot);
+  frameGroup.add(spot.target);
+
+  scene.add(frameGroup);
+});
+
+// ─── CONTROLLER LOCOMOTION ───────────────────────────────────────────────────
+const player = new THREE.Group();
+player.add(camera);
+player.position.set(0, 0, 4);
+scene.add(player);
+
+const controllers = [0, 1].map(i => {
+  const c = renderer.xr.getController(i);
+  const rayGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)
+  ]);
+  const ray = new THREE.Line(rayGeo,
+    new THREE.LineBasicMaterial({ color: 0xe0c080, transparent: true, opacity: 0.4 })
+  );
+  ray.scale.z = 3;
+  c.add(ray);
+  player.add(c);
+  return c;
+});
+
+// Thumbstick locomotion
+const tempMatrix = new THREE.Matrix4();
+const moveDir = new THREE.Vector3();
+
+renderer.setAnimationLoop(() => {
+  const session = renderer.xr.getSession();
+  if (session && renderer.xr.isPresenting) {
+    for (const source of session.inputSources) {
+      if (!source.gamepad) continue;
+      const axes = source.gamepad.axes;
+      const lx = axes[2] !== undefined ? axes[2] : axes[0] || 0;
+      const ly = axes[3] !== undefined ? axes[3] : axes[1] || 0;
+      const dead = 0.15;
+
+      if (source.handedness === 'left') {
+        // Left stick: walk forward/back, strafe left/right
+        if (Math.abs(lx) > dead || Math.abs(ly) > dead) {
+          tempMatrix.identity().extractRotation(camera.matrixWorld);
+          moveDir.set(lx * 0.04, 0, ly * 0.04).applyMatrix4(tempMatrix);
+          moveDir.y = 0;
+          player.position.add(moveDir);
+          // Clamp to gallery bounds
+          player.position.x = Math.max(-8.5, Math.min(8.5, player.position.x));
+          player.position.z = Math.max(-5.5, Math.min(5.5, player.position.z));
+        }
+      }
+
+      if (source.handedness === 'right') {
+        // Right stick: snap turn left/right
+        if (Math.abs(lx) > 0.7) {
+          player.rotation.y -= Math.sign(lx) * (Math.PI / 6);
+        }
+      }
+    }
+  }
+
+  renderer.render(scene, camera);
+});
+
+// ─── VR BUTTON ───────────────────────────────────────────────────────────────
+const vrButton = document.getElementById('vr-button');
+let xrSession = null;
+
+async function onVRClick() {
+  if (xrSession) { xrSession.end(); return; }
+  try {
+    const session = await navigator.xr.requestSession('immersive-vr', {
+      optionalFeatures: ['local-floor', 'bounded-floor']
+    });
+    xrSession = session;
+    session.addEventListener('end', () => { xrSession = null; vrButton.textContent = 'Enter VR'; });
+    await renderer.xr.setSession(session);
+    vrButton.textContent = 'Exit VR';
+  } catch (e) {
+    vrButton.textContent = 'VR failed: ' + e.message;
+  }
+}
+
+if (navigator.xr) {
+  navigator.xr.isSessionSupported('immersive-vr').then(supported => {
+    if (supported) {
+      vrButton.disabled = false;
+      vrButton.textContent = 'Enter VR';
+      vrButton.addEventListener('click', onVRClick);
+    } else {
+      vrButton.textContent = 'VR not supported on this browser';
+    }
+  });
+} else {
+  vrButton.textContent = 'WebXR not available';
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
