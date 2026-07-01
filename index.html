@@ -24,18 +24,83 @@
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const IIIF = 'https://www.artic.edu/iiif/2';
+// IMPORTANT:
+// These image paths must match files inside your GitHub repo exactly.
+// Folder expected:
+// assets/paintings/grande-jatte.jpg
+// assets/paintings/water-lilies.jpg
+// assets/paintings/bedroom.jpg
+// assets/paintings/american-gothic.jpg
+// assets/paintings/stacks-of-wheat.jpg
+// assets/paintings/childs-bath.jpg
+// assets/paintings/two-sisters.jpg
+// assets/paintings/great-wave.jpg
 
-// Confirmed public domain artwork IDs from Art Institute of Chicago
 const PAINTINGS = [
-  { id: 27992,  title: "A Sunday on La Grande Jatte", artist: "Georges Seurat",    year: "1884-86", description: "Seurat's pointillist masterpiece depicts Parisians relaxing by the Seine. Each tiny dot of color blends in the viewer's eye — a technique called Chromoluminarism.", aspect: 1.39 },
-  { id: 16568,  title: "Water Lilies",               artist: "Claude Monet",       year: "1906",    description: "One of Monet's famous series painted at his garden in Giverny. The shimmering purples, blues, and greens capture light playing on the water's surface.", aspect: 1.04 },
-  { id: 28560,  title: "The Bedroom",                artist: "Vincent van Gogh",   year: "1889",    description: "Van Gogh painted three versions of his bedroom in Arles. The bold colors and tilted perspective convey rest and peace — a sanctuary from his troubled life.", aspect: 1.26 },
-  { id: 6565,   title: "American Gothic",            artist: "Grant Wood",          year: "1930",    description: "One of the most recognized images in American art. Wood used his dentist and sister as models for this iconic portrayal of rural Midwestern values.", aspect: 0.81 },
-  { id: 20684,  title: "Stacks of Wheat",            artist: "Claude Monet",       year: "1890-91", description: "One of Monet's celebrated haystack series, capturing the same subject under different light. This series helped inspire the Abstract Expressionist movement.", aspect: 1.28 },
-  { id: 14620,  title: "The Child's Bath",           artist: "Mary Cassatt",       year: "1893",    description: "Cassatt was the only American artist linked to the French Impressionists. This intimate domestic scene shows her mastery of light and focus on women's daily lives.", aspect: 0.78 },
-  { id: 14655,  title: "Two Sisters (On the Terrace)",artist: "Pierre-Auguste Renoir",year: "1881", description: "Despite its title, these figures were not actually sisters. Renoir painted this scene at a riverside restaurant in Chatou, capturing the warmth of a French spring.", aspect: 0.78 },
-  { id: 24645,  title: "The Great Wave",             artist: "Katsushika Hokusai", year: "ca. 1830-32", description: "One of the most recognized works of Japanese art. The massive wave threatens boats near Mount Fuji, blending nature's power with artistic mastery.", aspect: 1.48 },
+  {
+    title: "A Sunday on La Grande Jatte",
+    artist: "Georges Seurat",
+    year: "1884-86",
+    description: "Seurat's pointillist masterpiece depicts Parisians relaxing by the Seine. Each tiny dot of color blends in the viewer's eye — a technique called Chromoluminarism.",
+    aspect: 1.39,
+    image: "assets/paintings/grande-jatte.jpg"
+  },
+  {
+    title: "Water Lilies",
+    artist: "Claude Monet",
+    year: "1906",
+    description: "One of Monet's famous series painted at his garden in Giverny. The shimmering purples, blues, and greens capture light playing on the water's surface.",
+    aspect: 1.04,
+    image: "assets/paintings/water-lilies.jpg"
+  },
+  {
+    title: "The Bedroom",
+    artist: "Vincent van Gogh",
+    year: "1889",
+    description: "Van Gogh painted three versions of his bedroom in Arles. The bold colors and tilted perspective convey rest and peace — a sanctuary from his troubled life.",
+    aspect: 1.26,
+    image: "assets/paintings/bedroom.jpg"
+  },
+  {
+    title: "American Gothic",
+    artist: "Grant Wood",
+    year: "1930",
+    description: "One of the most recognized images in American art. Wood used his dentist and sister as models for this iconic portrayal of rural Midwestern values.",
+    aspect: 0.81,
+    image: "assets/paintings/american-gothic.jpg"
+  },
+  {
+    title: "Stacks of Wheat",
+    artist: "Claude Monet",
+    year: "1890-91",
+    description: "One of Monet's celebrated wheat stack paintings, capturing the same subject under changing light and atmosphere.",
+    aspect: 1.28,
+    image: "assets/paintings/stacks-of-wheat.jpg"
+  },
+  {
+    title: "The Child's Bath",
+    artist: "Mary Cassatt",
+    year: "1893",
+    description: "Cassatt was the only American artist linked to the French Impressionists. This intimate domestic scene shows her mastery of light and focus on women's daily lives.",
+    aspect: 0.78,
+    image: "assets/paintings/childs-bath.jpg"
+  },
+  {
+    title: "Two Sisters (On the Terrace)",
+    artist: "Pierre-Auguste Renoir",
+    year: "1881",
+    description: "Despite its title, these figures were not actually sisters. Renoir painted this scene at a riverside restaurant in Chatou, capturing the warmth of a French spring.",
+    aspect: 0.78,
+    image: "assets/paintings/two-sisters.jpg"
+  },
+  {
+    title: "The Great Wave",
+    artist: "Katsushika Hokusai",
+    year: "ca. 1830-32",
+    description: "One of the most recognized works of Japanese art. The massive wave threatens boats near Mount Fuji, blending nature's power with artistic mastery.",
+    aspect: 1.48,
+    image: "assets/paintings/great-wave.jpg"
+  }
 ];
 
 // ── SCENE ──────────────────────────────────────────────────────────────────
@@ -43,19 +108,20 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1008);
 scene.fog = new THREE.Fog(0x1a1008, 10, 22);
 
-const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 50);
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
 camera.position.set(0, 1.6, 6);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.xr.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 scene.add(new THREE.AmbientLight(0xfff5e0, 0.5));
-[-6,-2,2,6].forEach(x => {
+[-6, -2, 2, 6].forEach(x => {
   const pt = new THREE.PointLight(0xfff5cc, 1.0, 9);
-  pt.position.set(x, 3.2, -1); scene.add(pt);
+  pt.position.set(x, 3.2, -1);
+  scene.add(pt);
 });
 
 const wallMat    = new THREE.MeshStandardMaterial({ color: 0xf5f0e8 });
@@ -63,122 +129,175 @@ const floorMat   = new THREE.MeshStandardMaterial({ color: 0x5c4a2a, roughness: 
 const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xede8d8 });
 const trimMat    = new THREE.MeshStandardMaterial({ color: 0xc8b890 });
 
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(20,14), floorMat);
-floor.rotation.x = -Math.PI/2; scene.add(floor);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 14), floorMat);
+floor.rotation.x = -Math.PI / 2;
+scene.add(floor);
 
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(20,14), ceilingMat);
-ceiling.rotation.x = Math.PI/2; ceiling.position.y = 4; scene.add(ceiling);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(20, 14), ceilingMat);
+ceiling.rotation.x = Math.PI / 2;
+ceiling.position.y = 4;
+scene.add(ceiling);
 
-[[0,2,-7,0,20],[0,2,7,Math.PI,20],[-10,2,0,Math.PI/2,14],[10,2,0,-Math.PI/2,14]].forEach(([x,y,z,ry,w]) => {
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(w,4), wallMat);
-  wall.position.set(x,y,z); wall.rotation.y = ry; scene.add(wall);
+[
+  [0, 2, -7, 0, 20],
+  [0, 2, 7, Math.PI, 20],
+  [-10, 2, 0, Math.PI / 2, 14],
+  [10, 2, 0, -Math.PI / 2, 14]
+].forEach(([x, y, z, ry, w]) => {
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(w, 4), wallMat);
+  wall.position.set(x, y, z);
+  wall.rotation.y = ry;
+  scene.add(wall);
 });
 
-function addTrim(x,y,z,w,h,ry) {
-  const t = new THREE.Mesh(new THREE.BoxGeometry(w,h,0.05), trimMat);
-  t.position.set(x,y,z); t.rotation.y = ry||0; scene.add(t);
+function addTrim(x, y, z, w, h, ry) {
+  const t = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.05), trimMat);
+  t.position.set(x, y, z);
+  t.rotation.y = ry || 0;
+  scene.add(t);
 }
-addTrim(0,0.1,-6.97,20,0.2,0);      addTrim(0,0.1,6.97,20,0.2,Math.PI);
-addTrim(-9.97,0.1,0,14,0.2,Math.PI/2); addTrim(9.97,0.1,0,14,0.2,-Math.PI/2);
-addTrim(0,3.9,-6.97,20,0.15,0);     addTrim(0,3.9,6.97,20,0.15,Math.PI);
-addTrim(-9.97,3.9,0,14,0.15,Math.PI/2); addTrim(9.97,3.9,0,14,0.15,-Math.PI/2);
+
+addTrim(0, 0.1, -6.97, 20, 0.2, 0);
+addTrim(0, 0.1, 6.97, 20, 0.2, Math.PI);
+addTrim(-9.97, 0.1, 0, 14, 0.2, Math.PI / 2);
+addTrim(9.97, 0.1, 0, 14, 0.2, -Math.PI / 2);
+addTrim(0, 3.9, -6.97, 20, 0.15, 0);
+addTrim(0, 3.9, 6.97, 20, 0.15, Math.PI);
+addTrim(-9.97, 3.9, 0, 14, 0.15, Math.PI / 2);
+addTrim(9.97, 3.9, 0, 14, 0.15, -Math.PI / 2);
 
 const layout = [
-  {x:-7,   y:2.0,z:-6.9,ry:0},
-  {x:-3.5, y:2.0,z:-6.9,ry:0},
-  {x:0,    y:2.0,z:-6.9,ry:0},
-  {x:3.5,  y:2.0,z:-6.9,ry:0},
-  {x:7,    y:2.0,z:-6.9,ry:0},
-  {x:-9.85,y:2.0,z:-2,  ry:Math.PI/2},
-  {x:-9.85,y:2.0,z:2,   ry:Math.PI/2},
-  {x:9.85, y:2.0,z:0,   ry:-Math.PI/2},
+  { x: -7,    y: 2.0, z: -6.9, ry: 0 },
+  { x: -3.5,  y: 2.0, z: -6.9, ry: 0 },
+  { x: 0,     y: 2.0, z: -6.9, ry: 0 },
+  { x: 3.5,   y: 2.0, z: -6.9, ry: 0 },
+  { x: 7,     y: 2.0, z: -6.9, ry: 0 },
+  { x: -9.85, y: 2.0, z: -2,   ry: Math.PI / 2 },
+  { x: -9.85, y: 2.0, z: 2,    ry: Math.PI / 2 },
+  { x: 9.85,  y: 2.0, z: 0,    ry: -Math.PI / 2 }
 ];
 
-const frameMat = new THREE.MeshStandardMaterial({color:0x8b6914,roughness:0.4,metalness:0.3});
-const loader   = new THREE.TextureLoader();
+const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
+const loader = new THREE.TextureLoader();
 
 function makeLabel(p) {
   const canvas = document.createElement('canvas');
-  canvas.width = 512; canvas.height = 128;
+  canvas.width = 512;
+  canvas.height = 128;
+
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#1a1008'; ctx.fillRect(0,0,512,128);
-  ctx.fillStyle = '#e0c080'; ctx.font = 'bold 20px Georgia,serif';
+  ctx.fillStyle = '#1a1008';
+  ctx.fillRect(0, 0, 512, 128);
+
+  ctx.fillStyle = '#e0c080';
+  ctx.font = 'bold 20px Georgia,serif';
   ctx.fillText(p.title, 16, 28);
-  ctx.fillStyle = '#c8a060'; ctx.font = '16px Georgia,serif';
+
+  ctx.fillStyle = '#c8a060';
+  ctx.font = '16px Georgia,serif';
   ctx.fillText(p.artist + '  ·  ' + p.year, 16, 52);
-  ctx.fillStyle = '#a08858'; ctx.font = '13px Arial,sans-serif';
+
+  ctx.fillStyle = '#a08858';
+  ctx.font = '13px Arial,sans-serif';
   const words = p.description.split(' ');
-  let line = '', y = 74;
+  let line = '';
+  let y = 74;
+
   for (const word of words) {
     const test = line + word + ' ';
     if (ctx.measureText(test).width > 490 && line !== '') {
-      ctx.fillText(line.trim(),16,y); line = word+' '; y+=17;
-      if (y>118) { ctx.fillText('...',16,y); break; }
-    } else { line = test; }
+      ctx.fillText(line.trim(), 16, y);
+      line = word + ' ';
+      y += 17;
+      if (y > 118) {
+        ctx.fillText('...', 16, y);
+        break;
+      }
+    } else {
+      line = test;
+    }
   }
-  if (y<=118) ctx.fillText(line.trim(),16,y);
-  return new THREE.CanvasTexture(canvas);
+
+  if (y <= 118) ctx.fillText(line.trim(), 16, y);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.encoding = THREE.sRGBEncoding;
+  return texture;
 }
 
-function buildFrame(p, pos, imageUrl) {
-  const pw = 1.6, ph = pw/p.aspect, ft = 0.06, fd = 0.05;
+function buildFrame(p, pos) {
+  const pw = 1.6;
+  const ph = pw / p.aspect;
+  const ft = 0.06;
+  const fd = 0.05;
+
   const group = new THREE.Group();
-  group.position.set(pos.x,pos.y,pos.z);
+  group.position.set(pos.x, pos.y, pos.z);
   group.rotation.y = pos.ry;
 
-  [[0,(ph+ft)/2,pw+ft*2,ft],[0,-(ph+ft)/2,pw+ft*2,ft],
-   [(pw+ft)/2,0,ft,ph],[-(pw+ft)/2,0,ft,ph]].forEach(([fx,fy,fw,fh]) => {
-    const piece = new THREE.Mesh(new THREE.BoxGeometry(fw,fh,fd), frameMat);
-    piece.position.set(fx,fy,0); group.add(piece);
+  // Gold frame pieces
+  [
+    [0, (ph + ft) / 2, pw + ft * 2, ft],
+    [0, -(ph + ft) / 2, pw + ft * 2, ft],
+    [(pw + ft) / 2, 0, ft, ph],
+    [-(pw + ft) / 2, 0, ft, ph]
+  ].forEach(([fx, fy, fw, fh]) => {
+    const piece = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, fd), frameMat);
+    piece.position.set(fx, fy, 0);
+    group.add(piece);
   });
 
+  // Painting surface. It starts blue; if the image loads, the image replaces the blue.
+  // If the image path is wrong, it turns red so we know the problem is a missing file.
   const canvasMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(pw,ph),
-    new THREE.MeshStandardMaterial({color:0x223344,roughness:0.9})
+    new THREE.PlaneGeometry(pw, ph),
+    new THREE.MeshStandardMaterial({ color: 0x223344, roughness: 0.9 })
   );
-  canvasMesh.position.z = fd/2+0.001;
+  canvasMesh.position.z = fd / 2 + 0.001;
   group.add(canvasMesh);
 
-  if (imageUrl) {
-    loader.load(imageUrl,
-      (tex) => {
-        tex.encoding = THREE.sRGBEncoding;
-        canvasMesh.material = new THREE.MeshStandardMaterial({map:tex,roughness:0.8});
-        canvasMesh.material.needsUpdate = true;
-      },
-      undefined,
-      () => console.warn('Image load failed:', p.title)
-    );
-  }
+  loader.load(
+    p.image,
+    (tex) => {
+      tex.encoding = THREE.sRGBEncoding;
+      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.needsUpdate = true;
 
-  const lm = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.6,0.4),
-    new THREE.MeshStandardMaterial({map:makeLabel(p),roughness:0.9})
+      canvasMesh.material.dispose();
+      canvasMesh.material = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 });
+      canvasMesh.material.needsUpdate = true;
+    },
+    undefined,
+    (error) => {
+      console.warn('Image load failed:', p.title, p.image, error);
+      canvasMesh.material.color.set(0x552222);
+      canvasMesh.material.needsUpdate = true;
+    }
   );
-  lm.position.set(0,-(ph/2+0.28),fd/2+0.002);
-  group.add(lm);
 
-  const spot = new THREE.SpotLight(0xfff8e0,2.5,5,Math.PI/8,0.3);
-  spot.position.set(0,2.2,0.4); spot.target.position.set(0,0,-0.3);
-  group.add(spot); group.add(spot.target);
+  // Label plate under the painting
+  const labelMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 0.4),
+    new THREE.MeshStandardMaterial({ map: makeLabel(p), roughness: 0.9 })
+  );
+  labelMesh.position.set(0, -(ph / 2 + 0.28), fd / 2 + 0.002);
+  group.add(labelMesh);
+
+  // Small spotlight for each painting
+  const spot = new THREE.SpotLight(0xfff8e0, 2.5, 5, Math.PI / 8, 0.3);
+  spot.position.set(0, 2.2, 0.4);
+  spot.target.position.set(0, 0, -0.3);
+  group.add(spot);
+  group.add(spot.target);
+
   scene.add(group);
 }
 
-// Fetch each painting's image_id individually and build frames
-async function loadGallery() {
+function loadGallery() {
   for (let i = 0; i < PAINTINGS.length && i < layout.length; i++) {
-    const p = PAINTINGS[i];
-    let imageUrl = '';
-    try {
-      const res = await fetch(`https://api.artic.edu/api/v1/artworks/${p.id}?fields=id,image_id`);
-      const json = await res.json();
-      if (json.data && json.data.image_id) {
-        imageUrl = `${IIIF}/${json.data.image_id}/full/843,/0/default.jpg`;
-      }
-    } catch(e) {
-      console.warn('API fetch failed for:', p.title, e);
-    }
-    buildFrame(p, layout[i], imageUrl);
+    buildFrame(PAINTINGS[i], layout[i]);
   }
 }
 
@@ -187,16 +306,21 @@ loadGallery();
 // ── PLAYER + CONTROLLERS ───────────────────────────────────────────────────
 const player = new THREE.Group();
 player.add(camera);
-player.position.set(0,0,4);
+player.position.set(0, 0, 4);
 scene.add(player);
 
-[0,1].forEach(i => {
+[0, 1].forEach(i => {
   const ctrl = renderer.xr.getController(i);
   const ray = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),
-    new THREE.LineBasicMaterial({color:0xe0c080,transparent:true,opacity:0.4})
+    new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 0, -1)
+    ]),
+    new THREE.LineBasicMaterial({ color: 0xe0c080, transparent: true, opacity: 0.4 })
   );
-  ray.scale.z = 3; ctrl.add(ray); player.add(ctrl);
+  ray.scale.z = 3;
+  ctrl.add(ray);
+  player.add(ctrl);
 });
 
 const tempMatrix = new THREE.Matrix4();
@@ -205,57 +329,89 @@ let lastSnap = 0;
 
 renderer.setAnimationLoop(() => {
   const session = renderer.xr.getSession();
+
   if (session && renderer.xr.isPresenting) {
     for (const source of session.inputSources) {
       if (!source.gamepad) continue;
+
       const axes = source.gamepad.axes;
-      const lx = axes[2]!==undefined ? axes[2] : (axes[0]||0);
-      const ly = axes[3]!==undefined ? axes[3] : (axes[1]||0);
+      const lx = axes[2] !== undefined ? axes[2] : (axes[0] || 0);
+      const ly = axes[3] !== undefined ? axes[3] : (axes[1] || 0);
       const dead = 0.15;
-      if (source.handedness==='left' && (Math.abs(lx)>dead || Math.abs(ly)>dead)) {
+
+      // Left thumbstick: walk forward/back and strafe
+      if (source.handedness === 'left' && (Math.abs(lx) > dead || Math.abs(ly) > dead)) {
         tempMatrix.identity().extractRotation(camera.matrixWorld);
-        moveDir.set(lx*0.04,0,ly*0.04).applyMatrix4(tempMatrix);
+        moveDir.set(lx * 0.04, 0, ly * 0.04).applyMatrix4(tempMatrix);
         moveDir.y = 0;
         player.position.add(moveDir);
-        player.position.x = Math.max(-8.5,Math.min(8.5,player.position.x));
-        player.position.z = Math.max(-5.5,Math.min(5.5,player.position.z));
+
+        // Keep player inside gallery walls
+        player.position.x = Math.max(-8.5, Math.min(8.5, player.position.x));
+        player.position.z = Math.max(-5.5, Math.min(5.5, player.position.z));
       }
-      if (source.handedness==='right') {
+
+      // Right thumbstick: snap turn 30 degrees
+      if (source.handedness === 'right') {
         const now = Date.now();
-        if (Math.abs(lx)>0.7 && now-lastSnap>400) {
-          player.rotation.y -= Math.sign(lx)*(Math.PI/6);
+        if (Math.abs(lx) > 0.7 && now - lastSnap > 400) {
+          player.rotation.y -= Math.sign(lx) * (Math.PI / 6);
           lastSnap = now;
         }
       }
     }
   }
-  renderer.render(scene,camera);
+
+  renderer.render(scene, camera);
 });
 
 // ── VR BUTTON ──────────────────────────────────────────────────────────────
 const vrBtn = document.getElementById('vr-button');
 let xrSession = null;
+
 async function onVRClick() {
-  if (xrSession) { xrSession.end(); return; }
+  if (xrSession) {
+    xrSession.end();
+    return;
+  }
+
   try {
-    const session = await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor']});
+    const session = await navigator.xr.requestSession('immersive-vr', {
+      optionalFeatures: ['local-floor', 'bounded-floor']
+    });
+
     xrSession = session;
-    session.addEventListener('end',()=>{ xrSession=null; vrBtn.textContent='Enter VR'; });
+    session.addEventListener('end', () => {
+      xrSession = null;
+      vrBtn.textContent = 'Enter VR';
+    });
+
     await renderer.xr.setSession(session);
     vrBtn.textContent = 'Exit VR';
-  } catch(e) { vrBtn.textContent = 'VR failed: '+e.message; }
+  } catch (e) {
+    vrBtn.textContent = 'VR failed: ' + e.message;
+  }
 }
+
 if (navigator.xr) {
   navigator.xr.isSessionSupported('immersive-vr').then(supported => {
-    if (supported) { vrBtn.disabled=false; vrBtn.textContent='Enter VR'; vrBtn.addEventListener('click',onVRClick); }
-    else { vrBtn.textContent='VR not supported on this browser'; }
+    if (supported) {
+      vrBtn.disabled = false;
+      vrBtn.textContent = 'Enter VR';
+      vrBtn.addEventListener('click', onVRClick);
+    } else {
+      vrBtn.textContent = 'VR not supported on this browser';
+    }
   });
-} else { vrBtn.textContent='WebXR not available'; }
+} else {
+  vrBtn.textContent = 'WebXR not available';
+}
 
-window.addEventListener('resize',()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
 </body>
