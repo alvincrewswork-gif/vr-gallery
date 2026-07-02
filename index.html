@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects</div>
+<div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/js/GLTFLoader.js"></script>
@@ -39,6 +39,8 @@
 // INSPECTION_THUMBSTICK_CONTROLS_V4 - while holding an object, thumbsticks manipulate the object instead of moving the player
 // OBJECT_FRONT_ROW_ROTATION_V5 - front-row object labels face the spawn point; front-row models rotate 180 degrees
 // SMOOTH_GRAB_RETURN_V6 - held object follows a smoothed target instead of being parented directly to the controller
+// SPAWN_FACING_EXHIBITS_V7 - real object labels and models calculate their facing direction toward the student's starting point or room center
+// SECOND_GALLERY_ROOM_V7 - adds a second room to the right through a large open doorway, with additional artwork and object displays
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -133,18 +135,19 @@ const SCULPTURES = [];
 
 
 
+
 const REAL_OBJECTS = [
   {
     key: 'lincoln-life-mask',
     title: 'Abraham Lincoln Life Mask',
     artist: 'Cast after Clark Mills',
     year: '1917 cast after 1865 original',
-    description: 'A real Smithsonian 3D scan of a plaster life mask of Abraham Lincoln. This version is scaled down for a more realistic pedestal display.',
+    description: 'A real Smithsonian 3D scan of a plaster life mask of Abraham Lincoln. Students can pick it up, resize it, and inspect portrait details.',
     model: 'assets/models/lincoln-life-mask.glb',
     position: { x: 0, z: 1.55 },
-    front: 'positiveZ',
+    faceSpawn: true,
     displayHeight: 0.52,
-    rotationY: Math.PI
+    rotationOffsetY: 0
   },
   {
     key: 'lincoln-hands',
@@ -154,9 +157,9 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln’s hands, offering a close look at portraiture through historical objects.',
     model: 'assets/models/lincoln-hands.glb',
     position: { x: -4.2, z: 1.85 },
-    front: 'positiveZ',
+    faceSpawn: true,
     displayHeight: 0.42,
-    rotationY: Math.PI
+    rotationOffsetY: 0
   },
   {
     key: 'theodore-roosevelt-relief',
@@ -166,9 +169,9 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of a bronze relief portrait of Theodore Roosevelt, showing how portraits can be made in shallow sculptural depth.',
     model: 'assets/models/theodore-roosevelt-relief.glb',
     position: { x: 4.2, z: 1.85 },
-    front: 'positiveZ',
+    faceSpawn: true,
     displayHeight: 0.82,
-    rotationY: Math.PI
+    rotationOffsetY: 0
   },
   {
     key: 'beaker-vase',
@@ -178,9 +181,9 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of a porcelain vase from the Qing dynasty, showing symmetry, craft, and decorative object design.',
     model: 'assets/models/beaker-vase.glb',
     position: { x: -4.2, z: -2.4 },
-    front: 'positiveZ',
+    facePoint: { x: 0, z: 4 },
     displayHeight: 0.74,
-    rotationY: 0
+    rotationOffsetY: 0
   },
   {
     key: 'apollo-command-module',
@@ -190,11 +193,49 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of the Apollo 11 command module interior, connecting museum objects with space exploration and engineering history.',
     model: 'assets/models/apollo-command-module.glb',
     position: { x: 4.2, z: -2.4 },
-    front: 'positiveZ',
+    facePoint: { x: 0, z: 4 },
     displayHeight: 0.92,
-    rotationY: 0
+    rotationOffsetY: 0
+  },
+  {
+    key: 'annex-lincoln-hands',
+    title: 'Lincoln Hands Study',
+    artist: 'Cast after Leonard Wells Volk',
+    year: '1917 cast after 1860 original',
+    description: 'A second hands-on inspection station for the Lincoln hand casts in the east gallery room.',
+    model: 'assets/models/lincoln-hands.glb',
+    position: { x: 15.0, z: 1.9 },
+    facePoint: { x: 19, z: 4 },
+    displayHeight: 0.44,
+    rotationOffsetY: 0
+  },
+  {
+    key: 'annex-beaker-vase',
+    title: 'Vase Study Station',
+    artist: 'Jingdezhen ware, China',
+    year: '1662-1722',
+    description: 'A second gallery station for examining the vase form and decoration from all sides.',
+    model: 'assets/models/beaker-vase.glb',
+    position: { x: 19.0, z: 1.9 },
+    facePoint: { x: 19, z: 4 },
+    displayHeight: 0.78,
+    rotationOffsetY: 0
+  },
+  {
+    key: 'annex-apollo-command-module',
+    title: 'Apollo 11 Study Station',
+    artist: 'North American Rockwell / NASA',
+    year: '1969',
+    description: 'A second gallery station for close inspection of the command module shape and engineering details.',
+    model: 'assets/models/apollo-command-module.glb',
+    position: { x: 23.0, z: 1.9 },
+    facePoint: { x: 19, z: 4 },
+    displayHeight: 0.92,
+    rotationOffsetY: 0
   }
 ];
+
+const SPAWN_POINT = new THREE.Vector3(0, 0, 4);
 
 
 const statusEl = document.getElementById('info');
@@ -208,7 +249,7 @@ function setStatus(message) {
 // ── SCENE ──────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1008);
-scene.fog = new THREE.Fog(0x1a1008, 10, 22);
+scene.fog = new THREE.Fog(0x1a1008, 12, 46);
 
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
 camera.position.set(0, 1.6, 6);
@@ -220,8 +261,8 @@ renderer.xr.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 scene.add(new THREE.AmbientLight(0xfff5e0, 0.5));
-[-6, -2, 2, 6].forEach(x => {
-  const pt = new THREE.PointLight(0xfff5cc, 1.0, 9);
+[-6, -2, 2, 6, 12, 16, 20, 24, 27].forEach(x => {
+  const pt = new THREE.PointLight(0xfff5cc, 0.95, 9);
   pt.position.set(x, 3.2, -1);
   scene.add(pt);
 });
@@ -231,26 +272,36 @@ const floorMat   = new THREE.MeshStandardMaterial({ color: 0x5c4a2a, roughness: 
 const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xede8d8 });
 const trimMat    = new THREE.MeshStandardMaterial({ color: 0xc8b890 });
 
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 14), floorMat);
+
+// Two-room gallery layout:
+// Room 1 spans x -10..10. Room 2 spans x 10..28.
+// The divider wall at x=10 has a wide open doorway from z=-3 to z=3.
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 14), floorMat);
 floor.rotation.x = -Math.PI / 2;
+floor.position.x = 9;
 scene.add(floor);
 
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(20, 14), ceilingMat);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(38, 14), ceilingMat);
 ceiling.rotation.x = Math.PI / 2;
-ceiling.position.y = 4;
+ceiling.position.set(9, 4, 0);
 scene.add(ceiling);
 
-[
-  [0, 2, -7, 0, 20],
-  [0, 2, 7, Math.PI, 20],
-  [-10, 2, 0, Math.PI / 2, 14],
-  [10, 2, 0, -Math.PI / 2, 14]
-].forEach(([x, y, z, ry, w]) => {
+function addWallPlane(x, y, z, ry, w) {
   const wall = new THREE.Mesh(new THREE.PlaneGeometry(w, 4), wallMat);
   wall.position.set(x, y, z);
   wall.rotation.y = ry;
   scene.add(wall);
-});
+}
+
+[
+  [9, 2, -7, 0, 38],
+  [9, 2, 7, Math.PI, 38],
+  [-10, 2, 0, Math.PI / 2, 14],
+  [28, 2, 0, -Math.PI / 2, 14],
+  // Divider wall segments; the missing middle section is the doorway to the second room.
+  [10, 2, -5, -Math.PI / 2, 4],
+  [10, 2, 5, -Math.PI / 2, 4]
+].forEach(([x, y, z, ry, w]) => addWallPlane(x, y, z, ry, w));
 
 function addTrim(x, y, z, w, h, ry) {
   const t = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.05), trimMat);
@@ -259,14 +310,36 @@ function addTrim(x, y, z, w, h, ry) {
   scene.add(t);
 }
 
-addTrim(0, 0.1, -6.97, 20, 0.2, 0);
-addTrim(0, 0.1, 6.97, 20, 0.2, Math.PI);
+function addDoorwayPost(x, z) {
+  const post = new THREE.Mesh(new THREE.BoxGeometry(0.16, 3.8, 0.16), trimMat);
+  post.position.set(x, 2.0, z);
+  scene.add(post);
+}
+
+function addDoorwayHeader() {
+  const header = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 6.15), trimMat);
+  header.position.set(10, 3.85, 0);
+  scene.add(header);
+}
+
+addTrim(9, 0.1, -6.97, 38, 0.2, 0);
+addTrim(9, 0.1, 6.97, 38, 0.2, Math.PI);
 addTrim(-9.97, 0.1, 0, 14, 0.2, Math.PI / 2);
-addTrim(9.97, 0.1, 0, 14, 0.2, -Math.PI / 2);
-addTrim(0, 3.9, -6.97, 20, 0.15, 0);
-addTrim(0, 3.9, 6.97, 20, 0.15, Math.PI);
+addTrim(27.97, 0.1, 0, 14, 0.2, -Math.PI / 2);
+addTrim(10.03, 0.1, -5, 4, 0.2, -Math.PI / 2);
+addTrim(10.03, 0.1, 5, 4, 0.2, -Math.PI / 2);
+
+addTrim(9, 3.9, -6.97, 38, 0.15, 0);
+addTrim(9, 3.9, 6.97, 38, 0.15, Math.PI);
 addTrim(-9.97, 3.9, 0, 14, 0.15, Math.PI / 2);
-addTrim(9.97, 3.9, 0, 14, 0.15, -Math.PI / 2);
+addTrim(27.97, 3.9, 0, 14, 0.15, -Math.PI / 2);
+addTrim(10.03, 3.9, -5, 4, 0.15, -Math.PI / 2);
+addTrim(10.03, 3.9, 5, 4, 0.15, -Math.PI / 2);
+
+addDoorwayPost(10, -3.05);
+addDoorwayPost(10, 3.05);
+addDoorwayHeader();
+
 
 const layout = [
   { x: -7,    y: 2.0, z: -6.9, ry: 0 },
@@ -276,7 +349,22 @@ const layout = [
   { x: 7,     y: 2.0, z: -6.9, ry: 0 },
   { x: -9.85, y: 2.0, z: -2,   ry: Math.PI / 2 },
   { x: -9.85, y: 2.0, z: 2,    ry: Math.PI / 2 },
-  { x: 9.85,  y: 2.0, z: 0,    ry: -Math.PI / 2 }
+  { x: 9.85,  y: 2.0, z: -5.1, ry: -Math.PI / 2 }
+];
+
+const annexLayout = [
+  { x: 13.0,  y: 2.0, z: -6.9, ry: 0 },
+  { x: 16.5,  y: 2.0, z: -6.9, ry: 0 },
+  { x: 20.0,  y: 2.0, z: -6.9, ry: 0 },
+  { x: 23.5,  y: 2.0, z: -6.9, ry: 0 },
+  { x: 26.4,  y: 2.0, z: -6.9, ry: 0 },
+  { x: 13.5,  y: 2.0, z: 6.9,  ry: Math.PI },
+  { x: 17.5,  y: 2.0, z: 6.9,  ry: Math.PI },
+  { x: 21.5,  y: 2.0, z: 6.9,  ry: Math.PI },
+  { x: 25.5,  y: 2.0, z: 6.9,  ry: Math.PI },
+  { x: 27.85, y: 2.0, z: -3.8, ry: -Math.PI / 2 },
+  { x: 27.85, y: 2.0, z: 0,    ry: -Math.PI / 2 },
+  { x: 27.85, y: 2.0, z: 3.8,  ry: -Math.PI / 2 }
 ];
 
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
@@ -733,24 +821,33 @@ function addRopeLine(z) {
 }
 
 
+
+function getExhibitFacingAngle(item) {
+  const target = item.facePoint ? new THREE.Vector3(item.facePoint.x, 0, item.facePoint.z) : SPAWN_POINT;
+  if (item.faceSpawn || item.facePoint) {
+    return Math.atan2(target.x - item.position.x, target.z - item.position.z);
+  }
+  return item.front === 'negativeZ' ? Math.PI : 0;
+}
+
 function addRealModelExhibit(item) {
   const group = new THREE.Group();
   group.position.set(item.position.x, 0, item.position.z);
 
   addPedestalBase(group);
 
+  const facingAngle = getExhibitFacingAngle(item);
+  const labelDistance = 0.72;
   const label = new THREE.Mesh(
     new THREE.PlaneGeometry(1.15, 0.38),
-    new THREE.MeshStandardMaterial({ map: makeSculpturePlaque(item), roughness: 0.8 })
+    new THREE.MeshStandardMaterial({
+      map: makeSculpturePlaque(item),
+      roughness: 0.8,
+      side: THREE.DoubleSide
+    })
   );
-
-  if (item.front === 'negativeZ') {
-    label.position.set(0, 0.58, -0.66);
-    label.rotation.y = Math.PI;
-  } else {
-    label.position.set(0, 0.58, 0.66);
-    label.rotation.y = 0;
-  }
+  label.position.set(Math.sin(facingAngle) * labelDistance, 0.58, Math.cos(facingAngle) * labelDistance);
+  label.rotation.y = facingAngle;
   group.add(label);
 
   const loadingMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.75, transparent: true, opacity: 0.38 });
@@ -759,7 +856,7 @@ function addRealModelExhibit(item) {
   group.add(loadingMarker);
 
   const spot = new THREE.SpotLight(0xfff8e0, 2.3, 6, Math.PI / 7, 0.25);
-  spot.position.set(0, 3.15, item.front === 'negativeZ' ? -0.65 : 0.65);
+  spot.position.set(Math.sin(facingAngle) * 0.65, 3.15, Math.cos(facingAngle) * 0.65);
   spot.target.position.set(0, 1.45, 0);
   group.add(spot);
   group.add(spot.target);
@@ -808,7 +905,7 @@ function addRealModelExhibit(item) {
 
       const modelHolder = new THREE.Group();
       modelHolder.position.y = 1.02;
-      modelHolder.rotation.y = item.rotationY || 0;
+      modelHolder.rotation.y = facingAngle + (item.rotationOffsetY || 0);
 
       model.scale.setScalar(scale);
       model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
@@ -860,6 +957,14 @@ function addGalleryDecor() {
   centerRug.rotation.x = -Math.PI / 2;
   centerRug.position.set(0, 0.006, -0.85);
   scene.add(centerRug);
+
+  const annexRug = new THREE.Mesh(
+    new THREE.PlaneGeometry(7.6, 2.6),
+    new THREE.MeshStandardMaterial({ color: 0x2e1d12, roughness: 0.9 })
+  );
+  annexRug.rotation.x = -Math.PI / 2;
+  annexRug.position.set(19, 0.006, -0.7);
+  scene.add(annexRug);
 }
 
 let currentNarration = null;
@@ -1015,8 +1120,9 @@ function buildFrame(p, pos) {
 }
 
 function loadGallery() {
-  for (let i = 0; i < PAINTINGS.length && i < layout.length; i++) {
-    buildFrame(PAINTINGS[i], layout[i]);
+  const allLayouts = layout.concat(annexLayout);
+  for (let i = 0; i < allLayouts.length; i++) {
+    buildFrame(PAINTINGS[i % PAINTINGS.length], allLayouts[i]);
   }
 }
 
@@ -1140,7 +1246,7 @@ function restoreGrabbedObject() {
 
   setStatus('Returned: ' + grabbed.item.title);
   setTimeout(() => {
-    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
+    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2');
   }, 1200);
 }
 
@@ -1262,7 +1368,7 @@ function getRightController() {
 }
 
 function clampToGalleryBounds(position) {
-  position.x = Math.max(-8.5, Math.min(8.5, position.x));
+  position.x = Math.max(-8.5, Math.min(26.5, position.x));
   position.z = Math.max(-5.5, Math.min(5.5, position.z));
   return position;
 }
@@ -1282,7 +1388,7 @@ function updateTeleportTarget() {
   if (!hits.length) return;
 
   const hit = hits[0].point;
-  const x = Math.max(-8.5, Math.min(8.5, hit.x));
+  const x = Math.max(-8.5, Math.min(26.5, hit.x));
   const z = Math.max(-5.5, Math.min(5.5, hit.z));
 
   teleportTarget.set(x, 0, z);
@@ -1301,7 +1407,7 @@ function doTeleport() {
   setStatus('Teleported. Left stick: walk | Right stick: turn | A: teleport');
 
   setTimeout(() => {
-    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
+    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2');
   }, 1200);
 }
 
