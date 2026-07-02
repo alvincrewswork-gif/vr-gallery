@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport</div>
+<div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/js/GLTFLoader.js"></script>
@@ -35,6 +35,7 @@
 // REAL_GLB_OBJECTS_V1 - loads a real public-domain Smithsonian GLB object from assets/models
 // SCHOOL_SAFE_OBJECTS_V1 - removes sensitive figure artwork and uses school-safe objects
 // REAL_OBJECTS_EXPANSION_V2 - halves Lincoln head size and replaces placeholder studies with real school-safe GLB objects
+// GRABBABLE_REAL_OBJECTS_V3 - removes benches; grip real objects to inspect, thumbstick scales while held, release returns object to original display
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -280,6 +281,8 @@ const loader = new THREE.TextureLoader();
 const gltfLoader = new THREE.GLTFLoader();
 const audioButtons = [];
 const controllers = [];
+const grabbableObjects = [];
+let activeGrab = null;
 
 const teleportRingGeo = new THREE.RingGeometry(0.18, 0.26, 48);
 const teleportRingMat = new THREE.MeshBasicMaterial({
@@ -808,9 +811,26 @@ function addRealModelExhibit(item) {
       model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
 
       modelHolder.add(model);
+
+      const displaySize = size.clone().multiplyScalar(scale);
+      const grabWidth = Math.max(displaySize.x, 0.45);
+      const grabHeight = Math.max(item.displayHeight, 0.35);
+      const grabDepth = Math.max(displaySize.z, 0.45);
+      const grabHitBox = new THREE.Mesh(
+        new THREE.BoxGeometry(grabWidth, grabHeight, grabDepth),
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, depthWrite: false })
+      );
+      grabHitBox.position.set(0, grabHeight / 2, 0);
+      grabHitBox.userData.type = 'grabbableObject';
+      grabHitBox.userData.grabTarget = modelHolder;
+      grabHitBox.userData.item = item;
+      modelHolder.userData.item = item;
+      modelHolder.add(grabHitBox);
+      grabbableObjects.push(grabHitBox);
+
       group.add(modelHolder);
 
-      setStatus('Real objects loaded. Left stick: walk | Right stick: turn | A: teleport');
+      setStatus('Real objects loaded. Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
     },
     undefined,
     (error) => {
@@ -827,9 +847,7 @@ function addGalleryDecor() {
   SCULPTURES.forEach(addSculptureExhibit);
   REAL_OBJECTS.forEach(addRealModelExhibit);
 
-  addBench(0, 4.1, 0);
-  addBench(0, -4.35, Math.PI);
-
+  // Benches removed in GRABBABLE_REAL_OBJECTS_V3 to keep the gallery floor open for teleporting and inspection.
   addRopeLine(0.15);
 
   const centerRug = new THREE.Mesh(
@@ -1031,12 +1049,16 @@ scene.add(player);
   ray.scale.z = 3;
   ctrl.add(ray);
   ctrl.addEventListener('selectstart', onControllerSelect);
+  ctrl.addEventListener('squeezestart', onGrabStart);
+  ctrl.addEventListener('squeezeend', onGrabEnd);
   player.add(ctrl);
   controllers.push(ctrl);
 });
 
 const interactionRaycaster = new THREE.Raycaster();
 const interactionMatrix = new THREE.Matrix4();
+const grabRaycaster = new THREE.Raycaster();
+const grabMatrix = new THREE.Matrix4();
 
 function onControllerSelect(event) {
   const controller = event.target;
@@ -1051,6 +1073,95 @@ function onControllerSelect(event) {
     const painting = hitMesh.userData.painting;
     flashAudioButton(buttonMesh);
     playNarration(painting);
+  }
+}
+
+function onGrabStart(event) {
+  if (activeGrab) return;
+
+  const controller = event.target;
+  grabMatrix.identity().extractRotation(controller.matrixWorld);
+  grabRaycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+  grabRaycaster.ray.direction.set(0, 0, -1).applyMatrix4(grabMatrix);
+
+  const hits = grabRaycaster.intersectObjects(grabbableObjects, false);
+  if (!hits.length) {
+    setStatus('Grip: aim the controller ray at a 3D object to inspect it.');
+    return;
+  }
+
+  const hitMesh = hits[0].object;
+  const holder = hitMesh.userData.grabTarget;
+  const item = hitMesh.userData.item || (holder && holder.userData.item) || { title: 'Object' };
+  if (!holder || !holder.parent) return;
+
+  activeGrab = {
+    controller,
+    holder,
+    item,
+    originalParent: holder.parent,
+    originalPosition: holder.position.clone(),
+    originalQuaternion: holder.quaternion.clone(),
+    originalScale: holder.scale.clone(),
+    scaleMultiplier: 1.0
+  };
+
+  controller.attach(holder);
+  holder.position.set(0, -0.08, -0.55);
+  holder.rotation.set(0, 0, 0);
+  holder.scale.copy(activeGrab.originalScale);
+
+  setStatus('Inspecting: ' + item.title + ' | Thumbstick up/down scales | Release grip to return');
+}
+
+function restoreGrabbedObject() {
+  if (!activeGrab) return;
+
+  const grabbed = activeGrab;
+  grabbed.originalParent.add(grabbed.holder);
+  grabbed.holder.position.copy(grabbed.originalPosition);
+  grabbed.holder.quaternion.copy(grabbed.originalQuaternion);
+  grabbed.holder.scale.copy(grabbed.originalScale);
+  activeGrab = null;
+
+  setStatus('Returned: ' + grabbed.item.title);
+  setTimeout(() => {
+    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
+  }, 1200);
+}
+
+function onGrabEnd(event) {
+  if (activeGrab && activeGrab.controller === event.target) {
+    restoreGrabbedObject();
+  }
+}
+
+function updateActiveGrabScale() {
+  if (!activeGrab) return;
+
+  let gamepad = activeGrab.controller.userData.gamepad;
+  if (!gamepad) {
+    const session = renderer.xr.getSession();
+    if (session) {
+      for (const source of session.inputSources) {
+        if (source.handedness === activeGrab.controller.userData.handedness && source.gamepad) {
+          gamepad = source.gamepad;
+          break;
+        }
+      }
+    }
+  }
+  if (!gamepad) return;
+
+  const axes = gamepad.axes || [];
+  const yAxis = axes[3] !== undefined ? axes[3] : (axes[1] || 0);
+  const dead = 0.18;
+
+  if (Math.abs(yAxis) > dead) {
+    activeGrab.scaleMultiplier += (-yAxis) * 0.025;
+    activeGrab.scaleMultiplier = Math.max(0.45, Math.min(2.25, activeGrab.scaleMultiplier));
+    activeGrab.holder.scale.copy(activeGrab.originalScale).multiplyScalar(activeGrab.scaleMultiplier);
+    setStatus('Inspecting: ' + activeGrab.item.title + ' | Scale ' + Math.round(activeGrab.scaleMultiplier * 100) + '% | Release grip to return');
   }
 }
 
@@ -1098,7 +1209,7 @@ function doTeleport() {
   setStatus('Teleported. Left stick: walk | Right stick: turn | A: teleport');
 
   setTimeout(() => {
-    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport');
+    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
   }, 1200);
 }
 
@@ -1211,24 +1322,35 @@ renderer.setAnimationLoop(() => {
       }
     }
 
-    updateTeleportTarget();
+    updateActiveGrabScale();
 
-    let rightSource = null;
-    for (const source of session.inputSources) {
-      if (source.handedness === 'right' && source.gamepad) {
-        rightSource = source;
-        break;
+    if (activeGrab) {
+      // While inspecting an object, hide teleport to avoid accidental movement.
+      teleportTargetValid = false;
+      teleportRing.visible = false;
+      hideDebugPanel();
+      lastTeleportButtonPressed = false;
+    } else {
+      updateTeleportTarget();
+
+      let rightSource = null;
+      for (const source of session.inputSources) {
+        if (source.handedness === 'right' && source.gamepad) {
+          rightSource = source;
+          break;
+        }
       }
-    }
 
-    const buttonState = updateTeleportButtonLearning(rightSource);
-    updateTeleportHud(rightSource, buttonState);
+      const buttonState = updateTeleportButtonLearning(rightSource);
+      updateTeleportHud(rightSource, buttonState);
 
-    if (buttonState.teleportPressed && !lastTeleportButtonPressed) {
-      doTeleport();
+      if (buttonState.teleportPressed && !lastTeleportButtonPressed) {
+        doTeleport();
+      }
+      lastTeleportButtonPressed = buttonState.teleportPressed;
     }
-    lastTeleportButtonPressed = buttonState.teleportPressed;
   } else {
+    if (activeGrab) restoreGrabbedObject();
     teleportTargetValid = false;
     teleportRing.visible = false;
     hideDebugPanel();
@@ -1256,6 +1378,7 @@ async function onVRClick() {
 
     xrSession = session;
     session.addEventListener('end', () => {
+      if (activeGrab) restoreGrabbedObject();
       xrSession = null;
       vrBtn.textContent = 'Enter VR';
     });
