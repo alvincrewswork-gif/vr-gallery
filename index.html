@@ -31,8 +31,9 @@
 // AUDIO_QUALITY_CLEANUP_V1 - reduces narration volume to avoid distortion
 // TELEPORT_A_BUTTON_V1 - original A button teleport attempt
 // TELEPORT_BUTTON_LEARN_V2 - learns the right-controller A button index instead of assuming buttons[4]
-// GALLERY_DECOR_SCULPTURES_V1 - adds benches, pedestals, and procedural famous-sculpture studies
-// REAL_GLB_OBJECTS_V1 - loads a real public-domain Smithsonian GLB sculpture from assets/models
+// GALLERY_DECOR_SCULPTURES_V1 - adds benches, pedestals, and procedural gallery object studies
+// REAL_GLB_OBJECTS_V1 - loads a real public-domain Smithsonian GLB object from assets/models
+// SCHOOL_SAFE_OBJECTS_V1 - removes sensitive figure artwork and uses school-safe objects
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -41,7 +42,7 @@
 // assets/paintings/bedroom.jpg
 // assets/paintings/american-gothic.jpg
 // assets/paintings/stacks-of-wheat.jpg
-// assets/paintings/childs-bath.jpg
+// assets/paintings/paris-street.jpg
 // assets/paintings/two-sisters.jpg
 // assets/paintings/great-wave.jpg
 
@@ -92,13 +93,13 @@ const PAINTINGS = [
     audio: "assets/audio/stacks-of-wheat.wav"
   },
   {
-    title: "The Child's Bath",
-    artist: "Mary Cassatt",
-    year: "1893",
-    description: "Cassatt was the only American artist linked to the French Impressionists. This intimate domestic scene shows her mastery of light and focus on women's daily lives.",
-    aspect: 0.78,
-    image: "assets/paintings/childs-bath.jpg",
-    audio: "assets/audio/childs-bath.wav"
+    title: "Paris Street; Rainy Day",
+    artist: "Gustave Caillebotte",
+    year: "1877",
+    description: "A monumental city scene of people walking under umbrellas through a newly modernized Paris. Its careful perspective and rain-soaked atmosphere make the street feel life-size.",
+    aspect: 1.30,
+    image: "assets/paintings/paris-street.jpg",
+    audio: "assets/audio/paris-street.wav"
   },
   {
     title: "Two Sisters (On the Terrace)",
@@ -123,42 +124,42 @@ const PAINTINGS = [
 
 const SCULPTURES = [
   {
-    key: 'venus',
-    title: 'Venus de Milo',
-    artist: 'Ancient Greek, Hellenistic period',
-    year: 'c. 2nd century BCE',
-    description: 'A marble figure associated with Aphrodite, famous for its missing arms and graceful pose. This is a simplified study shape, not a scanned model.',
-    material: 'marble',
+    key: 'ancient-vase',
+    title: 'Ancient Storage Jar Study',
+    artist: 'Classical ceramic form',
+    year: 'gallery study object',
+    description: 'A school-safe vessel study showing how ancient jars used shape, balance, and repeated curves for practical storage and visual design.',
+    material: 'terracotta',
     position: { x: -4.2, z: 1.85 },
     front: 'negativeZ'
   },
   {
-    key: 'thinker',
-    title: 'The Thinker',
-    artist: 'Auguste Rodin',
-    year: 'conceived 1880',
-    description: 'Originally connected to The Gates of Hell, the seated figure suggests intense thought and creative struggle. This is a simplified bronze-style study.',
+    key: 'celestial-globe',
+    title: 'Celestial Globe Study',
+    artist: 'Scientific instrument form',
+    year: 'gallery study object',
+    description: 'A globe-and-ring display inspired by astronomy instruments. It represents observation, navigation, and the study of the night sky.',
     material: 'bronze',
     position: { x: 4.2, z: 1.85 },
     front: 'negativeZ'
   },
   {
-    key: 'david',
-    title: 'David',
-    artist: 'Michelangelo',
-    year: '1501-1504',
-    description: 'A Renaissance marble hero shown before action, admired for balance, anatomy, and calm focus. This is a simplified marble-style study.',
+    key: 'architectural-column',
+    title: 'Classical Column Study',
+    artist: 'Architectural fragment form',
+    year: 'gallery study object',
+    description: 'A column fragment showing base, shaft, and capital. Museums often display architectural pieces to teach proportion, structure, and ornament.',
     material: 'marble',
     position: { x: -4.2, z: -2.4 },
     front: 'positiveZ'
   },
   {
-    key: 'victory',
-    title: 'Winged Victory',
-    artist: 'Ancient Greek, Hellenistic period',
-    year: 'c. 190 BCE',
-    description: 'Nike, goddess of Victory, appears to land with wind-swept energy. This simplified study uses wings and a ship-like base to suggest motion.',
-    material: 'marble',
+    key: 'abstract-horse',
+    title: 'Bronze Horse Study',
+    artist: 'Animal sculpture form',
+    year: 'gallery study object',
+    description: 'A simplified horse form that focuses on motion, balance, and silhouette. It adds sculpture variety without using human figure artwork.',
+    material: 'bronze',
     position: { x: 4.2, z: -2.4 },
     front: 'positiveZ'
   }
@@ -167,15 +168,15 @@ const SCULPTURES = [
 
 const REAL_OBJECTS = [
   {
-    key: 'greek-slave',
-    title: 'Model of the Greek Slave',
-    artist: 'Hiram Powers',
-    year: '1843',
-    description: 'A real Smithsonian 3D scan of Powers\' plaster model. The original figure became one of the most famous sculptures of the nineteenth century.',
-    model: 'assets/models/greek-slave.glb',
+    key: 'lincoln-life-mask',
+    title: 'Abraham Lincoln Life Mask',
+    artist: 'Cast after Clark Mills',
+    year: '1917 cast after 1865 original',
+    description: 'A real Smithsonian 3D scan of a plaster life mask of Abraham Lincoln. This portrait object is school-safe and public domain.',
+    model: 'assets/models/lincoln-life-mask.glb',
     position: { x: 0, z: 1.55 },
     front: 'negativeZ',
-    displayHeight: 1.32,
+    displayHeight: 1.05,
     rotationY: Math.PI
   }
 ];
@@ -496,138 +497,145 @@ function addCylinderBetween(group, start, end, radius, material) {
   return cylinder;
 }
 
-function createVenusStudy(material) {
+function createVaseStudy(material) {
   const g = new THREE.Group();
-  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.32, 0.74, 32), material);
-  torso.position.y = 1.48;
-  g.add(torso);
+  const clayMat = new THREE.MeshStandardMaterial({ color: 0xb7743d, roughness: 0.7, metalness: 0.0 });
 
-  const shoulders = new THREE.Mesh(new THREE.SphereGeometry(0.32, 32, 16), material);
-  shoulders.scale.set(1.1, 0.42, 0.45);
-  shoulders.position.y = 1.88;
-  g.add(shoulders);
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.30, 0.12, 40), clayMat);
+  base.position.y = 1.08;
+  g.add(base);
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 32, 16), material);
-  head.position.y = 2.18;
-  g.add(head);
-
-  const drape = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.46, 0.42, 32), material);
-  drape.scale.set(1.0, 0.75, 0.7);
-  drape.position.y = 1.04;
-  drape.rotation.z = -0.12;
-  g.add(drape);
-
-  addCylinderBetween(g, new THREE.Vector3(-0.17, 0.98, 0), new THREE.Vector3(-0.22, 0.42, 0.04), 0.07, material);
-  addCylinderBetween(g, new THREE.Vector3(0.17, 0.98, 0), new THREE.Vector3(0.24, 0.42, -0.03), 0.07, material);
-  g.rotation.y = 0.28;
-  return g;
-}
-
-function createThinkerStudy(material) {
-  const g = new THREE.Group();
-  const rock = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.22, 0.7), darkBronzeMat);
-  rock.position.y = 1.08;
-  g.add(rock);
-
-  const body = new THREE.Mesh(new THREE.SphereGeometry(0.24, 32, 16), material);
-  body.scale.set(0.85, 1.15, 0.62);
-  body.position.set(0, 1.48, 0.02);
-  body.rotation.x = 0.35;
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.38, 40, 20), clayMat);
+  body.scale.set(0.82, 1.08, 0.82);
+  body.position.y = 1.46;
   g.add(body);
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 16), material);
-  head.position.set(0.13, 1.82, -0.12);
-  g.add(head);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.22, 0.42, 40), clayMat);
+  neck.position.y = 1.92;
+  g.add(neck);
 
-  addCylinderBetween(g, new THREE.Vector3(-0.22, 1.33, -0.12), new THREE.Vector3(-0.42, 1.12, -0.22), 0.055, material);
-  addCylinderBetween(g, new THREE.Vector3(0.22, 1.33, -0.12), new THREE.Vector3(0.42, 1.12, -0.22), 0.055, material);
-  addCylinderBetween(g, new THREE.Vector3(0.08, 1.65, -0.05), new THREE.Vector3(0.22, 1.75, -0.16), 0.045, material);
-  addCylinderBetween(g, new THREE.Vector3(0.22, 1.75, -0.16), new THREE.Vector3(0.13, 1.82, -0.12), 0.04, material);
-  addCylinderBetween(g, new THREE.Vector3(-0.18, 1.45, -0.02), new THREE.Vector3(-0.32, 1.22, -0.15), 0.045, material);
-  g.rotation.y = -0.2;
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.035, 12, 48), clayMat);
+  lip.position.y = 2.15;
+  lip.rotation.x = Math.PI / 2;
+  g.add(lip);
+
+  addCylinderBetween(g, new THREE.Vector3(-0.28, 1.75, 0), new THREE.Vector3(-0.43, 1.46, 0), 0.035, clayMat);
+  addCylinderBetween(g, new THREE.Vector3(0.28, 1.75, 0), new THREE.Vector3(0.43, 1.46, 0), 0.035, clayMat);
+
+  const stripeMat = new THREE.MeshStandardMaterial({ color: 0x5a2f15, roughness: 0.75 });
+  [1.34, 1.52, 1.70].forEach(y => {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.012, 8, 64), stripeMat);
+    ring.position.y = y;
+    ring.rotation.x = Math.PI / 2;
+    g.add(ring);
+  });
+
   return g;
 }
 
-function createDavidStudy(material) {
+function createGlobeStudy(material) {
   const g = new THREE.Group();
-  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.7, 28), material);
-  torso.position.y = 1.54;
-  g.add(torso);
+  const globe = new THREE.Mesh(new THREE.SphereGeometry(0.34, 40, 20), bronzeMat);
+  globe.position.y = 1.62;
+  g.add(globe);
 
-  const chest = new THREE.Mesh(new THREE.SphereGeometry(0.26, 32, 16), material);
-  chest.scale.set(0.9, 0.62, 0.55);
-  chest.position.y = 1.84;
-  g.add(chest);
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0xd2a04a, roughness: 0.35, metalness: 0.55 });
+  const equator = new THREE.Mesh(new THREE.TorusGeometry(0.39, 0.014, 8, 80), ringMat);
+  equator.position.y = 1.62;
+  equator.rotation.x = Math.PI / 2;
+  g.add(equator);
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 16), material);
-  head.position.y = 2.16;
-  g.add(head);
+  const meridian = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.012, 8, 80), ringMat);
+  meridian.position.y = 1.62;
+  meridian.rotation.z = Math.PI / 2;
+  g.add(meridian);
 
-  addCylinderBetween(g, new THREE.Vector3(-0.16, 1.18, 0), new THREE.Vector3(-0.22, 0.55, 0.03), 0.06, material);
-  addCylinderBetween(g, new THREE.Vector3(0.17, 1.18, 0), new THREE.Vector3(0.24, 0.55, -0.02), 0.06, material);
-  addCylinderBetween(g, new THREE.Vector3(-0.26, 1.78, 0), new THREE.Vector3(-0.42, 1.35, 0.04), 0.045, material);
-  addCylinderBetween(g, new THREE.Vector3(0.26, 1.78, 0), new THREE.Vector3(0.42, 1.42, -0.03), 0.045, material);
+  const axis = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 1.05, 12), ringMat);
+  axis.position.y = 1.62;
+  axis.rotation.z = 0.38;
+  g.add(axis);
 
-  const sling = new THREE.Mesh(new THREE.TorusGeometry(0.23, 0.012, 8, 48), material);
-  sling.scale.set(1, 0.28, 0.15);
-  sling.position.set(-0.1, 1.96, 0.03);
-  sling.rotation.z = 0.7;
-  g.add(sling);
-
-  g.rotation.y = 0.18;
+  const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 0.38, 24), darkBronzeMat);
+  stand.position.y = 1.17;
+  g.add(stand);
   return g;
 }
 
-function createVictoryStudy(material) {
+function createColumnStudy(material) {
   const g = new THREE.Group();
-  const shipBase = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.22, 0.42), darkBronzeMat);
-  shipBase.position.y = 1.08;
-  shipBase.rotation.y = 0.12;
-  g.add(shipBase);
+  const columnMat = marbleMat;
 
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 0.78, 32), material);
-  body.position.y = 1.58;
-  body.rotation.z = -0.08;
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.25, 1.1, 40), columnMat);
+  shaft.position.y = 1.55;
+  g.add(shaft);
+
+  const base1 = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.11, 40), columnMat);
+  base1.position.y = 0.99;
+  g.add(base1);
+
+  const base2 = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.12, 0.72), columnMat);
+  base2.position.y = 0.90;
+  g.add(base2);
+
+  const capital = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.16, 0.7), columnMat);
+  capital.position.y = 2.14;
+  g.add(capital);
+
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.30, 0.12, 40), columnMat);
+  top.position.y = 2.03;
+  g.add(top);
+
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2;
+    const flute = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.86, 0.02), new THREE.MeshStandardMaterial({ color: 0xdad6cc, roughness: 0.65 }));
+    flute.position.set(Math.cos(angle) * 0.235, 1.55, Math.sin(angle) * 0.235);
+    flute.lookAt(0, 1.55, 0);
+    g.add(flute);
+  }
+
+  return g;
+}
+
+function createHorseStudy(material) {
+  const g = new THREE.Group();
+  const horseMat = bronzeMat;
+
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.32, 32, 16), horseMat);
+  body.scale.set(1.15, 0.55, 0.42);
+  body.position.y = 1.48;
   g.add(body);
 
-  const chest = new THREE.Mesh(new THREE.SphereGeometry(0.24, 32, 16), material);
-  chest.scale.set(0.8, 0.95, 0.58);
-  chest.position.y = 1.92;
-  g.add(chest);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.46, 18), horseMat);
+  neck.position.set(0.34, 1.72, 0);
+  neck.rotation.z = -0.45;
+  g.add(neck);
 
-  const wingShape = new THREE.Shape();
-  wingShape.moveTo(0, 0);
-  wingShape.lineTo(0.58, 0.24);
-  wingShape.lineTo(0.2, 0.82);
-  wingShape.lineTo(-0.08, 0.1);
-  wingShape.lineTo(0, 0);
-  const wingGeo = new THREE.ShapeGeometry(wingShape);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.18, 0.18), horseMat);
+  head.position.set(0.55, 1.88, 0);
+  head.rotation.z = -0.18;
+  g.add(head);
 
-  const leftWing = new THREE.Mesh(wingGeo, material);
-  leftWing.position.set(-0.12, 1.72, -0.08);
-  leftWing.rotation.y = Math.PI * 0.85;
-  leftWing.rotation.z = 0.28;
-  g.add(leftWing);
+  addCylinderBetween(g, new THREE.Vector3(-0.28, 1.30, 0.16), new THREE.Vector3(-0.34, 1.02, 0.17), 0.035, horseMat);
+  addCylinderBetween(g, new THREE.Vector3(0.20, 1.30, 0.16), new THREE.Vector3(0.26, 1.02, 0.17), 0.035, horseMat);
+  addCylinderBetween(g, new THREE.Vector3(-0.28, 1.30, -0.16), new THREE.Vector3(-0.36, 1.02, -0.17), 0.035, horseMat);
+  addCylinderBetween(g, new THREE.Vector3(0.20, 1.30, -0.16), new THREE.Vector3(0.30, 1.02, -0.17), 0.035, horseMat);
 
-  const rightWing = new THREE.Mesh(wingGeo, material);
-  rightWing.position.set(0.12, 1.72, -0.08);
-  rightWing.rotation.y = -0.12;
-  rightWing.rotation.z = 0.28;
-  g.add(rightWing);
+  const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.045, 0.38, 12), horseMat);
+  tail.position.set(-0.48, 1.56, 0);
+  tail.rotation.z = 0.82;
+  g.add(tail);
 
-  addCylinderBetween(g, new THREE.Vector3(-0.13, 1.18, 0), new THREE.Vector3(-0.24, 0.65, 0.02), 0.055, material);
-  addCylinderBetween(g, new THREE.Vector3(0.12, 1.18, 0), new THREE.Vector3(0.25, 0.65, -0.02), 0.055, material);
-  g.rotation.y = -0.18;
+  g.rotation.y = -0.35;
   return g;
 }
 
 function createSculptureStudy(item) {
   const material = item.material === 'bronze' ? bronzeMat : marbleMat;
-  if (item.key === 'venus') return createVenusStudy(material);
-  if (item.key === 'thinker') return createThinkerStudy(material);
-  if (item.key === 'david') return createDavidStudy(material);
-  if (item.key === 'victory') return createVictoryStudy(material);
-  return new THREE.Mesh(new THREE.SphereGeometry(0.35, 32, 16), material);
+  if (item.key === 'ancient-vase') return createVaseStudy(material);
+  if (item.key === 'celestial-globe') return createGlobeStudy(material);
+  if (item.key === 'architectural-column') return createColumnStudy(material);
+  if (item.key === 'abstract-horse') return createHorseStudy(material);
+  return new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), material);
 }
 
 function addSculptureExhibit(item) {
@@ -790,7 +798,7 @@ function addRealModelExhibit(item) {
       modelHolder.add(model);
       group.add(modelHolder);
 
-      setStatus('Real sculpture loaded. Left stick: walk | Right stick: turn | A: teleport');
+      setStatus('Real object loaded. Left stick: walk | Right stick: turn | A: teleport');
     },
     undefined,
     (error) => {
@@ -798,7 +806,7 @@ function addRealModelExhibit(item) {
       loadingMarker.material.opacity = 0.7;
       loadingMarker.material.needsUpdate = true;
       console.warn('Real GLB model failed to load:', item.model, error);
-      setStatus('Real model failed to load. Check assets/models/greek-slave.glb');
+      setStatus('Real model failed to load. Check assets/models/lincoln-life-mask.glb');
     }
   );
 }
