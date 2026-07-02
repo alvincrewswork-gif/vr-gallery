@@ -25,6 +25,7 @@
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+// PLAQUE_READABILITY_AUDIO_V1
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -180,38 +181,45 @@ const layout = [
 
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
+const audioButtons = [];
 
 function makeLabel(p) {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 128;
+  canvas.width = 1024;
+  canvas.height = 256;
 
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#1a1008';
-  ctx.fillRect(0, 0, 512, 128);
+  ctx.fillStyle = '#f8f1dc';
+  ctx.fillRect(0, 0, 1024, 256);
+  ctx.strokeStyle = '#8b6914';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(3, 3, 1018, 250);
 
-  ctx.fillStyle = '#e0c080';
-  ctx.font = 'bold 20px Georgia,serif';
-  ctx.fillText(p.title, 16, 28);
+  ctx.fillStyle = '#111111';
+  ctx.font = 'bold 40px Georgia,serif';
+  ctx.fillText(p.title, 28, 54);
 
-  ctx.fillStyle = '#c8a060';
-  ctx.font = '16px Georgia,serif';
-  ctx.fillText(p.artist + '  ·  ' + p.year, 16, 52);
+  ctx.fillStyle = '#3b2a10';
+  ctx.font = '30px Georgia,serif';
+  ctx.fillText(p.artist + '  ·  ' + p.year, 28, 94);
 
-  ctx.fillStyle = '#a08858';
-  ctx.font = '13px Arial,sans-serif';
+  ctx.fillStyle = '#222222';
+  ctx.font = '24px Arial,sans-serif';
+
   const words = p.description.split(' ');
   let line = '';
-  let y = 74;
+  let y = 134;
+  const maxWidth = 960;
+  const lineHeight = 30;
 
   for (const word of words) {
     const test = line + word + ' ';
-    if (ctx.measureText(test).width > 490 && line !== '') {
-      ctx.fillText(line.trim(), 16, y);
+    if (ctx.measureText(test).width > maxWidth && line !== '') {
+      ctx.fillText(line.trim(), 28, y);
       line = word + ' ';
-      y += 17;
-      if (y > 118) {
-        ctx.fillText('...', 16, y);
+      y += lineHeight;
+      if (y > 228) {
+        ctx.fillText('...', 28, y);
         break;
       }
     } else {
@@ -219,11 +227,62 @@ function makeLabel(p) {
     }
   }
 
-  if (y <= 118) ctx.fillText(line.trim(), 16, y);
+  if (y <= 228) ctx.fillText(line.trim(), 28, y);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.encoding = THREE.sRGBEncoding;
   return texture;
+}
+
+function makeAudioButtonTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 160;
+
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#0c447c';
+  ctx.fillRect(0, 0, 512, 160);
+  ctx.strokeStyle = '#e0c080';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(5, 5, 502, 150);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 58px Arial,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('▶ AUDIO', 256, 82);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.encoding = THREE.sRGBEncoding;
+  return texture;
+}
+
+function playNarration(p) {
+  if (!('speechSynthesis' in window)) {
+    console.warn('speechSynthesis is not available in this browser');
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const text = `${p.title}. ${p.artist}, ${p.year}. ${p.description}`;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.9;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function flashAudioButton(buttonMesh) {
+  if (!buttonMesh || !buttonMesh.material) return;
+  buttonMesh.material.color.set(0x2ecc71);
+  buttonMesh.material.needsUpdate = true;
+
+  setTimeout(() => {
+    buttonMesh.material.color.set(0xffffff);
+    buttonMesh.material.needsUpdate = true;
+  }, 300);
 }
 
 function buildFrame(p, pos) {
@@ -280,11 +339,22 @@ function buildFrame(p, pos) {
 
   // Label plate under the painting
   const labelMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.6, 0.4),
+    new THREE.PlaneGeometry(1.9, 0.5),
     new THREE.MeshStandardMaterial({ map: makeLabel(p), roughness: 0.9 })
   );
-  labelMesh.position.set(0, -(ph / 2 + 0.28), fd / 2 + 0.002);
+  labelMesh.position.set(0, -(ph / 2 + 0.34), fd / 2 + 0.002);
   group.add(labelMesh);
+
+  // Audio button below the plaque
+  const audioButtonMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.75, 0.22),
+    new THREE.MeshStandardMaterial({ map: makeAudioButtonTexture(), color: 0xffffff, roughness: 0.8 })
+  );
+  audioButtonMesh.position.set(0, -(ph / 2 + 0.72), fd / 2 + 0.003);
+  audioButtonMesh.userData.type = 'audioButton';
+  audioButtonMesh.userData.painting = p;
+  audioButtons.push(audioButtonMesh);
+  group.add(audioButtonMesh);
 
   // Small spotlight for each painting
   const spot = new THREE.SpotLight(0xfff8e0, 2.5, 5, Math.PI / 8, 0.3);
@@ -321,8 +391,27 @@ scene.add(player);
   );
   ray.scale.z = 3;
   ctrl.add(ray);
+  ctrl.addEventListener('selectstart', onControllerSelect);
   player.add(ctrl);
 });
+
+const interactionRaycaster = new THREE.Raycaster();
+const interactionMatrix = new THREE.Matrix4();
+
+function onControllerSelect(event) {
+  const controller = event.target;
+  interactionMatrix.identity().extractRotation(controller.matrixWorld);
+  interactionRaycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+  interactionRaycaster.ray.direction.set(0, 0, -1).applyMatrix4(interactionMatrix);
+
+  const hits = interactionRaycaster.intersectObjects(audioButtons, false);
+  if (hits.length > 0) {
+    const buttonMesh = hits[0].object;
+    const painting = buttonMesh.userData.painting;
+    flashAudioButton(buttonMesh);
+    playNarration(painting);
+  }
+}
 
 const tempMatrix = new THREE.Matrix4();
 const moveDir = new THREE.Vector3();
