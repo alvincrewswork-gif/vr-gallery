@@ -27,6 +27,7 @@
 <script>
 // PLAQUE_READABILITY_AUDIO_V1
 // AUDIO_FILES_V2 - uses local WAV narration files instead of browser text-to-speech
+// AUDIO_QUALITY_CLEANUP_V1
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -293,7 +294,7 @@ function playNarration(p) {
 
   const audio = new Audio(p.audio);
   audio.preload = 'auto';
-  audio.volume = 1.0;
+  audio.volume = 0.65;
   currentNarration = audio;
 
   audio.addEventListener('playing', () => {
