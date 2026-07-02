@@ -24,7 +24,7 @@
 <div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="assets/js/GLTFLoader.js"></script>
 <script>
 // PLAQUE_READABILITY_AUDIO_V1
 // AUDIO_FILES_V2 - uses local WAV narration files instead of browser text-to-speech
@@ -32,7 +32,7 @@
 // TELEPORT_A_BUTTON_V1 - original A button teleport attempt
 // TELEPORT_BUTTON_LEARN_V2 - learns the right-controller A button index instead of assuming buttons[4]
 // GALLERY_DECOR_SCULPTURES_V1 - adds benches, pedestals, and procedural famous-sculpture studies
-// REAL_GLB_OBJECTS_V1
+// REAL_GLB_OBJECTS_V1 - loads a real public-domain Smithsonian GLB sculpture from assets/models
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -161,6 +161,22 @@ const SCULPTURES = [
     material: 'marble',
     position: { x: 4.2, z: -2.4 },
     front: 'positiveZ'
+  }
+];
+
+
+const REAL_OBJECTS = [
+  {
+    key: 'greek-slave',
+    title: 'Model of the Greek Slave',
+    artist: 'Hiram Powers',
+    year: '1843',
+    description: 'A real Smithsonian 3D scan of Powers\' plaster model. The original figure became one of the most famous sculptures of the nineteenth century.',
+    model: 'assets/models/greek-slave.glb',
+    position: { x: 0, z: 1.55 },
+    front: 'negativeZ',
+    displayHeight: 1.32,
+    rotationY: Math.PI
   }
 ];
 
@@ -690,8 +706,106 @@ function addRopeLine(z) {
   }
 }
 
+
+function addRealModelExhibit(item) {
+  const group = new THREE.Group();
+  group.position.set(item.position.x, 0, item.position.z);
+
+  addPedestalBase(group);
+
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.15, 0.38),
+    new THREE.MeshStandardMaterial({ map: makeSculpturePlaque(item), roughness: 0.8 })
+  );
+
+  if (item.front === 'negativeZ') {
+    label.position.set(0, 0.58, -0.66);
+    label.rotation.y = Math.PI;
+  } else {
+    label.position.set(0, 0.58, 0.66);
+    label.rotation.y = 0;
+  }
+  group.add(label);
+
+  const loadingMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.75, transparent: true, opacity: 0.38 });
+  const loadingMarker = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.9, 0.42), loadingMat);
+  loadingMarker.position.y = 1.45;
+  group.add(loadingMarker);
+
+  const spot = new THREE.SpotLight(0xfff8e0, 2.3, 6, Math.PI / 7, 0.25);
+  spot.position.set(0, 3.15, item.front === 'negativeZ' ? -0.65 : 0.65);
+  spot.target.position.set(0, 1.45, 0);
+  group.add(spot);
+  group.add(spot.target);
+
+  scene.add(group);
+
+  if (!THREE.GLTFLoader) {
+    loadingMarker.material.color.set(0xaa2222);
+    console.warn('GLTFLoader is not available. Cannot load:', item.model);
+    setStatus('GLTFLoader missing. Real model could not load.');
+    return;
+  }
+
+  gltfLoader.load(
+    item.model,
+    (gltf) => {
+      group.remove(loadingMarker);
+      loadingMarker.geometry.dispose();
+      loadingMarker.material.dispose();
+
+      const model = gltf.scene;
+      model.updateMatrixWorld(true);
+
+      model.traverse((child) => {
+        if (child.isMesh) {
+          child.frustumCulled = false;
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(m => { m.side = THREE.DoubleSide; m.needsUpdate = true; });
+            } else {
+              child.material.side = THREE.DoubleSide;
+              child.material.needsUpdate = true;
+            }
+          }
+        }
+      });
+
+      const box = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+
+      const height = size.y || Math.max(size.x, size.z, 1);
+      const scale = item.displayHeight / height;
+
+      const modelHolder = new THREE.Group();
+      modelHolder.position.y = 1.02;
+      modelHolder.rotation.y = item.rotationY || 0;
+
+      model.scale.setScalar(scale);
+      model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
+
+      modelHolder.add(model);
+      group.add(modelHolder);
+
+      setStatus('Real sculpture loaded. Left stick: walk | Right stick: turn | A: teleport');
+    },
+    undefined,
+    (error) => {
+      loadingMarker.material.color.set(0xaa2222);
+      loadingMarker.material.opacity = 0.7;
+      loadingMarker.material.needsUpdate = true;
+      console.warn('Real GLB model failed to load:', item.model, error);
+      setStatus('Real model failed to load. Check assets/models/greek-slave.glb');
+    }
+  );
+}
+
 function addGalleryDecor() {
   SCULPTURES.forEach(addSculptureExhibit);
+  REAL_OBJECTS.forEach(addRealModelExhibit);
 
   addBench(0, 4.1, 0);
   addBench(0, -4.35, Math.PI);
@@ -705,91 +819,6 @@ function addGalleryDecor() {
   centerRug.rotation.x = -Math.PI / 2;
   centerRug.position.set(0, 0.006, -0.85);
   scene.add(centerRug);
-}
-
-function makeRealGlbPlaque() {
-  const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 256;
-
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#f8f1dc';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#8b6914';
-  ctx.lineWidth = 8;
-  ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
-
-  ctx.fillStyle = '#111111';
-  ctx.font = 'bold 42px Georgia,serif';
-  ctx.fillText('Model of the Greek Slave', 30, 64);
-
-  ctx.fillStyle = '#3b2a10';
-  ctx.font = '32px Georgia,serif';
-  ctx.fillText('Hiram Powers, 1843', 30, 116);
-
-  ctx.fillStyle = '#222222';
-  ctx.font = '28px Arial,sans-serif';
-  ctx.fillText('Smithsonian / CC0', 30, 168);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.encoding = THREE.sRGBEncoding;
-  return texture;
-}
-
-function addGreekSlaveModel() {
-  const group = new THREE.Group();
-  group.position.set(0, 0, -1.5);
-
-  addPedestalBase(group);
-
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.05, 0.3),
-    new THREE.MeshStandardMaterial({ map: makeRealGlbPlaque(), roughness: 0.8 })
-  );
-  label.position.set(0, 0.58, 0.64);
-  group.add(label);
-
-  const spot = new THREE.SpotLight(0xfff8e0, 2.0, 5, Math.PI / 7, 0.25);
-  spot.position.set(0, 3.1, 0.6);
-  spot.target.position.set(0, 1.45, 0);
-  group.add(spot);
-  group.add(spot.target);
-
-  scene.add(group);
-
-  gltfLoader.load(
-    'assets/models/greek-slave.glb',
-    (gltf) => {
-      const model = gltf.scene;
-      model.updateMatrixWorld(true);
-
-      let box = new THREE.Box3().setFromObject(model);
-      const size = new THREE.Vector3();
-      box.getSize(size);
-      const scale = size.y > 0 ? 1.2 / size.y : 1;
-      model.scale.multiplyScalar(scale);
-      model.updateMatrixWorld(true);
-
-      box = new THREE.Box3().setFromObject(model);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-
-      model.position.x -= center.x;
-      model.position.z -= center.z;
-      model.position.y += 1.03 - box.min.y;
-      group.add(model);
-    },
-    undefined,
-    (error) => {
-      console.warn('Real GLB model failed to load:', 'assets/models/greek-slave.glb', error);
-      const placeholder = new THREE.Mesh(
-        new THREE.BoxGeometry(0.45, 1.2, 0.45),
-        new THREE.MeshStandardMaterial({ color: 0xaa2222, roughness: 0.65 })
-      );
-      placeholder.position.y = 1.63;
-      group.add(placeholder);
-    }
-  );
 }
 
 let currentNarration = null;
@@ -952,7 +981,6 @@ function loadGallery() {
 
 loadGallery();
 addGalleryDecor();
-addGreekSlaveModel();
 
 // ── PLAYER + CONTROLLERS ───────────────────────────────────────────────────
 const player = new THREE.Group();
