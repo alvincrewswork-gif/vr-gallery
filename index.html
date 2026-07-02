@@ -37,6 +37,8 @@
 // REAL_OBJECTS_EXPANSION_V2 - halves Lincoln head size and replaces placeholder studies with real school-safe GLB objects
 // GRABBABLE_REAL_OBJECTS_V3 - removes benches; grip real objects to inspect, thumbstick scales while held, release returns object to original display
 // INSPECTION_THUMBSTICK_CONTROLS_V4 - while holding an object, thumbsticks manipulate the object instead of moving the player
+// OBJECT_FRONT_ROW_ROTATION_V5 - front-row object labels face the spawn point; front-row models rotate 180 degrees
+// SMOOTH_GRAB_RETURN_V6 - held object follows a smoothed target instead of being parented directly to the controller
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -140,7 +142,7 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of a plaster life mask of Abraham Lincoln. This version is scaled down for a more realistic pedestal display.',
     model: 'assets/models/lincoln-life-mask.glb',
     position: { x: 0, z: 1.55 },
-    front: 'negativeZ',
+    front: 'positiveZ',
     displayHeight: 0.52,
     rotationY: Math.PI
   },
@@ -152,7 +154,7 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln’s hands, offering a close look at portraiture through historical objects.',
     model: 'assets/models/lincoln-hands.glb',
     position: { x: -4.2, z: 1.85 },
-    front: 'negativeZ',
+    front: 'positiveZ',
     displayHeight: 0.42,
     rotationY: Math.PI
   },
@@ -164,7 +166,7 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of a bronze relief portrait of Theodore Roosevelt, showing how portraits can be made in shallow sculptural depth.',
     model: 'assets/models/theodore-roosevelt-relief.glb',
     position: { x: 4.2, z: 1.85 },
-    front: 'negativeZ',
+    front: 'positiveZ',
     displayHeight: 0.82,
     rotationY: Math.PI
   },
@@ -1060,6 +1062,14 @@ const interactionRaycaster = new THREE.Raycaster();
 const interactionMatrix = new THREE.Matrix4();
 const grabRaycaster = new THREE.Raycaster();
 const grabMatrix = new THREE.Matrix4();
+const grabControllerPosition = new THREE.Vector3();
+const grabControllerQuaternion = new THREE.Quaternion();
+const grabLocalOffset = new THREE.Vector3();
+const grabTargetPosition = new THREE.Vector3();
+const grabTargetQuaternion = new THREE.Quaternion();
+const grabInspectionQuaternion = new THREE.Quaternion();
+const grabTargetScale = new THREE.Vector3();
+const grabWorldYAxis = new THREE.Vector3(0, 1, 0);
 
 function onControllerSelect(event) {
   const controller = event.target;
@@ -1105,14 +1115,15 @@ function onGrabStart(event) {
     originalQuaternion: holder.quaternion.clone(),
     originalScale: holder.scale.clone(),
     scaleMultiplier: 1.0,
-    holdDistance: 0.55,
+    holdDistance: 0.65,
+    inspectYaw: 0,
     lastStatusUpdate: 0
   };
 
-  controller.attach(holder);
-  holder.position.set(0, -0.08, -activeGrab.holdDistance);
-  holder.rotation.set(0, 0, 0);
-  holder.scale.copy(activeGrab.originalScale);
+  // Keep the object in world space and smoothly follow a target in front of the controller.
+  // This avoids the jerky movement caused by directly parenting the object to the controller.
+  scene.attach(holder);
+  updateGrabTargetPose(1.0);
 
   setStatus('Inspecting: ' + item.title + ' | Held stick: spin/push/pull | Other stick: resize | Release grip to return');
 }
@@ -1169,6 +1180,29 @@ function getOtherController(controller) {
   return controllers.find(c => c !== controller && c.userData.handedness) || null;
 }
 
+function updateGrabTargetPose(smoothFactor) {
+  if (!activeGrab) return;
+
+  const controller = activeGrab.controller;
+  const holder = activeGrab.holder;
+
+  controller.getWorldPosition(grabControllerPosition);
+  controller.getWorldQuaternion(grabControllerQuaternion);
+
+  grabLocalOffset.set(0, -0.08, -activeGrab.holdDistance);
+  grabTargetPosition.copy(grabLocalOffset).applyQuaternion(grabControllerQuaternion).add(grabControllerPosition);
+
+  grabInspectionQuaternion.setFromAxisAngle(grabWorldYAxis, activeGrab.inspectYaw);
+  grabTargetQuaternion.copy(grabControllerQuaternion).multiply(grabInspectionQuaternion);
+
+  grabTargetScale.copy(activeGrab.originalScale).multiplyScalar(activeGrab.scaleMultiplier);
+
+  const t = Math.max(0.01, Math.min(1.0, smoothFactor));
+  holder.position.lerp(grabTargetPosition, t);
+  holder.quaternion.slerp(grabTargetQuaternion, t);
+  holder.scale.lerp(grabTargetScale, t);
+}
+
 function updateActiveGrabControls(session) {
   if (!activeGrab) return;
 
@@ -1181,15 +1215,14 @@ function updateActiveGrabControls(session) {
 
     // Holding-controller thumbstick left/right spins the object in your hand.
     if (Math.abs(heldAxes.x) > dead) {
-      activeGrab.holder.rotation.y -= heldAxes.x * 0.07;
+      activeGrab.inspectYaw -= heldAxes.x * 0.065;
       changed = true;
     }
 
     // Holding-controller thumbstick up/down pushes the object away or pulls it closer.
     if (Math.abs(heldAxes.y) > dead) {
-      activeGrab.holdDistance += (-heldAxes.y) * 0.025;
-      activeGrab.holdDistance = Math.max(0.32, Math.min(1.35, activeGrab.holdDistance));
-      activeGrab.holder.position.z = -activeGrab.holdDistance;
+      activeGrab.holdDistance += (-heldAxes.y) * 0.022;
+      activeGrab.holdDistance = Math.max(0.34, Math.min(1.45, activeGrab.holdDistance));
       changed = true;
     }
   }
@@ -1201,12 +1234,14 @@ function updateActiveGrabControls(session) {
 
     // Other-controller thumbstick up/down scales the object while it is held.
     if (Math.abs(scaleAxes.y) > dead) {
-      activeGrab.scaleMultiplier += (-scaleAxes.y) * 0.025;
+      activeGrab.scaleMultiplier += (-scaleAxes.y) * 0.022;
       activeGrab.scaleMultiplier = Math.max(0.45, Math.min(2.25, activeGrab.scaleMultiplier));
-      activeGrab.holder.scale.copy(activeGrab.originalScale).multiplyScalar(activeGrab.scaleMultiplier);
       changed = true;
     }
   }
+
+  // Smooth every frame, even when no stick is moving, so controller tracking jitter is softened.
+  updateGrabTargetPose(0.18);
 
   if (changed) {
     const now = Date.now();
