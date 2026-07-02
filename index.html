@@ -28,7 +28,8 @@
 // PLAQUE_READABILITY_AUDIO_V1
 // AUDIO_FILES_V2 - uses local WAV narration files instead of browser text-to-speech
 // AUDIO_QUALITY_CLEANUP_V1 - reduces narration volume to avoid distortion
-// TELEPORT_A_BUTTON_V1 - right controller A button teleports to visible floor target
+// TELEPORT_A_BUTTON_V1 - original A button teleport attempt
+// TELEPORT_BUTTON_LEARN_V2 - learns the right-controller A button index instead of assuming buttons[4]
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -220,7 +221,56 @@ const teleportRaycaster = new THREE.Raycaster();
 const teleportMatrix = new THREE.Matrix4();
 const teleportTarget = new THREE.Vector3();
 let teleportTargetValid = false;
-let lastAButtonPressed = false;
+let teleportButtonIndex = null;
+let lastTeleportButtonPressed = false;
+let previousRightButtonPressed = [];
+
+const debugCanvas = document.createElement('canvas');
+debugCanvas.width = 1024;
+debugCanvas.height = 320;
+const debugCtx = debugCanvas.getContext('2d');
+const debugTexture = new THREE.CanvasTexture(debugCanvas);
+const debugPanel = new THREE.Mesh(
+  new THREE.PlaneGeometry(1.6, 0.5),
+  new THREE.MeshBasicMaterial({
+    map: debugTexture,
+    transparent: true,
+    opacity: 0.9,
+    depthTest: false,
+    depthWrite: false
+  })
+);
+debugPanel.position.set(0, -0.55, -1.45);
+debugPanel.renderOrder = 999;
+debugPanel.visible = false;
+camera.add(debugPanel);
+
+function updateDebugPanel(lines) {
+  debugCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
+  debugCtx.fillStyle = 'rgba(0, 0, 0, 0.72)';
+  debugCtx.fillRect(0, 0, debugCanvas.width, debugCanvas.height);
+  debugCtx.strokeStyle = '#66ff99';
+  debugCtx.lineWidth = 8;
+  debugCtx.strokeRect(4, 4, debugCanvas.width - 8, debugCanvas.height - 8);
+
+  debugCtx.fillStyle = '#ffffff';
+  debugCtx.font = 'bold 42px Arial,sans-serif';
+  debugCtx.fillText(lines[0] || 'Teleport', 36, 58);
+
+  debugCtx.font = '32px Arial,sans-serif';
+  for (let i = 1; i < lines.length; i++) {
+    debugCtx.fillText(lines[i], 36, 58 + i * 48);
+  }
+
+  debugTexture.needsUpdate = true;
+  debugPanel.visible = true;
+}
+
+function hideDebugPanel() {
+  debugPanel.visible = false;
+}
+
+
 
 function makeLabel(p) {
   const canvas = document.createElement('canvas');
@@ -538,6 +588,7 @@ function updateTeleportTarget() {
 
   teleportTarget.set(x, 0, z);
   teleportRing.position.set(x, 0.025, z);
+  teleportRingMat.color.setHex(teleportButtonIndex === null ? 0xffcc33 : 0x66ff99);
   teleportRing.visible = true;
   teleportTargetValid = true;
 }
@@ -554,6 +605,74 @@ function doTeleport() {
     setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport');
   }, 1200);
 }
+
+function updateTeleportButtonLearning(rightSource) {
+  if (!rightSource || !rightSource.gamepad) {
+    previousRightButtonPressed = [];
+    lastTeleportButtonPressed = false;
+    return {
+      pressedIndices: [],
+      teleportPressed: false,
+      rightButtonsCount: 0
+    };
+  }
+
+  const buttons = rightSource.gamepad.buttons || [];
+  const pressedIndices = [];
+  let newlyPressedIndex = null;
+
+  for (let i = 0; i < buttons.length; i++) {
+    const button = buttons[i];
+    const pressed = !!(button && button.pressed);
+    const wasPressed = !!previousRightButtonPressed[i];
+
+    if (pressed) pressedIndices.push(i);
+
+    // A/B style face buttons usually appear after the standard trigger,
+    // squeeze, touchpad, and thumbstick slots. Learn the first newly pressed
+    // right-hand button at index 4 or above.
+    if (pressed && !wasPressed && newlyPressedIndex === null && i >= 4) {
+      newlyPressedIndex = i;
+    }
+  }
+
+  if (teleportButtonIndex === null && newlyPressedIndex !== null) {
+    teleportButtonIndex = newlyPressedIndex;
+    setStatus('Teleport button learned: button ' + teleportButtonIndex);
+  }
+
+  const teleportButton = teleportButtonIndex === null ? null : buttons[teleportButtonIndex];
+  const teleportPressed = !!(teleportButton && teleportButton.pressed);
+
+  previousRightButtonPressed = buttons.map(button => !!(button && button.pressed));
+
+  return {
+    pressedIndices,
+    teleportPressed,
+    rightButtonsCount: buttons.length
+  };
+}
+
+function updateTeleportHud(rightSource, buttonState) {
+  if (!renderer.xr.isPresenting) {
+    hideDebugPanel();
+    return;
+  }
+
+  const pressedText = buttonState.pressedIndices.length ? buttonState.pressedIndices.join(', ') : 'none';
+  const learnedText = teleportButtonIndex === null
+    ? 'Press A once to learn button'
+    : 'Teleport button index: ' + teleportButtonIndex;
+
+  updateDebugPanel([
+    'Teleport Debug',
+    teleportTargetValid ? 'Floor target: YES' : 'Floor target: NO - aim ray at floor',
+    'Right buttons pressed: ' + pressedText,
+    learnedText,
+    'Button count: ' + (rightSource && rightSource.gamepad ? buttonState.rightButtonsCount : 'no right gamepad')
+  ]);
+}
+
 
 const tempMatrix = new THREE.Matrix4();
 const moveDir = new THREE.Vector3();
@@ -594,24 +713,27 @@ renderer.setAnimationLoop(() => {
 
     updateTeleportTarget();
 
-    let aButtonPressed = false;
+    let rightSource = null;
     for (const source of session.inputSources) {
-      if (source.handedness !== 'right') continue;
-      if (!source.gamepad) continue;
-
-      const aButton = source.gamepad.buttons[4];
-      aButtonPressed = !!(aButton && aButton.pressed);
-      break;
+      if (source.handedness === 'right' && source.gamepad) {
+        rightSource = source;
+        break;
+      }
     }
 
-    if (aButtonPressed && !lastAButtonPressed) {
+    const buttonState = updateTeleportButtonLearning(rightSource);
+    updateTeleportHud(rightSource, buttonState);
+
+    if (buttonState.teleportPressed && !lastTeleportButtonPressed) {
       doTeleport();
     }
-    lastAButtonPressed = aButtonPressed;
+    lastTeleportButtonPressed = buttonState.teleportPressed;
   } else {
     teleportTargetValid = false;
     teleportRing.visible = false;
-    lastAButtonPressed = false;
+    hideDebugPanel();
+    previousRightButtonPressed = [];
+    lastTeleportButtonPressed = false;
   }
 
   renderer.render(scene, camera);
