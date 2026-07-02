@@ -26,6 +26,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // PLAQUE_READABILITY_AUDIO_V1
+// AUDIO_FILES_V2 - uses local WAV narration files instead of browser text-to-speech
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -45,7 +46,8 @@ const PAINTINGS = [
     year: "1884-86",
     description: "Seurat's pointillist masterpiece depicts Parisians relaxing by the Seine. Each tiny dot of color blends in the viewer's eye — a technique called Chromoluminarism.",
     aspect: 1.39,
-    image: "assets/paintings/grande-jatte.jpg"
+    image: "assets/paintings/grande-jatte.jpg",
+    audio: "assets/audio/grande-jatte.wav"
   },
   {
     title: "Water Lilies",
@@ -53,7 +55,8 @@ const PAINTINGS = [
     year: "1906",
     description: "One of Monet's famous series painted at his garden in Giverny. The shimmering purples, blues, and greens capture light playing on the water's surface.",
     aspect: 1.04,
-    image: "assets/paintings/water-lilies.jpg"
+    image: "assets/paintings/water-lilies.jpg",
+    audio: "assets/audio/water-lilies.wav"
   },
   {
     title: "The Bedroom",
@@ -61,7 +64,8 @@ const PAINTINGS = [
     year: "1889",
     description: "Van Gogh painted three versions of his bedroom in Arles. The bold colors and tilted perspective convey rest and peace — a sanctuary from his troubled life.",
     aspect: 1.26,
-    image: "assets/paintings/bedroom.jpg"
+    image: "assets/paintings/bedroom.jpg",
+    audio: "assets/audio/bedroom.wav"
   },
   {
     title: "American Gothic",
@@ -69,7 +73,8 @@ const PAINTINGS = [
     year: "1930",
     description: "One of the most recognized images in American art. Wood used his dentist and sister as models for this iconic portrayal of rural Midwestern values.",
     aspect: 0.81,
-    image: "assets/paintings/american-gothic.jpg"
+    image: "assets/paintings/american-gothic.jpg",
+    audio: "assets/audio/american-gothic.wav"
   },
   {
     title: "Stacks of Wheat",
@@ -77,7 +82,8 @@ const PAINTINGS = [
     year: "1890-91",
     description: "One of Monet's celebrated wheat stack paintings, capturing the same subject under changing light and atmosphere.",
     aspect: 1.28,
-    image: "assets/paintings/stacks-of-wheat.jpg"
+    image: "assets/paintings/stacks-of-wheat.jpg",
+    audio: "assets/audio/stacks-of-wheat.wav"
   },
   {
     title: "The Child's Bath",
@@ -85,7 +91,8 @@ const PAINTINGS = [
     year: "1893",
     description: "Cassatt was the only American artist linked to the French Impressionists. This intimate domestic scene shows her mastery of light and focus on women's daily lives.",
     aspect: 0.78,
-    image: "assets/paintings/childs-bath.jpg"
+    image: "assets/paintings/childs-bath.jpg",
+    audio: "assets/audio/childs-bath.wav"
   },
   {
     title: "Two Sisters (On the Terrace)",
@@ -93,7 +100,8 @@ const PAINTINGS = [
     year: "1881",
     description: "Despite its title, these figures were not actually sisters. Renoir painted this scene at a riverside restaurant in Chatou, capturing the warmth of a French spring.",
     aspect: 0.78,
-    image: "assets/paintings/two-sisters.jpg"
+    image: "assets/paintings/two-sisters.jpg",
+    audio: "assets/audio/two-sisters.wav"
   },
   {
     title: "The Great Wave",
@@ -101,9 +109,18 @@ const PAINTINGS = [
     year: "ca. 1830-32",
     description: "One of the most recognized works of Japanese art. The massive wave threatens boats near Mount Fuji, blending nature's power with artistic mastery.",
     aspect: 1.48,
-    image: "assets/paintings/great-wave.jpg"
+    image: "assets/paintings/great-wave.jpg",
+    audio: "assets/audio/great-wave.wav"
   }
 ];
+
+const statusEl = document.getElementById('info');
+
+function setStatus(message) {
+  if (statusEl) {
+    statusEl.textContent = message;
+  }
+}
 
 // ── SCENE ──────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
@@ -257,21 +274,52 @@ function makeAudioButtonTexture() {
   return texture;
 }
 
+let currentNarration = null;
+
 function playNarration(p) {
-  if (!('speechSynthesis' in window)) {
-    console.warn('speechSynthesis is not available in this browser');
+  if (!p.audio) {
+    setStatus('No audio file assigned for: ' + p.title);
+    console.warn('No audio file assigned for:', p.title);
     return;
   }
 
-  window.speechSynthesis.cancel();
+  if (currentNarration) {
+    currentNarration.pause();
+    currentNarration.currentTime = 0;
+    currentNarration = null;
+  }
 
-  const text = `${p.title}. ${p.artist}, ${p.year}. ${p.description}`;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.9;
-  utterance.pitch = 1.0;
-  utterance.volume = 1.0;
+  setStatus('Loading audio: ' + p.title);
 
-  window.speechSynthesis.speak(utterance);
+  const audio = new Audio(p.audio);
+  audio.preload = 'auto';
+  audio.volume = 1.0;
+  currentNarration = audio;
+
+  audio.addEventListener('playing', () => {
+    setStatus('Playing audio: ' + p.title);
+  });
+
+  audio.addEventListener('ended', () => {
+    if (currentNarration === audio) {
+      currentNarration = null;
+    }
+    setStatus('Audio finished: ' + p.title);
+  });
+
+  audio.addEventListener('error', () => {
+    const code = audio.error ? audio.error.code : 'unknown';
+    setStatus('Audio file failed: ' + p.title);
+    console.warn('Audio file failed:', p.audio, code, audio.error);
+  });
+
+  const playPromise = audio.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch((err) => {
+      setStatus('Audio blocked/failed: ' + err.message);
+      console.warn('Audio play() failed:', p.audio, err);
+    });
+  }
 }
 
 function flashAudioButton(buttonMesh) {
@@ -347,14 +395,26 @@ function buildFrame(p, pos) {
 
   // Audio button below the plaque
   const audioButtonMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.75, 0.22),
+    new THREE.PlaneGeometry(0.9, 0.28),
     new THREE.MeshStandardMaterial({ map: makeAudioButtonTexture(), color: 0xffffff, roughness: 0.8 })
   );
-  audioButtonMesh.position.set(0, -(ph / 2 + 0.72), fd / 2 + 0.003);
+  audioButtonMesh.position.set(0, -(ph / 2 + 0.74), fd / 2 + 0.003);
   audioButtonMesh.userData.type = 'audioButton';
   audioButtonMesh.userData.painting = p;
-  audioButtons.push(audioButtonMesh);
   group.add(audioButtonMesh);
+
+  // Invisible larger hit box so the controller ray is easier to aim.
+  const audioHitBox = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.15, 0.42),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, side: THREE.DoubleSide })
+  );
+  audioHitBox.position.copy(audioButtonMesh.position);
+  audioHitBox.position.z += 0.004;
+  audioHitBox.userData.type = 'audioButton';
+  audioHitBox.userData.painting = p;
+  audioHitBox.userData.visualButton = audioButtonMesh;
+  audioButtons.push(audioHitBox);
+  group.add(audioHitBox);
 
   // Small spotlight for each painting
   const spot = new THREE.SpotLight(0xfff8e0, 2.5, 5, Math.PI / 8, 0.3);
@@ -406,8 +466,9 @@ function onControllerSelect(event) {
 
   const hits = interactionRaycaster.intersectObjects(audioButtons, false);
   if (hits.length > 0) {
-    const buttonMesh = hits[0].object;
-    const painting = buttonMesh.userData.painting;
+    const hitMesh = hits[0].object;
+    const buttonMesh = hitMesh.userData.visualButton || hitMesh;
+    const painting = hitMesh.userData.painting;
     flashAudioButton(buttonMesh);
     playNarration(painting);
   }
