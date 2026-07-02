@@ -24,6 +24,7 @@
 <div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 // PLAQUE_READABILITY_AUDIO_V1
 // AUDIO_FILES_V2 - uses local WAV narration files instead of browser text-to-speech
@@ -31,6 +32,7 @@
 // TELEPORT_A_BUTTON_V1 - original A button teleport attempt
 // TELEPORT_BUTTON_LEARN_V2 - learns the right-controller A button index instead of assuming buttons[4]
 // GALLERY_DECOR_SCULPTURES_V1 - adds benches, pedestals, and procedural famous-sculpture studies
+// REAL_GLB_OBJECTS_V1
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -246,6 +248,7 @@ const layout = [
 
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
+const gltfLoader = new THREE.GLTFLoader();
 const audioButtons = [];
 const controllers = [];
 
@@ -704,6 +707,91 @@ function addGalleryDecor() {
   scene.add(centerRug);
 }
 
+function makeRealGlbPlaque() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 256;
+
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#f8f1dc';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#8b6914';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+
+  ctx.fillStyle = '#111111';
+  ctx.font = 'bold 42px Georgia,serif';
+  ctx.fillText('Model of the Greek Slave', 30, 64);
+
+  ctx.fillStyle = '#3b2a10';
+  ctx.font = '32px Georgia,serif';
+  ctx.fillText('Hiram Powers, 1843', 30, 116);
+
+  ctx.fillStyle = '#222222';
+  ctx.font = '28px Arial,sans-serif';
+  ctx.fillText('Smithsonian / CC0', 30, 168);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.encoding = THREE.sRGBEncoding;
+  return texture;
+}
+
+function addGreekSlaveModel() {
+  const group = new THREE.Group();
+  group.position.set(0, 0, -1.5);
+
+  addPedestalBase(group);
+
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.05, 0.3),
+    new THREE.MeshStandardMaterial({ map: makeRealGlbPlaque(), roughness: 0.8 })
+  );
+  label.position.set(0, 0.58, 0.64);
+  group.add(label);
+
+  const spot = new THREE.SpotLight(0xfff8e0, 2.0, 5, Math.PI / 7, 0.25);
+  spot.position.set(0, 3.1, 0.6);
+  spot.target.position.set(0, 1.45, 0);
+  group.add(spot);
+  group.add(spot.target);
+
+  scene.add(group);
+
+  gltfLoader.load(
+    'assets/models/greek-slave.glb',
+    (gltf) => {
+      const model = gltf.scene;
+      model.updateMatrixWorld(true);
+
+      let box = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const scale = size.y > 0 ? 1.2 / size.y : 1;
+      model.scale.multiplyScalar(scale);
+      model.updateMatrixWorld(true);
+
+      box = new THREE.Box3().setFromObject(model);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+
+      model.position.x -= center.x;
+      model.position.z -= center.z;
+      model.position.y += 1.03 - box.min.y;
+      group.add(model);
+    },
+    undefined,
+    (error) => {
+      console.warn('Real GLB model failed to load:', 'assets/models/greek-slave.glb', error);
+      const placeholder = new THREE.Mesh(
+        new THREE.BoxGeometry(0.45, 1.2, 0.45),
+        new THREE.MeshStandardMaterial({ color: 0xaa2222, roughness: 0.65 })
+      );
+      placeholder.position.y = 1.63;
+      group.add(placeholder);
+    }
+  );
+}
+
 let currentNarration = null;
 
 function playNarration(p) {
@@ -864,6 +952,7 @@ function loadGallery() {
 
 loadGallery();
 addGalleryDecor();
+addGreekSlaveModel();
 
 // ── PLAYER + CONTROLLERS ───────────────────────────────────────────────────
 const player = new THREE.Group();
