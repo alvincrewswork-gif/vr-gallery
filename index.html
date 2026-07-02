@@ -36,6 +36,7 @@
 // SCHOOL_SAFE_OBJECTS_V1 - removes sensitive figure artwork and uses school-safe objects
 // REAL_OBJECTS_EXPANSION_V2 - halves Lincoln head size and replaces placeholder studies with real school-safe GLB objects
 // GRABBABLE_REAL_OBJECTS_V3 - removes benches; grip real objects to inspect, thumbstick scales while held, release returns object to original display
+// INSPECTION_THUMBSTICK_CONTROLS_V4 - while holding an object, thumbsticks manipulate the object instead of moving the player
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -1103,15 +1104,17 @@ function onGrabStart(event) {
     originalPosition: holder.position.clone(),
     originalQuaternion: holder.quaternion.clone(),
     originalScale: holder.scale.clone(),
-    scaleMultiplier: 1.0
+    scaleMultiplier: 1.0,
+    holdDistance: 0.55,
+    lastStatusUpdate: 0
   };
 
   controller.attach(holder);
-  holder.position.set(0, -0.08, -0.55);
+  holder.position.set(0, -0.08, -activeGrab.holdDistance);
   holder.rotation.set(0, 0, 0);
   holder.scale.copy(activeGrab.originalScale);
 
-  setStatus('Inspecting: ' + item.title + ' | Thumbstick up/down scales | Release grip to return');
+  setStatus('Inspecting: ' + item.title + ' | Held stick: spin/push/pull | Other stick: resize | Release grip to return');
 }
 
 function restoreGrabbedObject() {
@@ -1136,32 +1139,86 @@ function onGrabEnd(event) {
   }
 }
 
-function updateActiveGrabScale() {
-  if (!activeGrab) return;
+function getGamepadForController(controller, session) {
+  if (!controller) return null;
 
-  let gamepad = activeGrab.controller.userData.gamepad;
-  if (!gamepad) {
-    const session = renderer.xr.getSession();
-    if (session) {
-      for (const source of session.inputSources) {
-        if (source.handedness === activeGrab.controller.userData.handedness && source.gamepad) {
-          gamepad = source.gamepad;
-          break;
-        }
-      }
+  if (controller.userData.gamepad) {
+    return controller.userData.gamepad;
+  }
+
+  if (!session) return null;
+
+  for (const source of session.inputSources) {
+    if (source.handedness === controller.userData.handedness && source.gamepad) {
+      return source.gamepad;
     }
   }
-  if (!gamepad) return;
 
-  const axes = gamepad.axes || [];
-  const yAxis = axes[3] !== undefined ? axes[3] : (axes[1] || 0);
-  const dead = 0.18;
+  return null;
+}
 
-  if (Math.abs(yAxis) > dead) {
-    activeGrab.scaleMultiplier += (-yAxis) * 0.025;
-    activeGrab.scaleMultiplier = Math.max(0.45, Math.min(2.25, activeGrab.scaleMultiplier));
-    activeGrab.holder.scale.copy(activeGrab.originalScale).multiplyScalar(activeGrab.scaleMultiplier);
-    setStatus('Inspecting: ' + activeGrab.item.title + ' | Scale ' + Math.round(activeGrab.scaleMultiplier * 100) + '% | Release grip to return');
+function getStickAxes(gamepad) {
+  const axes = (gamepad && gamepad.axes) ? gamepad.axes : [];
+  return {
+    x: axes[2] !== undefined ? axes[2] : (axes[0] || 0),
+    y: axes[3] !== undefined ? axes[3] : (axes[1] || 0)
+  };
+}
+
+function getOtherController(controller) {
+  return controllers.find(c => c !== controller && c.userData.handedness) || null;
+}
+
+function updateActiveGrabControls(session) {
+  if (!activeGrab) return;
+
+  const dead = 0.16;
+  let changed = false;
+
+  const heldGamepad = getGamepadForController(activeGrab.controller, session);
+  if (heldGamepad) {
+    const heldAxes = getStickAxes(heldGamepad);
+
+    // Holding-controller thumbstick left/right spins the object in your hand.
+    if (Math.abs(heldAxes.x) > dead) {
+      activeGrab.holder.rotation.y -= heldAxes.x * 0.07;
+      changed = true;
+    }
+
+    // Holding-controller thumbstick up/down pushes the object away or pulls it closer.
+    if (Math.abs(heldAxes.y) > dead) {
+      activeGrab.holdDistance += (-heldAxes.y) * 0.025;
+      activeGrab.holdDistance = Math.max(0.32, Math.min(1.35, activeGrab.holdDistance));
+      activeGrab.holder.position.z = -activeGrab.holdDistance;
+      changed = true;
+    }
+  }
+
+  const otherController = getOtherController(activeGrab.controller);
+  const scaleGamepad = getGamepadForController(otherController, session);
+  if (scaleGamepad) {
+    const scaleAxes = getStickAxes(scaleGamepad);
+
+    // Other-controller thumbstick up/down scales the object while it is held.
+    if (Math.abs(scaleAxes.y) > dead) {
+      activeGrab.scaleMultiplier += (-scaleAxes.y) * 0.025;
+      activeGrab.scaleMultiplier = Math.max(0.45, Math.min(2.25, activeGrab.scaleMultiplier));
+      activeGrab.holder.scale.copy(activeGrab.originalScale).multiplyScalar(activeGrab.scaleMultiplier);
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    const now = Date.now();
+    if (now - activeGrab.lastStatusUpdate > 250) {
+      activeGrab.lastStatusUpdate = now;
+      setStatus(
+        'Inspecting: ' + activeGrab.item.title +
+        ' | Distance ' + activeGrab.holdDistance.toFixed(2) + 'm' +
+        ' | Scale ' + Math.round(activeGrab.scaleMultiplier * 100) + '%' +
+        ' | Release grip to return'
+      );
+    }
   }
 }
 
@@ -1293,44 +1350,44 @@ renderer.setAnimationLoop(() => {
   const session = renderer.xr.getSession();
 
   if (session && renderer.xr.isPresenting) {
-    for (const source of session.inputSources) {
-      if (!source.gamepad) continue;
-
-      const axes = source.gamepad.axes;
-      const lx = axes[2] !== undefined ? axes[2] : (axes[0] || 0);
-      const ly = axes[3] !== undefined ? axes[3] : (axes[1] || 0);
-      const dead = 0.15;
-
-      // Left thumbstick: walk forward/back and strafe
-      if (source.handedness === 'left' && (Math.abs(lx) > dead || Math.abs(ly) > dead)) {
-        tempMatrix.identity().extractRotation(camera.matrixWorld);
-        moveDir.set(lx * 0.04, 0, ly * 0.04).applyMatrix4(tempMatrix);
-        moveDir.y = 0;
-        player.position.add(moveDir);
-
-        // Keep player inside gallery walls
-        clampToGalleryBounds(player.position);
-      }
-
-      // Right thumbstick: snap turn 30 degrees
-      if (source.handedness === 'right') {
-        const now = Date.now();
-        if (Math.abs(lx) > 0.7 && now - lastSnap > 400) {
-          player.rotation.y -= Math.sign(lx) * (Math.PI / 6);
-          lastSnap = now;
-        }
-      }
-    }
-
-    updateActiveGrabScale();
-
     if (activeGrab) {
-      // While inspecting an object, hide teleport to avoid accidental movement.
+      // While inspecting an object, thumbsticks control the object only.
+      // They should not move the student's body or snap-turn the player.
+      updateActiveGrabControls(session);
       teleportTargetValid = false;
       teleportRing.visible = false;
       hideDebugPanel();
       lastTeleportButtonPressed = false;
     } else {
+      for (const source of session.inputSources) {
+        if (!source.gamepad) continue;
+
+        const axes = source.gamepad.axes;
+        const lx = axes[2] !== undefined ? axes[2] : (axes[0] || 0);
+        const ly = axes[3] !== undefined ? axes[3] : (axes[1] || 0);
+        const dead = 0.15;
+
+        // Left thumbstick: walk forward/back and strafe
+        if (source.handedness === 'left' && (Math.abs(lx) > dead || Math.abs(ly) > dead)) {
+          tempMatrix.identity().extractRotation(camera.matrixWorld);
+          moveDir.set(lx * 0.04, 0, ly * 0.04).applyMatrix4(tempMatrix);
+          moveDir.y = 0;
+          player.position.add(moveDir);
+
+          // Keep player inside gallery walls
+          clampToGalleryBounds(player.position);
+        }
+
+        // Right thumbstick: snap turn 30 degrees
+        if (source.handedness === 'right') {
+          const now = Date.now();
+          if (Math.abs(lx) > 0.7 && now - lastSnap > 400) {
+            player.rotation.y -= Math.sign(lx) * (Math.PI / 6);
+            lastSnap = now;
+          }
+        }
+      }
+
       updateTeleportTarget();
 
       let rightSource = null;
