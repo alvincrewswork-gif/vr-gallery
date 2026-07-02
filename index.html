@@ -21,13 +21,14 @@
 </style>
 </head>
 <body>
-<div id="info">VR Art Gallery — Left stick: walk  |  Right stick: turn</div>
+<div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // PLAQUE_READABILITY_AUDIO_V1
 // AUDIO_FILES_V2 - uses local WAV narration files instead of browser text-to-speech
-// AUDIO_QUALITY_CLEANUP_V1
+// AUDIO_QUALITY_CLEANUP_V1 - reduces narration volume to avoid distortion
+// TELEPORT_A_BUTTON_V1 - right controller A button teleports to visible floor target
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -200,6 +201,26 @@ const layout = [
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
 const audioButtons = [];
+const controllers = [];
+
+const teleportRingGeo = new THREE.RingGeometry(0.18, 0.26, 48);
+const teleportRingMat = new THREE.MeshBasicMaterial({
+  color: 0x66ff99,
+  transparent: true,
+  opacity: 0.85,
+  side: THREE.DoubleSide
+});
+const teleportRing = new THREE.Mesh(teleportRingGeo, teleportRingMat);
+teleportRing.rotation.x = -Math.PI / 2;
+teleportRing.position.y = 0.025;
+teleportRing.visible = false;
+scene.add(teleportRing);
+
+const teleportRaycaster = new THREE.Raycaster();
+const teleportMatrix = new THREE.Matrix4();
+const teleportTarget = new THREE.Vector3();
+let teleportTargetValid = false;
+let lastAButtonPressed = false;
 
 function makeLabel(p) {
   const canvas = document.createElement('canvas');
@@ -443,6 +464,17 @@ scene.add(player);
 
 [0, 1].forEach(i => {
   const ctrl = renderer.xr.getController(i);
+
+  ctrl.addEventListener('connected', (event) => {
+    ctrl.userData.handedness = event.data.handedness;
+    ctrl.userData.gamepad = event.data.gamepad;
+  });
+
+  ctrl.addEventListener('disconnected', () => {
+    ctrl.userData.handedness = null;
+    ctrl.userData.gamepad = null;
+  });
+
   const ray = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
@@ -454,6 +486,7 @@ scene.add(player);
   ctrl.add(ray);
   ctrl.addEventListener('selectstart', onControllerSelect);
   player.add(ctrl);
+  controllers.push(ctrl);
 });
 
 const interactionRaycaster = new THREE.Raycaster();
@@ -473,6 +506,53 @@ function onControllerSelect(event) {
     flashAudioButton(buttonMesh);
     playNarration(painting);
   }
+}
+
+function getRightController() {
+  return controllers.find(c => c.userData.handedness === 'right') || controllers[1];
+}
+
+function clampToGalleryBounds(position) {
+  position.x = Math.max(-8.5, Math.min(8.5, position.x));
+  position.z = Math.max(-5.5, Math.min(5.5, position.z));
+  return position;
+}
+
+function updateTeleportTarget() {
+  teleportTargetValid = false;
+  teleportRing.visible = false;
+
+  const rightController = getRightController();
+  if (!rightController) return;
+
+  teleportMatrix.identity().extractRotation(rightController.matrixWorld);
+  teleportRaycaster.ray.origin.setFromMatrixPosition(rightController.matrixWorld);
+  teleportRaycaster.ray.direction.set(0, 0, -1).applyMatrix4(teleportMatrix);
+
+  const hits = teleportRaycaster.intersectObject(floor, false);
+  if (!hits.length) return;
+
+  const hit = hits[0].point;
+  const x = Math.max(-8.5, Math.min(8.5, hit.x));
+  const z = Math.max(-5.5, Math.min(5.5, hit.z));
+
+  teleportTarget.set(x, 0, z);
+  teleportRing.position.set(x, 0.025, z);
+  teleportRing.visible = true;
+  teleportTargetValid = true;
+}
+
+function doTeleport() {
+  if (!teleportTargetValid) return;
+
+  player.position.x = teleportTarget.x;
+  player.position.z = teleportTarget.z;
+  player.position.y = 0;
+  setStatus('Teleported. Left stick: walk | Right stick: turn | A: teleport');
+
+  setTimeout(() => {
+    setStatus('VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport');
+  }, 1200);
 }
 
 const tempMatrix = new THREE.Matrix4();
@@ -499,8 +579,7 @@ renderer.setAnimationLoop(() => {
         player.position.add(moveDir);
 
         // Keep player inside gallery walls
-        player.position.x = Math.max(-8.5, Math.min(8.5, player.position.x));
-        player.position.z = Math.max(-5.5, Math.min(5.5, player.position.z));
+        clampToGalleryBounds(player.position);
       }
 
       // Right thumbstick: snap turn 30 degrees
@@ -512,6 +591,27 @@ renderer.setAnimationLoop(() => {
         }
       }
     }
+
+    updateTeleportTarget();
+
+    let aButtonPressed = false;
+    for (const source of session.inputSources) {
+      if (source.handedness !== 'right') continue;
+      if (!source.gamepad) continue;
+
+      const aButton = source.gamepad.buttons[4];
+      aButtonPressed = !!(aButton && aButton.pressed);
+      break;
+    }
+
+    if (aButtonPressed && !lastAButtonPressed) {
+      doTeleport();
+    }
+    lastAButtonPressed = aButtonPressed;
+  } else {
+    teleportTargetValid = false;
+    teleportRing.visible = false;
+    lastAButtonPressed = false;
   }
 
   renderer.render(scene, camera);
