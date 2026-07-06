@@ -41,6 +41,7 @@
 // SMOOTH_GRAB_RETURN_V6 - held object follows a smoothed target instead of being parented directly to the controller
 // SPAWN_FACING_EXHIBITS_V7 - real object labels and models calculate their facing direction toward the student's starting point or room center
 // SECOND_GALLERY_ROOM_V7 - adds a second room to the right through a large open doorway, with additional artwork and object displays
+// FRONT_ROW_MODEL_FLIP_V8 - flips the first-row real GLB models to match their already-correct facing description plaques
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -147,7 +148,7 @@ const REAL_OBJECTS = [
     position: { x: 0, z: 1.55 },
     faceSpawn: true,
     displayHeight: 0.52,
-    rotationOffsetY: 0
+    rotationOffsetY: Math.PI
   },
   {
     key: 'lincoln-hands',
@@ -159,7 +160,7 @@ const REAL_OBJECTS = [
     position: { x: -4.2, z: 1.85 },
     faceSpawn: true,
     displayHeight: 0.42,
-    rotationOffsetY: 0
+    rotationOffsetY: Math.PI
   },
   {
     key: 'theodore-roosevelt-relief',
@@ -171,7 +172,7 @@ const REAL_OBJECTS = [
     position: { x: 4.2, z: 1.85 },
     faceSpawn: true,
     displayHeight: 0.82,
-    rotationOffsetY: 0
+    rotationOffsetY: Math.PI
   },
   {
     key: 'beaker-vase',
