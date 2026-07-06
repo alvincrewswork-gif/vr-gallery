@@ -47,6 +47,7 @@
 // FOUR_ROOM_STYLE_GALLERY_V12
 // ROOM_SIGN_FIX_V13
 // CLEAR_FOUR_ROOM_HUB_LAYOUT_V14
+// WALL_MOUNTED_ARTWORK_LAYOUT_V15
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -409,25 +410,25 @@ addHorizontalDoorwayPost(4, -7);
 addDoorwayHeader(0, -7, 8.15, false);
 
 const layout = [
-  { x: -6.0, y: 2.0, z: 6.9, ry: Math.PI },
-  { x: -3.0, y: 2.0, z: 6.9, ry: Math.PI },
-  { x: 0.0,  y: 2.0, z: 6.9, ry: Math.PI },
-  { x: 3.0,  y: 2.0, z: 6.9, ry: Math.PI },
-  { x: 6.0,  y: 2.0, z: 6.9, ry: Math.PI },
-  { x: -6.2, y: 2.0, z: -6.9, ry: 0 }
+  { x: -6.0, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: -3.0, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: 0.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: 3.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: 6.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' }
 ];
 
 const annexLayout = [
-  { x: 25.9,  y: 2.0, z: -4.8, ry: -Math.PI / 2 },
-  { x: 25.9,  y: 2.0, z: -1.6, ry: -Math.PI / 2 },
-  { x: 25.9,  y: 2.0, z: 1.6,  ry: -Math.PI / 2 },
-  { x: 25.9,  y: 2.0, z: 4.8,  ry: -Math.PI / 2 },
-  { x: 15.0,  y: 2.0, z: 6.9,  ry: Math.PI },
-  { x: 20.0,  y: 2.0, z: 6.9,  ry: Math.PI },
-  { x: 15.0,  y: 2.0, z: -6.9, ry: 0 },
-  { x: 20.0,  y: 2.0, z: -6.9, ry: 0 },
-  { x: -25.9, y: 2.0, z: 0.0,  ry: Math.PI / 2 },
-  { x: 0.0,   y: 2.0, z: -20.9, ry: 0 }
+  { x: 25.94, y: 2.0, z: -4.8, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 25.94, y: 2.0, z: -1.6, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 25.94, y: 2.0, z: 1.6,  ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 25.94, y: 2.0, z: 4.8,  ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 15.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
+  { x: -25.94, y: 2.0, z: -4.0, ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: -25.94, y: 2.0, z: 0.0,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: -25.94, y: 2.0, z: 4.0,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: -5.0, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
+  { x: 0.0,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
+  { x: 5.0,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' }
 ];
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
@@ -1152,6 +1153,12 @@ function buildFrame(p, pos) {
   const group = new THREE.Group();
   group.position.set(pos.x, pos.y, pos.z);
   group.rotation.y = pos.ry;
+  group.userData.type = 'paintingFrame';
+  group.userData.room = pos.room || '';
+  group.userData.wall = pos.wall || '';
+  if (!group.userData.wall) {
+    console.warn('Painting frame missing wall assignment', p.title);
+  }
 
   // Gold frame pieces
   [
