@@ -48,6 +48,7 @@
 // ROOM_SIGN_FIX_V13
 // CLEAR_FOUR_ROOM_HUB_LAYOUT_V14
 // WALL_MOUNTED_ARTWORK_LAYOUT_V15
+// THEMED_ROOM_ART_FILL_V16
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -106,15 +107,6 @@ const PAINTINGS = [
     audio: "assets/audio/paris-street.wav"
   },
   {
-    title: "The Herring Net",
-    artist: "Winslow Homer",
-    year: "1885",
-    description: "Two fishermen work together at sea, pulling in a net filled with herring. The painting shows teamwork, danger, and the power of the ocean.",
-    aspect: 1.63,
-    image: "assets/paintings/herring-net.jpg",
-    audio: "assets/audio/herring-net.wav"
-  },
-  {
     title: "Waterloo Bridge, Gray Weather",
     artist: "Claude Monet",
     year: "1900",
@@ -122,6 +114,33 @@ const PAINTINGS = [
     aspect: 1.41,
     image: "assets/paintings/waterloo-bridge-gray.jpg",
     audio: "assets/audio/waterloo-bridge-gray.wav"
+  },
+  {
+    title: "The Artist's House at Argenteuil",
+    artist: "Claude Monet",
+    year: "1873",
+    description: "Monet painted his home and garden with bright outdoor light, loose brushwork, and everyday life.",
+    aspect: 1.22,
+    image: "assets/paintings/artist-house-argenteuil.jpg",
+    audio: "assets/audio/artist-house-argenteuil.wav"
+  },
+  {
+    title: "The Millinery Shop",
+    artist: "Edgar Degas",
+    year: "1879/86",
+    description: "Degas shows a modern Paris hat shop filled with color, fabric, and carefully arranged shapes.",
+    aspect: 1.10,
+    image: "assets/paintings/the-millinery-shop.jpg",
+    audio: "assets/audio/the-millinery-shop.wav"
+  },
+  {
+    title: "Poppy Field (Giverny)",
+    artist: "Claude Monet",
+    year: "1890-91",
+    description: "Monet used color and light to turn a field of flowers into a lively outdoor scene.",
+    aspect: 1.54,
+    image: "assets/paintings/poppy-field-giverny.jpg",
+    audio: "assets/audio/poppy-field-giverny.wav"
   },
   {
     title: "The Bedroom",
@@ -196,6 +215,33 @@ const PAINTINGS = [
     audio: "assets/audio/peasant-woman-digging.wav"
   },
   {
+    title: "Montagne Sainte-Victoire (The Arc Valley)",
+    artist: "Paul Cezanne",
+    year: "c. 1885",
+    description: "Cezanne returned to this mountain often, simplifying the landscape into strong shapes and color.",
+    aspect: 1.50,
+    image: "assets/paintings/montagne-sainte-victoire.jpg",
+    audio: "assets/audio/montagne-sainte-victoire.wav"
+  },
+  {
+    title: "Road in Provence",
+    artist: "Paul Cezanne",
+    year: "c. 1890",
+    description: "Cezanne used structure, color, and brushwork to make the landscape feel solid and carefully built.",
+    aspect: 1.01,
+    image: "assets/paintings/road-in-provence.jpg",
+    audio: "assets/audio/road-in-provence.wav"
+  },
+  {
+    title: "Pistachio Tree at Chateau Noir",
+    artist: "Paul Cezanne",
+    year: "c. 1900",
+    description: "Trees, rocks, and buildings become interlocking shapes in one of Cezanne's late landscape studies.",
+    aspect: 0.80,
+    image: "assets/paintings/pistachio-tree-chateau-noir.jpg",
+    audio: "assets/audio/pistachio-tree-chateau-noir.wav"
+  },
+  {
     title: "American Gothic",
     artist: "Grant Wood",
     year: "1930",
@@ -205,6 +251,42 @@ const PAINTINGS = [
     audio: "assets/audio/american-gothic.wav"
   },
   {
+    title: "The Herring Net",
+    artist: "Winslow Homer",
+    year: "1885",
+    description: "Two fishermen work together at sea, pulling in a net filled with herring. The painting shows teamwork, danger, and the power of the ocean.",
+    aspect: 1.63,
+    image: "assets/paintings/herring-net.jpg",
+    audio: "assets/audio/herring-net.wav"
+  },
+  {
+    title: "Croquet Scene",
+    artist: "Winslow Homer",
+    year: "1866",
+    description: "Homer shows a leisure scene from American life, using figures outdoors to capture a moment in time.",
+    aspect: 1.64,
+    image: "assets/paintings/croquet-scene.jpg",
+    audio: "assets/audio/croquet-scene.wav"
+  },
+  {
+    title: "New York Street",
+    artist: "Childe Hassam",
+    year: "1902",
+    description: "Hassam painted modern city life with light, atmosphere, and movement.",
+    aspect: 0.83,
+    image: "assets/paintings/new-york-street.jpg",
+    audio: "assets/audio/new-york-street.wav"
+  },
+  {
+    title: "Coast of Maine",
+    artist: "Winslow Homer",
+    year: "1893",
+    description: "Homer often painted the sea, showing nature as powerful, dramatic, and full of motion.",
+    aspect: 1.26,
+    image: "assets/paintings/coast-of-maine.jpg",
+    audio: "assets/audio/coast-of-maine.wav"
+  },
+  {
     title: "The Great Wave",
     artist: "Katsushika Hokusai",
     year: "ca. 1830-32",
@@ -212,6 +294,33 @@ const PAINTINGS = [
     aspect: 1.48,
     image: "assets/paintings/great-wave.jpg",
     audio: "assets/audio/great-wave.wav"
+  },
+  {
+    title: "Plum Garden at Kameido",
+    artist: "Utagawa Hiroshige",
+    year: "1857",
+    description: "This Japanese woodblock print uses bold composition and color to show a famous garden in Edo.",
+    aspect: 0.68,
+    image: "assets/paintings/plum-garden-kameido.jpg",
+    audio: "assets/audio/plum-garden-kameido.wav"
+  },
+  {
+    title: "Sudden Shower over Shin Ohashi Bridge and Atake",
+    artist: "Utagawa Hiroshige",
+    year: "1857",
+    description: "People hurry across a bridge during a sudden rainstorm in this famous Japanese print.",
+    aspect: 0.69,
+    image: "assets/paintings/sudden-shower-shin-ohashi.jpg",
+    audio: "assets/audio/sudden-shower-shin-ohashi.wav"
+  },
+  {
+    title: "Mount Fuji from Lake Ashi in Hakone",
+    artist: "Katsushika Hokusai",
+    year: "1825-1840",
+    description: "This Japanese woodblock print shows Mount Fuji as part of a carefully composed landscape, using shape, color, and distance to create a calm view.",
+    aspect: 0.87,
+    image: "assets/paintings/mount-fuji-lake-ashi.jpg",
+    audio: "assets/audio/mount-fuji-lake-ashi.wav"
   }
 ];
 
@@ -410,25 +519,37 @@ addHorizontalDoorwayPost(4, -7);
 addDoorwayHeader(0, -7, 8.15, false);
 
 const layout = [
-  { x: -6.0, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
-  { x: -3.0, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: -6.2, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: -3.1, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
   { x: 0.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
-  { x: 3.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
-  { x: 6.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' }
+  { x: 3.1,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: 6.2,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
+  { x: -6.2, y: 2.0, z: -6.94, ry: 0, room: 'Room 1: Impressionism', wall: 'back wall' },
+  { x: 6.2,  y: 2.0, z: -6.94, ry: 0, room: 'Room 1: Impressionism', wall: 'back wall' },
+  { x: -7.94, y: 2.0, z: 5.8, ry: Math.PI / 2, room: 'Room 1: Impressionism', wall: 'left wall' }
 ];
 
 const annexLayout = [
-  { x: 25.94, y: 2.0, z: -4.8, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
-  { x: 25.94, y: 2.0, z: -1.6, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
-  { x: 25.94, y: 2.0, z: 1.6,  ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 25.94, y: 2.0, z: -5.4, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 25.94, y: 2.0, z: -3.0, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 25.94, y: 2.0, z: -0.6, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 25.94, y: 2.0, z: 1.8,  ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
   { x: 25.94, y: 2.0, z: 4.8,  ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
+  { x: 12.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
   { x: 15.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
-  { x: -25.94, y: 2.0, z: -4.0, ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: 18.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
+  { x: 21.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
+  { x: 24.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
+  { x: 20.5,  y: 2.0, z: -6.94, ry: 0, room: 'Room 2: Post-Impressionism', wall: 'back wall' },
+  { x: -25.94, y: 2.0, z: -4.8, ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: -25.94, y: 2.0, z: -2.4, ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
   { x: -25.94, y: 2.0, z: 0.0,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
-  { x: -25.94, y: 2.0, z: 4.0,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
-  { x: -5.0, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
-  { x: 0.0,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
-  { x: 5.0,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' }
+  { x: -25.94, y: 2.0, z: 2.4,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: -25.94, y: 2.0, z: 4.8,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: -5.4, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
+  { x: -1.8, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
+  { x: 1.8,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
+  { x: 5.4,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' }
 ];
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
