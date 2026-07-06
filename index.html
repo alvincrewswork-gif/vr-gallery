@@ -42,6 +42,7 @@
 // SPAWN_FACING_EXHIBITS_V7 - real object labels and models calculate their facing direction toward the student's starting point or room center
 // SECOND_GALLERY_ROOM_V7 - adds a second room to the right through a large open doorway, with additional artwork and object displays
 // FRONT_ROW_MODEL_FLIP_V8 - flips the first-row real GLB models to match their already-correct facing description plaques
+// PERFORMANCE_ORIENTATION_RESCUE_V9 - improves Quest performance, fixes object plaque placement, and keeps only a small set of real GLB models loaded
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -146,9 +147,9 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of a plaster life mask of Abraham Lincoln. Students can pick it up, resize it, and inspect portrait details.',
     model: 'assets/models/lincoln-life-mask.glb',
     position: { x: 0, z: 1.55 },
-    faceSpawn: true,
-    displayHeight: 0.52,
-    rotationOffsetY: Math.PI
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.52
   },
   {
     key: 'lincoln-hands',
@@ -158,9 +159,9 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln’s hands, offering a close look at portraiture through historical objects.',
     model: 'assets/models/lincoln-hands.glb',
     position: { x: -4.2, z: 1.85 },
-    faceSpawn: true,
-    displayHeight: 0.42,
-    rotationOffsetY: Math.PI
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.42
   },
   {
     key: 'theodore-roosevelt-relief',
@@ -170,9 +171,9 @@ const REAL_OBJECTS = [
     description: 'A real Smithsonian 3D scan of a bronze relief portrait of Theodore Roosevelt, showing how portraits can be made in shallow sculptural depth.',
     model: 'assets/models/theodore-roosevelt-relief.glb',
     position: { x: 4.2, z: 1.85 },
-    faceSpawn: true,
-    displayHeight: 0.82,
-    rotationOffsetY: Math.PI
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.82
   },
   {
     key: 'beaker-vase',
@@ -181,58 +182,10 @@ const REAL_OBJECTS = [
     year: '1662-1722',
     description: 'A real Smithsonian 3D scan of a porcelain vase from the Qing dynasty, showing symmetry, craft, and decorative object design.',
     model: 'assets/models/beaker-vase.glb',
-    position: { x: -4.2, z: -2.4 },
-    facePoint: { x: 0, z: 4 },
-    displayHeight: 0.74,
-    rotationOffsetY: 0
-  },
-  {
-    key: 'apollo-command-module',
-    title: 'Apollo 11 Command Module',
-    artist: 'North American Rockwell / NASA',
-    year: '1969',
-    description: 'A real Smithsonian 3D scan of the Apollo 11 command module interior, connecting museum objects with space exploration and engineering history.',
-    model: 'assets/models/apollo-command-module.glb',
-    position: { x: 4.2, z: -2.4 },
-    facePoint: { x: 0, z: 4 },
-    displayHeight: 0.92,
-    rotationOffsetY: 0
-  },
-  {
-    key: 'annex-lincoln-hands',
-    title: 'Lincoln Hands Study',
-    artist: 'Cast after Leonard Wells Volk',
-    year: '1917 cast after 1860 original',
-    description: 'A second hands-on inspection station for the Lincoln hand casts in the east gallery room.',
-    model: 'assets/models/lincoln-hands.glb',
-    position: { x: 15.0, z: 1.9 },
-    facePoint: { x: 19, z: 4 },
-    displayHeight: 0.44,
-    rotationOffsetY: 0
-  },
-  {
-    key: 'annex-beaker-vase',
-    title: 'Vase Study Station',
-    artist: 'Jingdezhen ware, China',
-    year: '1662-1722',
-    description: 'A second gallery station for examining the vase form and decoration from all sides.',
-    model: 'assets/models/beaker-vase.glb',
     position: { x: 19.0, z: 1.9 },
-    facePoint: { x: 19, z: 4 },
-    displayHeight: 0.78,
-    rotationOffsetY: 0
-  },
-  {
-    key: 'annex-apollo-command-module',
-    title: 'Apollo 11 Study Station',
-    artist: 'North American Rockwell / NASA',
-    year: '1969',
-    description: 'A second gallery station for close inspection of the command module shape and engineering details.',
-    model: 'assets/models/apollo-command-module.glb',
-    position: { x: 23.0, z: 1.9 },
-    facePoint: { x: 19, z: 4 },
-    displayHeight: 0.92,
-    rotationOffsetY: 0
+    labelAngle: 0,
+    modelAngle: 0,
+    displayHeight: 0.78
   }
 ];
 
@@ -255,16 +208,19 @@ scene.fog = new THREE.Fog(0x1a1008, 12, 46);
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
 camera.position.set(0, 1.6, 6);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(1);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.xr.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0xfff5e0, 0.5));
-[-6, -2, 2, 6, 12, 16, 20, 24, 27].forEach(x => {
-  const pt = new THREE.PointLight(0xfff5cc, 0.95, 9);
-  pt.position.set(x, 3.2, -1);
+scene.add(new THREE.AmbientLight(0xfff5e0, 0.9));
+const keyLight = new THREE.DirectionalLight(0xfff5cc, 0.55);
+keyLight.position.set(0, 6, 5);
+scene.add(keyLight);
+[-5, 5, 16, 24].forEach(x => {
+  const pt = new THREE.PointLight(0xfff5cc, 0.32, 8);
+  pt.position.set(x, 3.0, -1);
   scene.add(pt);
 });
 
@@ -756,7 +712,7 @@ function addSculptureExhibit(item) {
 
   const label = new THREE.Mesh(
     new THREE.PlaneGeometry(1.05, 0.36),
-    new THREE.MeshStandardMaterial({ map: makeSculpturePlaque(item), roughness: 0.8 })
+    new THREE.MeshBasicMaterial({ map: makeSculpturePlaque(item), side: THREE.DoubleSide })
   );
 
   if (item.front === 'negativeZ') {
@@ -768,11 +724,7 @@ function addSculptureExhibit(item) {
   }
   group.add(label);
 
-  const spot = new THREE.SpotLight(0xfff8e0, 1.8, 5, Math.PI / 7, 0.25);
-  spot.position.set(0, 3.0, item.front === 'negativeZ' ? -0.6 : 0.6);
-  spot.target.position.set(0, 1.45, 0);
-  group.add(spot);
-  group.add(spot.target);
+  // Performance note: no per-sculpture SpotLight.
 
   scene.add(group);
 }
@@ -824,11 +776,21 @@ function addRopeLine(z) {
 
 
 function getExhibitFacingAngle(item) {
+  // Plaques should be readable from the normal visitor side of the pedestal.
+  // For the front room, that means straight toward spawn (+Z), not angled toward the exact center point.
+  if (typeof item.labelAngle === 'number') return item.labelAngle;
   const target = item.facePoint ? new THREE.Vector3(item.facePoint.x, 0, item.facePoint.z) : SPAWN_POINT;
   if (item.faceSpawn || item.facePoint) {
     return Math.atan2(target.x - item.position.x, target.z - item.position.z);
   }
   return item.front === 'negativeZ' ? Math.PI : 0;
+}
+
+function getModelFacingAngle(item, labelFacingAngle) {
+  // Model facing is controlled separately from plaque facing. Many downloaded GLB scans have their
+  // natural front facing the opposite direction, so the three front-row portrait objects use Math.PI.
+  if (typeof item.modelAngle === 'number') return item.modelAngle;
+  return labelFacingAngle + (item.rotationOffsetY || 0);
 }
 
 function addRealModelExhibit(item) {
@@ -841,9 +803,8 @@ function addRealModelExhibit(item) {
   const labelDistance = 0.72;
   const label = new THREE.Mesh(
     new THREE.PlaneGeometry(1.15, 0.38),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshBasicMaterial({
       map: makeSculpturePlaque(item),
-      roughness: 0.8,
       side: THREE.DoubleSide
     })
   );
@@ -856,12 +817,7 @@ function addRealModelExhibit(item) {
   loadingMarker.position.y = 1.45;
   group.add(loadingMarker);
 
-  const spot = new THREE.SpotLight(0xfff8e0, 2.3, 6, Math.PI / 7, 0.25);
-  spot.position.set(Math.sin(facingAngle) * 0.65, 3.15, Math.cos(facingAngle) * 0.65);
-  spot.target.position.set(0, 1.45, 0);
-  group.add(spot);
-  group.add(spot.target);
-
+  // Performance note: avoid one SpotLight per model on Quest. Shared room lighting keeps the frame rate smoother.
   scene.add(group);
 
   if (!THREE.GLTFLoader) {
@@ -883,7 +839,7 @@ function addRealModelExhibit(item) {
 
       model.traverse((child) => {
         if (child.isMesh) {
-          child.frustumCulled = false;
+          child.frustumCulled = true;
           if (child.material) {
             if (Array.isArray(child.material)) {
               child.material.forEach(m => { m.side = THREE.DoubleSide; m.needsUpdate = true; });
@@ -906,7 +862,7 @@ function addRealModelExhibit(item) {
 
       const modelHolder = new THREE.Group();
       modelHolder.position.y = 1.02;
-      modelHolder.rotation.y = facingAngle + (item.rotationOffsetY || 0);
+      modelHolder.rotation.y = getModelFacingAngle(item, facingAngle);
 
       model.scale.setScalar(scale);
       model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
@@ -931,7 +887,7 @@ function addRealModelExhibit(item) {
 
       group.add(modelHolder);
 
-      setStatus('Real objects loaded. Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
+      setStatus('Performance mode loaded. Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
     },
     undefined,
     (error) => {
@@ -1062,13 +1018,13 @@ function buildFrame(p, pos) {
     p.image,
     (tex) => {
       tex.encoding = THREE.sRGBEncoding;
-      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      tex.anisotropy = 2;
       tex.minFilter = THREE.LinearFilter;
       tex.magFilter = THREE.LinearFilter;
       tex.needsUpdate = true;
 
       canvasMesh.material.dispose();
-      canvasMesh.material = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 });
+      canvasMesh.material = new THREE.MeshBasicMaterial({ map: tex });
       canvasMesh.material.needsUpdate = true;
     },
     undefined,
@@ -1082,7 +1038,7 @@ function buildFrame(p, pos) {
   // Label plate under the painting
   const labelMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(1.9, 0.5),
-    new THREE.MeshStandardMaterial({ map: makeLabel(p), roughness: 0.9 })
+    new THREE.MeshBasicMaterial({ map: makeLabel(p), side: THREE.DoubleSide })
   );
   labelMesh.position.set(0, -(ph / 2 + 0.34), fd / 2 + 0.002);
   group.add(labelMesh);
@@ -1090,7 +1046,7 @@ function buildFrame(p, pos) {
   // Audio button below the plaque
   const audioButtonMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(0.9, 0.28),
-    new THREE.MeshStandardMaterial({ map: makeAudioButtonTexture(), color: 0xffffff, roughness: 0.8 })
+    new THREE.MeshBasicMaterial({ map: makeAudioButtonTexture(), color: 0xffffff, side: THREE.DoubleSide })
   );
   audioButtonMesh.position.set(0, -(ph / 2 + 0.74), fd / 2 + 0.003);
   audioButtonMesh.userData.type = 'audioButton';
@@ -1110,13 +1066,7 @@ function buildFrame(p, pos) {
   audioButtons.push(audioHitBox);
   group.add(audioHitBox);
 
-  // Small spotlight for each painting
-  const spot = new THREE.SpotLight(0xfff8e0, 2.5, 5, Math.PI / 8, 0.3);
-  spot.position.set(0, 2.2, 0.4);
-  spot.target.position.set(0, 0, -0.3);
-  group.add(spot);
-  group.add(spot.target);
-
+  // Performance note: avoid per-painting SpotLights on Quest. The gallery uses shared room lighting instead.
   scene.add(group);
 }
 
@@ -1606,7 +1556,7 @@ if (navigator.xr) {
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(1);
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
