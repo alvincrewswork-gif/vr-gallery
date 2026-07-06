@@ -45,6 +45,7 @@
 // PERFORMANCE_ORIENTATION_RESCUE_V9 - improves Quest performance, fixes object plaque placement, and keeps only a small set of real GLB models loaded
 // UNIQUE_ARTWORKS_ALL_ROOMS_V10
 // FOUR_ROOM_STYLE_GALLERY_V12
+// ROOM_SIGN_FIX_V13
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -124,7 +125,7 @@ const PAINTINGS = [
     title: "The Bedroom",
     artist: "Vincent van Gogh",
     year: "1889",
-    description: "Van Gogh painted three versions of his bedroom in Arles. The bold colors and tilted perspective convey rest and peace — a sanctuary from his troubled life.",
+    description: "Van Gogh painted three versions of his bedroom in Arles. The bold colors and tilted perspective convey rest and peace - a sanctuary from his troubled life.",
     aspect: 1.26,
     image: "assets/paintings/bedroom.jpg",
     audio: "assets/audio/bedroom.wav"
@@ -133,7 +134,7 @@ const PAINTINGS = [
     title: "A Sunday on La Grande Jatte",
     artist: "Georges Seurat",
     year: "1884-86",
-    description: "Seurat's pointillist masterpiece depicts Parisians relaxing by the Seine. Each tiny dot of color blends in the viewer's eye — a technique called Chromoluminarism.",
+    description: "Seurat's pointillist masterpiece depicts Parisians relaxing by the Seine. Each tiny dot of color blends in the viewer's eye - a technique called Chromoluminarism.",
     aspect: 1.39,
     image: "assets/paintings/grande-jatte.jpg",
     audio: "assets/audio/grande-jatte.wav"
@@ -238,7 +239,7 @@ const REAL_OBJECTS = [
     title: 'Abraham Lincoln Hands',
     artist: 'Cast after Leonard Wells Volk',
     year: '1917 cast after 1860 original',
-    description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln’s hands, offering a close look at portraiture through historical objects.',
+    description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln-s hands, offering a close look at portraiture through historical objects.',
     model: 'assets/models/lincoln-hands.glb',
     position: { x: 19.0, z: -13.4 },
     labelAngle: 0,
@@ -563,44 +564,52 @@ function makeRoomSignTexture(lines) {
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#f8f1dc';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#8b6914';
-  ctx.lineWidth = 8;
-  ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+  ctx.strokeStyle = '#4a3522';
+  ctx.lineWidth = 18;
+  ctx.strokeRect(18, 18, canvas.width - 36, canvas.height - 36);
+  ctx.fillStyle = '#24180f';
+  ctx.font = lines.length > 2 ? '700 42px Arial' : '700 48px Arial';
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#111111';
-  ctx.font = 'bold 48px Georgia,serif';
-  ctx.fillText(lines[0], canvas.width / 2, 88);
-  ctx.fillStyle = '#3b2a10';
-  ctx.font = '32px Georgia,serif';
-  ctx.fillText(lines[1] || '', canvas.width / 2, 150);
-  ctx.fillStyle = '#222222';
-  ctx.font = '26px Arial,sans-serif';
-  ctx.fillText(lines[2] || '', canvas.width / 2, 202);
+  ctx.textBaseline = 'middle';
+
+  const startY = lines.length === 1 ? 128 : (lines.length === 2 ? 104 : 76);
+  const lineStep = lines.length === 2 ? 52 : 48;
+  lines.forEach((line, i) => ctx.fillText(line, 512, startY + i * lineStep));
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.encoding = THREE.sRGBEncoding;
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
   return texture;
 }
 
-function addWallSign(lines, x, y, z, ry, w, h) {
+function faceObjectAtXZ(object, targetX, targetZ) {
+  const dx = targetX - object.position.x;
+  const dz = targetZ - object.position.z;
+  object.rotation.y = Math.atan2(dx, dz);
+}
+
+function addWallSign(lines, x, y, z, targetX, targetZ, w, h) {
   const sign = new THREE.Mesh(
-    new THREE.PlaneGeometry(w || 2.5, h || 0.62),
-    new THREE.MeshBasicMaterial({ map: makeRoomSignTexture(lines), side: THREE.DoubleSide })
+    new THREE.PlaneGeometry(w || 1.8, h || 0.42),
+    new THREE.MeshBasicMaterial({ map: makeRoomSignTexture(lines), side: THREE.FrontSide })
   );
   sign.position.set(x, y, z);
-  sign.rotation.y = ry;
+  faceObjectAtXZ(sign, targetX, targetZ);
   scene.add(sign);
 }
 
 function addRoomSigns() {
-  addWallSign(['Room 1: Impressionism', 'Monet, Renoir, Caillebotte', 'To Post-Impressionism ?'], 0, 3.05, -6.86, 0, 3.2, 0.8);
-  addWallSign(['Room 2: Post-Impressionism', 'Van Gogh, Seurat, Cezanne', 'To American Art ?'], 19, 3.05, -6.86, 0, 3.4, 0.8);
-  addWallSign(['Room 3: American Art', 'Wood, Lincoln, Roosevelt', 'To Post-Impressionism ?'], 19, 3.05, -20.86, 0, 3.4, 0.8);
-  addWallSign(['Room 4: World Art / Objects / History', 'Hokusai and global objects', 'To Impressionism ?'], 0, 3.05, 20.86, Math.PI, 4.0, 0.8);
-  addWallSign(['To Impressionism', 'Starting gallery', 'Room 1'], 10.08, 2.4, 2.15, -Math.PI / 2, 1.9, 0.55);
-  addWallSign(['To Post-Impressionism', 'Room 2', 'Continue right'], 9.92, 2.4, -2.15, Math.PI / 2, 2.1, 0.55);
-  addWallSign(['To American Art', 'Room 3', 'Open doorway ahead'], 19, 2.45, -6.86, 0, 2.4, 0.55);
-  addWallSign(['To World Art / Objects', 'Room 4', 'Open doorway ahead'], 0, 2.45, 6.86, Math.PI, 2.6, 0.55);
+  addWallSign(['Room 1: Impressionism', 'Monet, Renoir, Caillebotte'], 0, 3.0, -6.86, 0, 0, 2.0, 0.45);
+  addWallSign(['Room 2: Post-Impressionism', 'Van Gogh, Seurat, Cezanne'], 19, 3.0, -6.86, 19, 0, 2.0, 0.45);
+  addWallSign(['Room 3: American Art', 'Wood, Lincoln, Roosevelt'], 19, 3.0, -20.86, 19, -14, 2.0, 0.45);
+  addWallSign(['Room 4: World Art / Objects / History', 'Hokusai and global objects'], 0, 3.0, 20.86, 0, 14, 2.0, 0.45);
+
+  addWallSign(['To Post-Impressionism', 'Room 2'], 9.92, 2.9, -1.7, 4, -1.7, 1.6, 0.35);
+  addWallSign(['To Impressionism', 'Room 1'], 10.08, 2.9, 1.7, 16, 1.7, 1.6, 0.35);
+  addWallSign(['To American Art', 'Room 3'], 19, 2.9, -6.86, 19, -2, 1.6, 0.35);
+  addWallSign(['To Post-Impressionism', 'Room 2'], 19, 2.9, -7.14, 19, -12, 1.6, 0.35);
+  addWallSign(['To World Art / Objects', 'Room 4'], 0, 2.9, 6.86, 0, 3.5, 1.6, 0.35);
+  addWallSign(['To Impressionism', 'Room 1'], 0, 2.9, 7.14, 0, 13, 1.6, 0.35);
 }
 function makeAudioButtonTexture() {
   const canvas = document.createElement('canvas');
