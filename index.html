@@ -664,7 +664,7 @@ scene.add(keyLight);
   scene.add(pt);
 });
 
-const wallMat    = new THREE.MeshStandardMaterial({ color: 0xf5f0e8 });
+const wallMat    = new THREE.MeshStandardMaterial({ color: 0xf5f0e8, side: THREE.DoubleSide });
 const floorMat   = new THREE.MeshStandardMaterial({ color: 0x5c4a2a, roughness: 0.9 });
 const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xede8d8 });
 const trimMat    = new THREE.MeshStandardMaterial({ color: 0xc8b890 });
