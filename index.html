@@ -49,6 +49,7 @@
 // CLEAR_FOUR_ROOM_HUB_LAYOUT_V14
 // WALL_MOUNTED_ARTWORK_LAYOUT_V15
 // THEMED_ROOM_ART_FILL_V16
+// BALANCED_ROOM_ARTWORK_DISTRIBUTION_V17
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -518,7 +519,7 @@ addHorizontalDoorwayPost(-4, -7);
 addHorizontalDoorwayPost(4, -7);
 addDoorwayHeader(0, -7, 8.15, false);
 
-const layout = [
+const room1Layout = [
   { x: -6.2, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
   { x: -3.1, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
   { x: 0.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
@@ -529,7 +530,7 @@ const layout = [
   { x: -7.94, y: 2.0, z: 5.8, ry: Math.PI / 2, room: 'Room 1: Impressionism', wall: 'left wall' }
 ];
 
-const annexLayout = [
+const room2Layout = [
   { x: 25.94, y: 2.0, z: -5.4, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
   { x: 25.94, y: 2.0, z: -3.0, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
   { x: 25.94, y: 2.0, z: -0.6, ry: -Math.PI / 2, room: 'Room 2: Post-Impressionism', wall: 'right wall' },
@@ -540,17 +541,26 @@ const annexLayout = [
   { x: 18.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
   { x: 21.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
   { x: 24.0,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 2: Post-Impressionism', wall: 'front wall' },
-  { x: 20.5,  y: 2.0, z: -6.94, ry: 0, room: 'Room 2: Post-Impressionism', wall: 'back wall' },
+  { x: 20.5,  y: 2.0, z: -6.94, ry: 0, room: 'Room 2: Post-Impressionism', wall: 'back wall' }
+];
+
+const room3Layout = [
   { x: -25.94, y: 2.0, z: -4.8, ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
   { x: -25.94, y: 2.0, z: -2.4, ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
   { x: -25.94, y: 2.0, z: 0.0,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
   { x: -25.94, y: 2.0, z: 2.4,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
-  { x: -25.94, y: 2.0, z: 4.8,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' },
+  { x: -25.94, y: 2.0, z: 4.8,  ry: Math.PI / 2, room: 'Room 3: American Art', wall: 'left wall' }
+];
+
+const room4Layout = [
   { x: -5.4, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
   { x: -1.8, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
   { x: 1.8,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
   { x: 5.4,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' }
 ];
+
+const layout = room1Layout;
+const annexLayout = room2Layout.concat(room3Layout, room4Layout);
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
 const gltfLoader = new THREE.GLTFLoader();
@@ -1360,9 +1370,13 @@ function buildFrame(p, pos) {
 
 function loadGallery() {
   const allLayouts = layout.concat(annexLayout);
+  const counts = {};
   for (let i = 0; i < PAINTINGS.length && i < allLayouts.length; i++) {
     buildFrame(PAINTINGS[i], allLayouts[i]);
+    const roomName = allLayouts[i].room || 'Unassigned';
+    counts[roomName] = (counts[roomName] || 0) + 1;
   }
+  console.log('Painting counts by room', counts);
 }
 
 loadGallery();
