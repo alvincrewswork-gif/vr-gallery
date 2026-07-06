@@ -451,6 +451,15 @@ const PAINTINGS = [
     audio: "assets/audio/new-england-scenery.wav"
   },
   {
+    title: "After a Summer Shower",
+    artist: "George Inness",
+    year: "1894",
+    description: "Inness uses soft light and atmosphere to show an American landscape after rain.",
+    aspect: 1.32,
+    image: "assets/paintings/after-summer-shower.jpg",
+    audio: "assets/audio/after-summer-shower.wav"
+  },
+  {
     title: "The Great Wave",
     artist: "Katsushika Hokusai",
     year: "ca. 1830-32",
@@ -686,7 +695,7 @@ ceiling.position.set(0, 4, -7);
 scene.add(ceiling);
 
 function addWallPlane(x, y, z, ry, w) {
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(w, 4), wallMat);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(w, 4, 0.08), wallMat);
   wall.position.set(x, y, z);
   wall.rotation.y = ry;
   scene.add(wall);
@@ -812,7 +821,8 @@ const room3Layout = [
   { x: -23.0,  y: 2.0, z: -6.94, ry: 0, room: 'Room 3: American Art', wall: 'back wall' },
   { x: -20.0,  y: 2.0, z: -6.94, ry: 0, room: 'Room 3: American Art', wall: 'back wall' },
   { x: -17.0,  y: 2.0, z: -6.94, ry: 0, room: 'Room 3: American Art', wall: 'back wall' },
-  { x: -14.0,  y: 2.0, z: -6.94, ry: 0, room: 'Room 3: American Art', wall: 'back wall' }
+  { x: -14.0,  y: 2.0, z: -6.94, ry: 0, room: 'Room 3: American Art', wall: 'back wall' },
+  { x: -11.0,  y: 2.0, z: -6.94, ry: 0, room: 'Room 3: American Art', wall: 'back wall' }
 ];
 
 const room4Layout = [
