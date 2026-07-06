@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<div id="info">VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2</div>
+<div id="info">Four-room gallery loaded. Use doorways from Room 1 to visit each themed room. VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/js/GLTFLoader.js"></script>
@@ -46,6 +46,7 @@
 // UNIQUE_ARTWORKS_ALL_ROOMS_V10
 // FOUR_ROOM_STYLE_GALLERY_V12
 // ROOM_SIGN_FIX_V13
+// CLEAR_FOUR_ROOM_HUB_LAYOUT_V14
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -229,8 +230,8 @@ const REAL_OBJECTS = [
     year: '1917 cast after 1865 original',
     description: 'A real Smithsonian 3D scan of a plaster life mask of Abraham Lincoln. Students can pick it up, resize it, and inspect portrait details.',
     model: 'assets/models/lincoln-life-mask.glb',
-    position: { x: 15.0, z: -13.4 },
-    labelAngle: 0,
+    position: { x: -20.5, z: -3.0 },
+    labelAngle: Math.PI / 2,
     modelAngle: Math.PI,
     displayHeight: 0.52
   },
@@ -241,8 +242,8 @@ const REAL_OBJECTS = [
     year: '1917 cast after 1860 original',
     description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln-s hands, offering a close look at portraiture through historical objects.',
     model: 'assets/models/lincoln-hands.glb',
-    position: { x: 19.0, z: -13.4 },
-    labelAngle: 0,
+    position: { x: -17.0, z: 0.0 },
+    labelAngle: Math.PI / 2,
     modelAngle: Math.PI,
     displayHeight: 0.42
   },
@@ -253,8 +254,8 @@ const REAL_OBJECTS = [
     year: '1906',
     description: 'A real Smithsonian 3D scan of a bronze relief portrait of Theodore Roosevelt, showing how portraits can be made in shallow sculptural depth.',
     model: 'assets/models/theodore-roosevelt-relief.glb',
-    position: { x: 23.0, z: -13.4 },
-    labelAngle: 0,
+    position: { x: -13.5, z: 3.0 },
+    labelAngle: Math.PI / 2,
     modelAngle: Math.PI,
     displayHeight: 0.82
   },
@@ -265,8 +266,8 @@ const REAL_OBJECTS = [
     year: '1662-1722',
     description: 'A real Smithsonian 3D scan of a porcelain vase from the Qing dynasty, showing symmetry, craft, and decorative object design.',
     model: 'assets/models/beaker-vase.glb',
-    position: { x: 0, z: 14.2 },
-    labelAngle: Math.PI,
+    position: { x: 0, z: -14.2 },
+    labelAngle: 0,
     modelAngle: Math.PI,
     displayHeight: 0.78
   }
@@ -313,19 +314,19 @@ const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xede8d8 });
 const trimMat    = new THREE.MeshStandardMaterial({ color: 0xc8b890 });
 
 
-// Four-room gallery layout:
-// Room 1: Impressionism, x -10..10 and z -7..7.
-// Room 2: Post-Impressionism, x 10..28 and z -7..7.
-// Room 3: American Art, x 10..28 and z -21..-7.
-// Room 4: World Art / Objects / History, x -10..10 and z 7..21.
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 42), floorMat);
+// Clear four-room hub layout:
+// Room 1: Impressionism central hub, x -8..8 and z -7..7.
+// Room 2: Post-Impressionism, directly right of Room 1, x 8..26 and z -7..7.
+// Room 3: American Art, directly left of Room 1, x -26..-8 and z -7..7.
+// Room 4: World Art / Objects / History, straight ahead from Room 1, x -8..8 and z -21..-7.
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(52, 28), floorMat);
 floor.rotation.x = -Math.PI / 2;
-floor.position.set(9, 0, 0);
+floor.position.set(0, 0, -7);
 scene.add(floor);
 
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(38, 42), ceilingMat);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(52, 28), ceilingMat);
 ceiling.rotation.x = Math.PI / 2;
-ceiling.position.set(9, 4, 0);
+ceiling.position.set(0, 4, -7);
 scene.add(ceiling);
 
 function addWallPlane(x, y, z, ry, w) {
@@ -336,16 +337,18 @@ function addWallPlane(x, y, z, ry, w) {
 }
 
 [
-  [9, 2, -21, 0, 38],
-  [9, 2, 21, Math.PI, 38],
-  [-10, 2, 0, Math.PI / 2, 42],
-  [28, 2, 0, -Math.PI / 2, 42],
-  [10, 2, -5, -Math.PI / 2, 4],
-  [10, 2, 5, -Math.PI / 2, 4],
-  [13, 2, -7, 0, 6],
-  [25, 2, -7, 0, 6],
-  [-7, 2, 7, Math.PI, 6],
-  [7, 2, 7, Math.PI, 6]
+  [0, 2, -21, 0, 52],
+  [0, 2, 7, Math.PI, 52],
+  [-26, 2, -7, Math.PI / 2, 28],
+  [26, 2, -7, -Math.PI / 2, 28],
+  [8, 2, -5, -Math.PI / 2, 4],
+  [8, 2, 5, -Math.PI / 2, 4],
+  [-8, 2, -5, Math.PI / 2, 4],
+  [-8, 2, 5, Math.PI / 2, 4],
+  [-15, 2, -7, 0, 22],
+  [15, 2, -7, 0, 22],
+  [-8, 2, -14, Math.PI / 2, 14],
+  [8, 2, -14, -Math.PI / 2, 14]
 ].forEach(([x, y, z, ry, w]) => addWallPlane(x, y, z, ry, w));
 
 function addTrim(x, y, z, w, h, ry) {
@@ -376,58 +379,55 @@ function addDoorwayHeader(x, z, length, alongZ) {
   scene.add(header);
 }
 
-addTrim(9, 0.1, -20.97, 38, 0.2, 0);
-addTrim(9, 0.1, 20.97, 38, 0.2, Math.PI);
-addTrim(-9.97, 0.1, 0, 42, 0.2, Math.PI / 2);
-addTrim(27.97, 0.1, 0, 42, 0.2, -Math.PI / 2);
-addTrim(10.03, 0.1, -5, 4, 0.2, -Math.PI / 2);
-addTrim(10.03, 0.1, 5, 4, 0.2, -Math.PI / 2);
-addTrim(13, 0.1, -6.97, 6, 0.2, 0);
-addTrim(25, 0.1, -6.97, 6, 0.2, 0);
-addTrim(-7, 0.1, 6.97, 6, 0.2, Math.PI);
-addTrim(7, 0.1, 6.97, 6, 0.2, Math.PI);
+const wallSpecs = [
+  [0, -21, 52, 0],
+  [0, 7, 52, Math.PI],
+  [-26, -7, 28, Math.PI / 2],
+  [26, -7, 28, -Math.PI / 2],
+  [8, -5, 4, -Math.PI / 2],
+  [8, 5, 4, -Math.PI / 2],
+  [-8, -5, 4, Math.PI / 2],
+  [-8, 5, 4, Math.PI / 2],
+  [-15, -7, 22, 0],
+  [15, -7, 22, 0],
+  [-8, -14, 14, Math.PI / 2],
+  [8, -14, 14, -Math.PI / 2]
+];
+wallSpecs.forEach(([x, z, w, ry]) => {
+  addTrim(x, 0.1, z, w, 0.2, ry);
+  addTrim(x, 3.9, z, w, 0.15, ry);
+});
 
-addTrim(9, 3.9, -20.97, 38, 0.15, 0);
-addTrim(9, 3.9, 20.97, 38, 0.15, Math.PI);
-addTrim(-9.97, 3.9, 0, 42, 0.15, Math.PI / 2);
-addTrim(27.97, 3.9, 0, 42, 0.15, -Math.PI / 2);
-addTrim(10.03, 3.9, -5, 4, 0.15, -Math.PI / 2);
-addTrim(10.03, 3.9, 5, 4, 0.15, -Math.PI / 2);
-addTrim(13, 3.9, -6.97, 6, 0.15, 0);
-addTrim(25, 3.9, -6.97, 6, 0.15, 0);
-addTrim(-7, 3.9, 6.97, 6, 0.15, Math.PI);
-addTrim(7, 3.9, 6.97, 6, 0.15, Math.PI);
-
-addDoorwayPost(10, -3.05);
-addDoorwayPost(10, 3.05);
-addDoorwayHeader(10, 0, 6.15, true);
-addHorizontalDoorwayPost(16, -7);
-addHorizontalDoorwayPost(22, -7);
-addDoorwayHeader(19, -7, 6.15, false);
-addHorizontalDoorwayPost(-4, 7);
-addHorizontalDoorwayPost(4, 7);
-addDoorwayHeader(0, 7, 8.15, false);
+addDoorwayPost(8, -3.05);
+addDoorwayPost(8, 3.05);
+addDoorwayHeader(8, 0, 6.15, true);
+addDoorwayPost(-8, -3.05);
+addDoorwayPost(-8, 3.05);
+addDoorwayHeader(-8, 0, 6.15, true);
+addHorizontalDoorwayPost(-4, -7);
+addHorizontalDoorwayPost(4, -7);
+addDoorwayHeader(0, -7, 8.15, false);
 
 const layout = [
-  { x: -7.0,  y: 2.0, z: -6.9,  ry: 0 },
-  { x: -3.5,  y: 2.0, z: -6.9,  ry: 0 },
-  { x: 0.0,   y: 2.0, z: -6.9,  ry: 0 },
-  { x: 3.5,   y: 2.0, z: -6.9,  ry: 0 },
-  { x: 7.0,   y: 2.0, z: -6.9,  ry: 0 },
-  { x: -9.85, y: 2.0, z: 0.0,   ry: Math.PI / 2 }
+  { x: -6.0, y: 2.0, z: 6.9, ry: Math.PI },
+  { x: -3.0, y: 2.0, z: 6.9, ry: Math.PI },
+  { x: 0.0,  y: 2.0, z: 6.9, ry: Math.PI },
+  { x: 3.0,  y: 2.0, z: 6.9, ry: Math.PI },
+  { x: 6.0,  y: 2.0, z: 6.9, ry: Math.PI },
+  { x: -6.2, y: 2.0, z: -6.9, ry: 0 }
 ];
 
 const annexLayout = [
-  { x: 13.0,  y: 2.0, z: -6.9,  ry: 0 },
-  { x: 16.5,  y: 2.0, z: -6.9,  ry: 0 },
-  { x: 20.0,  y: 2.0, z: -6.9,  ry: 0 },
-  { x: 23.5,  y: 2.0, z: -6.9,  ry: 0 },
-  { x: 26.4,  y: 2.0, z: -6.9,  ry: 0 },
-  { x: 13.5,  y: 2.0, z: 6.9,   ry: Math.PI },
-  { x: 17.5,  y: 2.0, z: 6.9,   ry: Math.PI },
-  { x: 21.5,  y: 2.0, z: 6.9,   ry: Math.PI },
-  { x: 19.0,  y: 2.0, z: -20.9, ry: 0 },
-  { x: 0.0,   y: 2.0, z: 20.9,  ry: Math.PI }
+  { x: 25.9,  y: 2.0, z: -4.8, ry: -Math.PI / 2 },
+  { x: 25.9,  y: 2.0, z: -1.6, ry: -Math.PI / 2 },
+  { x: 25.9,  y: 2.0, z: 1.6,  ry: -Math.PI / 2 },
+  { x: 25.9,  y: 2.0, z: 4.8,  ry: -Math.PI / 2 },
+  { x: 15.0,  y: 2.0, z: 6.9,  ry: Math.PI },
+  { x: 20.0,  y: 2.0, z: 6.9,  ry: Math.PI },
+  { x: 15.0,  y: 2.0, z: -6.9, ry: 0 },
+  { x: 20.0,  y: 2.0, z: -6.9, ry: 0 },
+  { x: -25.9, y: 2.0, z: 0.0,  ry: Math.PI / 2 },
+  { x: 0.0,   y: 2.0, z: -20.9, ry: 0 }
 ];
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
@@ -599,17 +599,17 @@ function addWallSign(lines, x, y, z, targetX, targetZ, w, h) {
 }
 
 function addRoomSigns() {
-  addWallSign(['Room 1: Impressionism', 'Monet, Renoir, Caillebotte'], 0, 3.0, -6.86, 0, 0, 2.0, 0.45);
-  addWallSign(['Room 2: Post-Impressionism', 'Van Gogh, Seurat, Cezanne'], 19, 3.0, -6.86, 19, 0, 2.0, 0.45);
-  addWallSign(['Room 3: American Art', 'Wood, Lincoln, Roosevelt'], 19, 3.0, -20.86, 19, -14, 2.0, 0.45);
-  addWallSign(['Room 4: World Art / Objects / History', 'Hokusai and global objects'], 0, 3.0, 20.86, 0, 14, 2.0, 0.45);
+  addWallSign(['Room 1: Impressionism'], 0, 3.0, 6.86, 0, 0, 2.0, 0.45);
+  addWallSign(['Room 2: Post-Impressionism'], 25.86, 3.0, 0, 18, 0, 2.0, 0.45);
+  addWallSign(['Room 3: American Art'], -25.86, 3.0, 0, -18, 0, 2.0, 0.45);
+  addWallSign(['Room 4: World Art / Objects / History'], 0, 3.0, -20.86, 0, -14, 2.0, 0.45);
 
-  addWallSign(['To Post-Impressionism', 'Room 2'], 9.92, 2.9, -1.7, 4, -1.7, 1.6, 0.35);
-  addWallSign(['To Impressionism', 'Room 1'], 10.08, 2.9, 1.7, 16, 1.7, 1.6, 0.35);
-  addWallSign(['To American Art', 'Room 3'], 19, 2.9, -6.86, 19, -2, 1.6, 0.35);
-  addWallSign(['To Post-Impressionism', 'Room 2'], 19, 2.9, -7.14, 19, -12, 1.6, 0.35);
-  addWallSign(['To World Art / Objects', 'Room 4'], 0, 2.9, 6.86, 0, 3.5, 1.6, 0.35);
-  addWallSign(['To Impressionism', 'Room 1'], 0, 2.9, 7.14, 0, 13, 1.6, 0.35);
+  addWallSign(['To Room 2', 'Post-Impressionism'], 7.86, 2.9, 0, 0, 0, 1.6, 0.35);
+  addWallSign(['To Room 3', 'American Art'], -7.86, 2.9, 0, 0, 0, 1.6, 0.35);
+  addWallSign(['To Room 4', 'World Art / Objects / History'], 0, 2.9, -6.86, 0, 0, 1.8, 0.38);
+  addWallSign(['To Room 1', 'Impressionism'], 8.14, 2.9, 0, 16, 0, 1.6, 0.35);
+  addWallSign(['To Room 1', 'Impressionism'], -8.14, 2.9, 0, -16, 0, 1.6, 0.35);
+  addWallSign(['To Room 1', 'Impressionism'], 0, 2.9, -7.14, 0, -14, 1.6, 0.35);
 }
 function makeAudioButtonTexture() {
   const canvas = document.createElement('canvas');
@@ -1480,8 +1480,8 @@ function getRightController() {
 }
 
 function clampToGalleryBounds(position) {
-  position.x = Math.max(-8.5, Math.min(26.5, position.x));
-  position.z = Math.max(-19.5, Math.min(19.5, position.z));
+  position.x = Math.max(-24.5, Math.min(24.5, position.x));
+  position.z = Math.max(-19.5, Math.min(5.5, position.z));
   return position;
 }
 
@@ -1500,8 +1500,8 @@ function updateTeleportTarget() {
   if (!hits.length) return;
 
   const hit = hits[0].point;
-  const x = Math.max(-8.5, Math.min(26.5, hit.x));
-  const z = Math.max(-19.5, Math.min(19.5, hit.z));
+  const x = Math.max(-24.5, Math.min(24.5, hit.x));
+  const z = Math.max(-19.5, Math.min(5.5, hit.z));
 
   teleportTarget.set(x, 0, z);
   teleportRing.position.set(x, 0.025, z);
