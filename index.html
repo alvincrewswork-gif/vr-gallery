@@ -44,6 +44,7 @@
 // FRONT_ROW_MODEL_FLIP_V8 - flips the first-row real GLB models to match their already-correct facing description plaques
 // PERFORMANCE_ORIENTATION_RESCUE_V9 - improves Quest performance, fixes object plaque placement, and keeps only a small set of real GLB models loaded
 // UNIQUE_ARTWORKS_ALL_ROOMS_V10
+// FOUR_ROOM_STYLE_GALLERY_V12
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -66,15 +67,6 @@
 
 const PAINTINGS = [
   {
-    title: "A Sunday on La Grande Jatte",
-    artist: "Georges Seurat",
-    year: "1884-86",
-    description: "Seurat's pointillist masterpiece depicts Parisians relaxing by the Seine. Each tiny dot of color blends in the viewer's eye — a technique called Chromoluminarism.",
-    aspect: 1.39,
-    image: "assets/paintings/grande-jatte.jpg",
-    audio: "assets/audio/grande-jatte.wav"
-  },
-  {
     title: "Water Lilies",
     artist: "Claude Monet",
     year: "1906",
@@ -82,42 +74,6 @@ const PAINTINGS = [
     aspect: 1.04,
     image: "assets/paintings/water-lilies.jpg",
     audio: "assets/audio/water-lilies.wav"
-  },
-  {
-    title: "The Bedroom",
-    artist: "Vincent van Gogh",
-    year: "1889",
-    description: "Van Gogh painted three versions of his bedroom in Arles. The bold colors and tilted perspective convey rest and peace — a sanctuary from his troubled life.",
-    aspect: 1.26,
-    image: "assets/paintings/bedroom.jpg",
-    audio: "assets/audio/bedroom.wav"
-  },
-  {
-    title: "American Gothic",
-    artist: "Grant Wood",
-    year: "1930",
-    description: "One of the most recognized images in American art. Wood used his dentist and sister as models for this iconic portrayal of rural Midwestern values.",
-    aspect: 0.81,
-    image: "assets/paintings/american-gothic.jpg",
-    audio: "assets/audio/american-gothic.wav"
-  },
-  {
-    title: "Stacks of Wheat",
-    artist: "Claude Monet",
-    year: "1890-91",
-    description: "One of Monet's celebrated wheat stack paintings, capturing the same subject under changing light and atmosphere.",
-    aspect: 1.28,
-    image: "assets/paintings/stacks-of-wheat.jpg",
-    audio: "assets/audio/stacks-of-wheat.wav"
-  },
-  {
-    title: "Paris Street; Rainy Day",
-    artist: "Gustave Caillebotte",
-    year: "1877",
-    description: "A monumental city scene of people walking under umbrellas through a newly modernized Paris. Its careful perspective and rain-soaked atmosphere make the street feel life-size.",
-    aspect: 1.30,
-    image: "assets/paintings/paris-street.jpg",
-    audio: "assets/audio/paris-street.wav"
   },
   {
     title: "Two Sisters (On the Terrace)",
@@ -129,15 +85,23 @@ const PAINTINGS = [
     audio: "assets/audio/two-sisters.wav"
   },
   {
-    title: "The Great Wave",
-    artist: "Katsushika Hokusai",
-    year: "ca. 1830-32",
-    description: "One of the most recognized works of Japanese art. The massive wave threatens boats near Mount Fuji, blending nature's power with artistic mastery.",
-    aspect: 1.48,
-    image: "assets/paintings/great-wave.jpg",
-    audio: "assets/audio/great-wave.wav"
-  }
-,
+    title: "Irises",
+    artist: "Claude Monet",
+    year: "1914-17",
+    description: "Monet painted flowers and gardens many times, studying how color and light change the way nature feels.",
+    aspect: 1.00,
+    image: "assets/paintings/irises.jpg",
+    audio: "assets/audio/irises.wav"
+  },
+  {
+    title: "Paris Street; Rainy Day",
+    artist: "Gustave Caillebotte",
+    year: "1877",
+    description: "A monumental city scene of people walking under umbrellas through a newly modernized Paris. Its careful perspective and rain-soaked atmosphere make the street feel life-size.",
+    aspect: 1.30,
+    image: "assets/paintings/paris-street.jpg",
+    audio: "assets/audio/paris-street.wav"
+  },
   {
     title: "The Herring Net",
     artist: "Winslow Homer",
@@ -146,6 +110,42 @@ const PAINTINGS = [
     aspect: 1.63,
     image: "assets/paintings/herring-net.jpg",
     audio: "assets/audio/herring-net.wav"
+  },
+  {
+    title: "Waterloo Bridge, Gray Weather",
+    artist: "Claude Monet",
+    year: "1900",
+    description: "Monet painted London bridges through fog and changing light, focusing on atmosphere more than sharp detail.",
+    aspect: 1.41,
+    image: "assets/paintings/waterloo-bridge-gray.jpg",
+    audio: "assets/audio/waterloo-bridge-gray.wav"
+  },
+  {
+    title: "The Bedroom",
+    artist: "Vincent van Gogh",
+    year: "1889",
+    description: "Van Gogh painted three versions of his bedroom in Arles. The bold colors and tilted perspective convey rest and peace � a sanctuary from his troubled life.",
+    aspect: 1.26,
+    image: "assets/paintings/bedroom.jpg",
+    audio: "assets/audio/bedroom.wav"
+  },
+  {
+    title: "A Sunday on La Grande Jatte",
+    artist: "Georges Seurat",
+    year: "1884-86",
+    description: "Seurat's pointillist masterpiece depicts Parisians relaxing by the Seine. Each tiny dot of color blends in the viewer's eye � a technique called Chromoluminarism.",
+    aspect: 1.39,
+    image: "assets/paintings/grande-jatte.jpg",
+    audio: "assets/audio/grande-jatte.wav"
+  },
+  {
+    title: "Stacks of Wheat",
+    artist: "Claude Monet",
+    year: "1890-91",
+    description: "One of Monet's celebrated wheat stack paintings, capturing the same subject under changing light and atmosphere.",
+    aspect: 1.28,
+    image: "assets/paintings/stacks-of-wheat.jpg",
+    audio: "assets/audio/stacks-of-wheat.wav"
   },
   {
     title: "The Basket of Apples",
@@ -157,15 +157,6 @@ const PAINTINGS = [
     audio: "assets/audio/basket-of-apples.wav"
   },
   {
-    title: "Irises",
-    artist: "Claude Monet",
-    year: "1914-17",
-    description: "Monet painted flowers and gardens many times, studying how color and light change the way nature feels.",
-    aspect: 1.00,
-    image: "assets/paintings/irises.jpg",
-    audio: "assets/audio/irises.wav"
-  },
-  {
     title: "The Poet's Garden",
     artist: "Vincent van Gogh",
     year: "1888",
@@ -173,15 +164,6 @@ const PAINTINGS = [
     aspect: 1.27,
     image: "assets/paintings/poets-garden.jpg",
     audio: "assets/audio/poets-garden.wav"
-  },
-  {
-    title: "Waterloo Bridge, Gray Weather",
-    artist: "Claude Monet",
-    year: "1900",
-    description: "Monet painted London bridges through fog and changing light, focusing on atmosphere more than sharp detail.",
-    aspect: 1.41,
-    image: "assets/paintings/waterloo-bridge-gray.jpg",
-    audio: "assets/audio/waterloo-bridge-gray.wav"
   },
   {
     title: "The Bay of Marseille, Seen from L'Estaque",
@@ -209,6 +191,24 @@ const PAINTINGS = [
     aspect: 1.34,
     image: "assets/paintings/peasant-woman-digging.jpg",
     audio: "assets/audio/peasant-woman-digging.wav"
+  },
+  {
+    title: "American Gothic",
+    artist: "Grant Wood",
+    year: "1930",
+    description: "One of the most recognized images in American art. Wood used his dentist and sister as models for this iconic portrayal of rural Midwestern values.",
+    aspect: 0.81,
+    image: "assets/paintings/american-gothic.jpg",
+    audio: "assets/audio/american-gothic.wav"
+  },
+  {
+    title: "The Great Wave",
+    artist: "Katsushika Hokusai",
+    year: "ca. 1830-32",
+    description: "One of the most recognized works of Japanese art. The massive wave threatens boats near Mount Fuji, blending nature's power with artistic mastery.",
+    aspect: 1.48,
+    image: "assets/paintings/great-wave.jpg",
+    audio: "assets/audio/great-wave.wav"
   }
 ];
 
@@ -228,7 +228,7 @@ const REAL_OBJECTS = [
     year: '1917 cast after 1865 original',
     description: 'A real Smithsonian 3D scan of a plaster life mask of Abraham Lincoln. Students can pick it up, resize it, and inspect portrait details.',
     model: 'assets/models/lincoln-life-mask.glb',
-    position: { x: 0, z: 1.55 },
+    position: { x: 15.0, z: -13.4 },
     labelAngle: 0,
     modelAngle: Math.PI,
     displayHeight: 0.52
@@ -238,9 +238,9 @@ const REAL_OBJECTS = [
     title: 'Abraham Lincoln Hands',
     artist: 'Cast after Leonard Wells Volk',
     year: '1917 cast after 1860 original',
-    description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln’s hands, offering a close look at portraiture through historical objects.',
+    description: 'A real Smithsonian 3D scan of plaster casts of Abraham Lincoln�s hands, offering a close look at portraiture through historical objects.',
     model: 'assets/models/lincoln-hands.glb',
-    position: { x: -4.2, z: 1.85 },
+    position: { x: 19.0, z: -13.4 },
     labelAngle: 0,
     modelAngle: Math.PI,
     displayHeight: 0.42
@@ -252,7 +252,7 @@ const REAL_OBJECTS = [
     year: '1906',
     description: 'A real Smithsonian 3D scan of a bronze relief portrait of Theodore Roosevelt, showing how portraits can be made in shallow sculptural depth.',
     model: 'assets/models/theodore-roosevelt-relief.glb',
-    position: { x: 4.2, z: 1.85 },
+    position: { x: 23.0, z: -13.4 },
     labelAngle: 0,
     modelAngle: Math.PI,
     displayHeight: 0.82
@@ -264,9 +264,9 @@ const REAL_OBJECTS = [
     year: '1662-1722',
     description: 'A real Smithsonian 3D scan of a porcelain vase from the Qing dynasty, showing symmetry, craft, and decorative object design.',
     model: 'assets/models/beaker-vase.glb',
-    position: { x: 19.0, z: 1.9 },
-    labelAngle: 0,
-    modelAngle: 0,
+    position: { x: 0, z: 14.2 },
+    labelAngle: Math.PI,
+    modelAngle: Math.PI,
     displayHeight: 0.78
   }
 ];
@@ -312,15 +312,17 @@ const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xede8d8 });
 const trimMat    = new THREE.MeshStandardMaterial({ color: 0xc8b890 });
 
 
-// Two-room gallery layout:
-// Room 1 spans x -10..10. Room 2 spans x 10..28.
-// The divider wall at x=10 has a wide open doorway from z=-3 to z=3.
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 14), floorMat);
+// Four-room gallery layout:
+// Room 1: Impressionism, x -10..10 and z -7..7.
+// Room 2: Post-Impressionism, x 10..28 and z -7..7.
+// Room 3: American Art, x 10..28 and z -21..-7.
+// Room 4: World Art / Objects / History, x -10..10 and z 7..21.
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(38, 42), floorMat);
 floor.rotation.x = -Math.PI / 2;
-floor.position.x = 9;
+floor.position.set(9, 0, 0);
 scene.add(floor);
 
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(38, 14), ceilingMat);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(38, 42), ceilingMat);
 ceiling.rotation.x = Math.PI / 2;
 ceiling.position.set(9, 4, 0);
 scene.add(ceiling);
@@ -333,13 +335,16 @@ function addWallPlane(x, y, z, ry, w) {
 }
 
 [
-  [9, 2, -7, 0, 38],
-  [9, 2, 7, Math.PI, 38],
-  [-10, 2, 0, Math.PI / 2, 14],
-  [28, 2, 0, -Math.PI / 2, 14],
-  // Divider wall segments; the missing middle section is the doorway to the second room.
+  [9, 2, -21, 0, 38],
+  [9, 2, 21, Math.PI, 38],
+  [-10, 2, 0, Math.PI / 2, 42],
+  [28, 2, 0, -Math.PI / 2, 42],
   [10, 2, -5, -Math.PI / 2, 4],
-  [10, 2, 5, -Math.PI / 2, 4]
+  [10, 2, 5, -Math.PI / 2, 4],
+  [13, 2, -7, 0, 6],
+  [25, 2, -7, 0, 6],
+  [-7, 2, 7, Math.PI, 6],
+  [7, 2, 7, Math.PI, 6]
 ].forEach(([x, y, z, ry, w]) => addWallPlane(x, y, z, ry, w));
 
 function addTrim(x, y, z, w, h, ry) {
@@ -355,57 +360,74 @@ function addDoorwayPost(x, z) {
   scene.add(post);
 }
 
-function addDoorwayHeader() {
-  const header = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 6.15), trimMat);
-  header.position.set(10, 3.85, 0);
+function addHorizontalDoorwayPost(x, z) {
+  const post = new THREE.Mesh(new THREE.BoxGeometry(0.16, 3.8, 0.16), trimMat);
+  post.position.set(x, 2.0, z);
+  scene.add(post);
+}
+
+function addDoorwayHeader(x, z, length, alongZ) {
+  const header = new THREE.Mesh(
+    alongZ ? new THREE.BoxGeometry(0.18, 0.18, length) : new THREE.BoxGeometry(length, 0.18, 0.18),
+    trimMat
+  );
+  header.position.set(x, 3.85, z);
   scene.add(header);
 }
 
-addTrim(9, 0.1, -6.97, 38, 0.2, 0);
-addTrim(9, 0.1, 6.97, 38, 0.2, Math.PI);
-addTrim(-9.97, 0.1, 0, 14, 0.2, Math.PI / 2);
-addTrim(27.97, 0.1, 0, 14, 0.2, -Math.PI / 2);
+addTrim(9, 0.1, -20.97, 38, 0.2, 0);
+addTrim(9, 0.1, 20.97, 38, 0.2, Math.PI);
+addTrim(-9.97, 0.1, 0, 42, 0.2, Math.PI / 2);
+addTrim(27.97, 0.1, 0, 42, 0.2, -Math.PI / 2);
 addTrim(10.03, 0.1, -5, 4, 0.2, -Math.PI / 2);
 addTrim(10.03, 0.1, 5, 4, 0.2, -Math.PI / 2);
+addTrim(13, 0.1, -6.97, 6, 0.2, 0);
+addTrim(25, 0.1, -6.97, 6, 0.2, 0);
+addTrim(-7, 0.1, 6.97, 6, 0.2, Math.PI);
+addTrim(7, 0.1, 6.97, 6, 0.2, Math.PI);
 
-addTrim(9, 3.9, -6.97, 38, 0.15, 0);
-addTrim(9, 3.9, 6.97, 38, 0.15, Math.PI);
-addTrim(-9.97, 3.9, 0, 14, 0.15, Math.PI / 2);
-addTrim(27.97, 3.9, 0, 14, 0.15, -Math.PI / 2);
+addTrim(9, 3.9, -20.97, 38, 0.15, 0);
+addTrim(9, 3.9, 20.97, 38, 0.15, Math.PI);
+addTrim(-9.97, 3.9, 0, 42, 0.15, Math.PI / 2);
+addTrim(27.97, 3.9, 0, 42, 0.15, -Math.PI / 2);
 addTrim(10.03, 3.9, -5, 4, 0.15, -Math.PI / 2);
 addTrim(10.03, 3.9, 5, 4, 0.15, -Math.PI / 2);
+addTrim(13, 3.9, -6.97, 6, 0.15, 0);
+addTrim(25, 3.9, -6.97, 6, 0.15, 0);
+addTrim(-7, 3.9, 6.97, 6, 0.15, Math.PI);
+addTrim(7, 3.9, 6.97, 6, 0.15, Math.PI);
 
 addDoorwayPost(10, -3.05);
 addDoorwayPost(10, 3.05);
-addDoorwayHeader();
-
+addDoorwayHeader(10, 0, 6.15, true);
+addHorizontalDoorwayPost(16, -7);
+addHorizontalDoorwayPost(22, -7);
+addDoorwayHeader(19, -7, 6.15, false);
+addHorizontalDoorwayPost(-4, 7);
+addHorizontalDoorwayPost(4, 7);
+addDoorwayHeader(0, 7, 8.15, false);
 
 const layout = [
-  { x: -7,    y: 2.0, z: -6.9, ry: 0 },
-  { x: -3.5,  y: 2.0, z: -6.9, ry: 0 },
-  { x: 0,     y: 2.0, z: -6.9, ry: 0 },
-  { x: 3.5,   y: 2.0, z: -6.9, ry: 0 },
-  { x: 7,     y: 2.0, z: -6.9, ry: 0 },
-  { x: -9.85, y: 2.0, z: -2,   ry: Math.PI / 2 },
-  { x: -9.85, y: 2.0, z: 2,    ry: Math.PI / 2 },
-  { x: 9.85,  y: 2.0, z: -5.1, ry: -Math.PI / 2 }
+  { x: -7.0,  y: 2.0, z: -6.9,  ry: 0 },
+  { x: -3.5,  y: 2.0, z: -6.9,  ry: 0 },
+  { x: 0.0,   y: 2.0, z: -6.9,  ry: 0 },
+  { x: 3.5,   y: 2.0, z: -6.9,  ry: 0 },
+  { x: 7.0,   y: 2.0, z: -6.9,  ry: 0 },
+  { x: -9.85, y: 2.0, z: 0.0,   ry: Math.PI / 2 }
 ];
 
 const annexLayout = [
-  { x: 13.0,  y: 2.0, z: -6.9, ry: 0 },
-  { x: 16.5,  y: 2.0, z: -6.9, ry: 0 },
-  { x: 20.0,  y: 2.0, z: -6.9, ry: 0 },
-  { x: 23.5,  y: 2.0, z: -6.9, ry: 0 },
-  { x: 26.4,  y: 2.0, z: -6.9, ry: 0 },
-  { x: 13.5,  y: 2.0, z: 6.9,  ry: Math.PI },
-  { x: 17.5,  y: 2.0, z: 6.9,  ry: Math.PI },
-  { x: 21.5,  y: 2.0, z: 6.9,  ry: Math.PI },
-  { x: 25.5,  y: 2.0, z: 6.9,  ry: Math.PI },
-  { x: 27.85, y: 2.0, z: -3.8, ry: -Math.PI / 2 },
-  { x: 27.85, y: 2.0, z: 0,    ry: -Math.PI / 2 },
-  { x: 27.85, y: 2.0, z: 3.8,  ry: -Math.PI / 2 }
+  { x: 13.0,  y: 2.0, z: -6.9,  ry: 0 },
+  { x: 16.5,  y: 2.0, z: -6.9,  ry: 0 },
+  { x: 20.0,  y: 2.0, z: -6.9,  ry: 0 },
+  { x: 23.5,  y: 2.0, z: -6.9,  ry: 0 },
+  { x: 26.4,  y: 2.0, z: -6.9,  ry: 0 },
+  { x: 13.5,  y: 2.0, z: 6.9,   ry: Math.PI },
+  { x: 17.5,  y: 2.0, z: 6.9,   ry: Math.PI },
+  { x: 21.5,  y: 2.0, z: 6.9,   ry: Math.PI },
+  { x: 19.0,  y: 2.0, z: -20.9, ry: 0 },
+  { x: 0.0,   y: 2.0, z: 20.9,  ry: Math.PI }
 ];
-
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
 const gltfLoader = new THREE.GLTFLoader();
@@ -533,6 +555,53 @@ function makeLabel(p) {
   return texture;
 }
 
+function makeRoomSignTexture(lines) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 256;
+
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#f8f1dc';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#8b6914';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#111111';
+  ctx.font = 'bold 48px Georgia,serif';
+  ctx.fillText(lines[0], canvas.width / 2, 88);
+  ctx.fillStyle = '#3b2a10';
+  ctx.font = '32px Georgia,serif';
+  ctx.fillText(lines[1] || '', canvas.width / 2, 150);
+  ctx.fillStyle = '#222222';
+  ctx.font = '26px Arial,sans-serif';
+  ctx.fillText(lines[2] || '', canvas.width / 2, 202);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.encoding = THREE.sRGBEncoding;
+  return texture;
+}
+
+function addWallSign(lines, x, y, z, ry, w, h) {
+  const sign = new THREE.Mesh(
+    new THREE.PlaneGeometry(w || 2.5, h || 0.62),
+    new THREE.MeshBasicMaterial({ map: makeRoomSignTexture(lines), side: THREE.DoubleSide })
+  );
+  sign.position.set(x, y, z);
+  sign.rotation.y = ry;
+  scene.add(sign);
+}
+
+function addRoomSigns() {
+  addWallSign(['Room 1: Impressionism', 'Monet, Renoir, Caillebotte', 'To Post-Impressionism ?'], 0, 3.05, -6.86, 0, 3.2, 0.8);
+  addWallSign(['Room 2: Post-Impressionism', 'Van Gogh, Seurat, Cezanne', 'To American Art ?'], 19, 3.05, -6.86, 0, 3.4, 0.8);
+  addWallSign(['Room 3: American Art', 'Wood, Lincoln, Roosevelt', 'To Post-Impressionism ?'], 19, 3.05, -20.86, 0, 3.4, 0.8);
+  addWallSign(['Room 4: World Art / Objects / History', 'Hokusai and global objects', 'To Impressionism ?'], 0, 3.05, 20.86, Math.PI, 4.0, 0.8);
+  addWallSign(['To Impressionism', 'Starting gallery', 'Room 1'], 10.08, 2.4, 2.15, -Math.PI / 2, 1.9, 0.55);
+  addWallSign(['To Post-Impressionism', 'Room 2', 'Continue right'], 9.92, 2.4, -2.15, Math.PI / 2, 2.1, 0.55);
+  addWallSign(['To American Art', 'Room 3', 'Open doorway ahead'], 19, 2.45, -6.86, 0, 2.4, 0.55);
+  addWallSign(['To World Art / Objects', 'Room 4', 'Open doorway ahead'], 0, 2.45, 6.86, Math.PI, 2.6, 0.55);
+}
 function makeAudioButtonTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
@@ -1161,6 +1230,7 @@ function loadGallery() {
 
 loadGallery();
 addGalleryDecor();
+addRoomSigns();
 
 // ── PLAYER + CONTROLLERS ───────────────────────────────────────────────────
 const player = new THREE.Group();
@@ -1402,7 +1472,7 @@ function getRightController() {
 
 function clampToGalleryBounds(position) {
   position.x = Math.max(-8.5, Math.min(26.5, position.x));
-  position.z = Math.max(-5.5, Math.min(5.5, position.z));
+  position.z = Math.max(-19.5, Math.min(19.5, position.z));
   return position;
 }
 
@@ -1422,7 +1492,7 @@ function updateTeleportTarget() {
 
   const hit = hits[0].point;
   const x = Math.max(-8.5, Math.min(26.5, hit.x));
-  const z = Math.max(-5.5, Math.min(5.5, hit.z));
+  const z = Math.max(-19.5, Math.min(19.5, hit.z));
 
   teleportTarget.set(x, 0, z);
   teleportRing.position.set(x, 0.025, z);
