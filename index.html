@@ -633,83 +633,77 @@ const PAINTINGS = [
 
 const SCULPTURES = [];
 // Procedural placeholder sculptures are disabled in REAL_OBJECTS_EXPANSION_V2.
-// The gallery now uses real school-safe GLB objects on the pedestals.
+// The gallery now uses real and procedural school-safe objects on the pedestals.
 
 
 
 
 const REAL_OBJECTS = [
   {
-    key: 'room1-water-lilies-study',
-    title: 'Water Lilies Podium Study',
-    artist: 'Claude Monet',
-    year: '1906',
-    description: 'A close-up podium display of Monet-s water garden, connecting color, reflection, and Impressionist brushwork.',
-    image: 'assets/paintings/water-lilies.jpg',
-    aspect: 1.58,
+    key: 'room1-water-lily-form',
+    title: 'Water Lily Glass Form',
+    artist: 'Impressionist garden study',
+    year: 'Room 1 object',
+    description: 'A layered glass-like water lily form inspired by Monet, made for inspecting color, reflection, and garden shapes in three dimensions.',
+    sculpture: 'water-lily-form',
     position: { x: -3.8, z: 2.35 },
     facePoint: { x: 0, z: 6 },
-    displayHeight: 0.72
+    displayHeight: 0.78
   },
   {
-    key: 'room1-artist-house-study',
-    title: 'Argenteuil Garden Podium Study',
-    artist: 'Claude Monet',
-    year: '1873',
-    description: 'A podium display of Monet-s home and garden at Argenteuil, emphasizing outdoor light and everyday Impressionist subject matter.',
-    image: 'assets/paintings/artist-house-argenteuil.jpg',
-    aspect: 1.22,
+    key: 'room1-garden-vase-form',
+    title: 'Argenteuil Garden Vase',
+    artist: 'French Impressionist object study',
+    year: 'Room 1 object',
+    description: 'A small floral ceramic form that connects the Impressionist room to garden color, outdoor light, and everyday French subject matter.',
+    sculpture: 'garden-vase-form',
     position: { x: 0, z: 2.35 },
     facePoint: { x: 0, z: 6 },
-    displayHeight: 0.72
+    displayHeight: 0.82
   },
   {
-    key: 'room1-poppy-field-study',
-    title: 'Poppy Field Podium Study',
-    artist: 'Claude Monet',
-    year: '1890-91',
-    description: 'A podium display of Monet-s flowers and light, tying the Room 1 theme to color, atmosphere, and landscape.',
-    image: 'assets/paintings/poppy-field-giverny.jpg',
-    aspect: 1.54,
+    key: 'room1-bronze-garden-figure',
+    title: 'Bronze Garden Figure',
+    artist: 'French garden sculpture study',
+    year: 'Room 1 object',
+    description: 'A compact bronze garden figure that gives the Impressionist room a sculptural object tied to outdoor leisure and landscape.',
+    sculpture: 'bronze-garden-figure',
     position: { x: 3.8, z: 2.35 },
     facePoint: { x: 0, z: 6 },
-    displayHeight: 0.72
+    displayHeight: 0.82
   },
   {
-    key: 'room2-bedroom-study',
-    title: 'Van Gogh Bedroom Podium Study',
-    artist: 'Vincent van Gogh',
-    year: '1889',
-    description: 'A close display of Van Gogh-s color and perspective, made for inspecting Post-Impressionist expression and structure.',
-    image: 'assets/paintings/bedroom.jpg',
-    aspect: 1.26,
+    key: 'room2-van-gogh-chair-form',
+    title: 'Van Gogh Chair Study',
+    artist: 'Post-Impressionist object study',
+    year: 'Room 2 object',
+    description: 'A small chair-like sculpture inspired by Van Gogh, showing bold color, angled structure, and expressive everyday form.',
+    sculpture: 'van-gogh-chair-form',
     position: { x: 13.0, z: 2.5 },
     facePoint: { x: 8, z: 0 },
-    displayHeight: 0.72
+    displayHeight: 0.76
   },
   {
-    key: 'room2-grande-jatte-study',
-    title: 'Grande Jatte Podium Study',
-    artist: 'Georges Seurat',
-    year: '1884-86',
-    description: 'A podium display for inspecting Seurat-s dots, structure, and carefully planned Post-Impressionist composition.',
-    image: 'assets/paintings/grande-jatte.jpg',
-    aspect: 1.52,
+    key: 'room2-cezanne-apple-stack',
+    title: 'Cezanne Apple Stack',
+    artist: 'Post-Impressionist still-life study',
+    year: 'Room 2 object',
+    description: 'A three-dimensional apple still life that highlights Cezanne-like structure, simplified form, and color planes.',
+    sculpture: 'cezanne-apple-stack',
     position: { x: 17.0, z: 2.5 },
     facePoint: { x: 8, z: 0 },
-    displayHeight: 0.72
+    displayHeight: 0.7
   },
   {
-    key: 'room2-cezanne-apples-study',
-    title: 'Cezanne Apples Podium Study',
-    artist: 'Paul Cezanne',
-    year: 'c. 1893',
-    description: 'A podium display that highlights Cezanne-s simplified forms, color planes, and still-life structure.',
-    image: 'assets/paintings/basket-of-apples.jpg',
-    aspect: 1.28,
+    key: 'room2-color-vessel-form',
+    title: 'Bold Color Vessel',
+    artist: 'Post-Impressionist ceramic study',
+    year: 'Room 2 object',
+    description: 'A colorful vessel form that connects Post-Impressionist color, contour, and simplified volume.',
+    sculpture: 'color-vessel-form',
     position: { x: 21.0, z: 2.5 },
     facePoint: { x: 8, z: 0 },
-    displayHeight: 0.72
+    displayHeight: 0.8
   },
   {
     key: 'lincoln-life-mask',
@@ -760,28 +754,26 @@ const REAL_OBJECTS = [
     displayHeight: 0.78
   },
   {
-    key: 'room4-great-wave-study',
-    title: 'Great Wave Podium Study',
-    artist: 'Katsushika Hokusai',
-    year: '1830-33',
-    description: 'A podium display of Hokusai-s wave design, connecting line, rhythm, and Japanese printmaking.',
-    image: 'assets/paintings/great-wave.jpg',
-    aspect: 1.48,
+    key: 'room4-stone-lantern-form',
+    title: 'Stone Lantern Study',
+    artist: 'Japanese garden object study',
+    year: 'Room 4 object',
+    description: 'A small stone lantern form that connects the Asian art room to garden design, balance, and carved structure.',
+    sculpture: 'stone-lantern-form',
     position: { x: -3.4, z: -12.2 },
     facePoint: { x: 0, z: -7 },
-    displayHeight: 0.72
+    displayHeight: 0.78
   },
   {
-    key: 'room4-plum-garden-study',
-    title: 'Plum Garden Podium Study',
-    artist: 'Utagawa Hiroshige',
-    year: '1857',
-    description: 'A podium display of Hiroshige-s bold framing and color in a Japanese garden scene.',
-    image: 'assets/paintings/plum-garden-kameido.jpg',
-    aspect: 0.67,
+    key: 'room4-bonsai-form',
+    title: 'Bonsai Form Study',
+    artist: 'Asian garden object study',
+    year: 'Room 4 object',
+    description: 'A compact bonsai-inspired sculpture with trunk, branch, and canopy shapes for close inspection on a podium.',
+    sculpture: 'bonsai-form',
     position: { x: 3.4, z: -12.2 },
     facePoint: { x: 0, z: -7 },
-    displayHeight: 0.72
+    displayHeight: 0.74
   }
 ];
 
@@ -1418,6 +1410,264 @@ function createHorseStudy(material) {
   return g;
 }
 
+function createWaterLilyForm() {
+  const g = new THREE.Group();
+  const waterMat = new THREE.MeshStandardMaterial({ color: 0x4aa3b8, roughness: 0.28, metalness: 0.15, transparent: true, opacity: 0.72 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x2f7d4c, roughness: 0.58 });
+  const petalMat = new THREE.MeshStandardMaterial({ color: 0xf5d7e8, roughness: 0.42 });
+  const centerMat = new THREE.MeshStandardMaterial({ color: 0xe0b84a, roughness: 0.48 });
+
+  const pond = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.46, 0.08, 48), waterMat);
+  pond.position.y = 0.05;
+  g.add(pond);
+
+  for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * Math.PI * 2;
+    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 12), leafMat);
+    leaf.scale.set(1.55, 0.12, 0.78);
+    leaf.position.set(Math.cos(angle) * 0.2, 0.13, Math.sin(angle) * 0.17);
+    leaf.rotation.y = -angle;
+    g.add(leaf);
+  }
+
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2;
+    const petal = new THREE.Mesh(new THREE.SphereGeometry(0.095, 20, 10), petalMat);
+    petal.scale.set(1.0, 0.24, 1.85);
+    petal.position.set(Math.cos(angle) * 0.12, 0.25, Math.sin(angle) * 0.12);
+    petal.rotation.y = -angle;
+    g.add(petal);
+  }
+
+  const center = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 12), centerMat);
+  center.position.y = 0.3;
+  g.add(center);
+  return g;
+}
+
+function createGardenVaseForm() {
+  const g = new THREE.Group();
+  const ceramicMat = new THREE.MeshStandardMaterial({ color: 0xded6c0, roughness: 0.44, metalness: 0.05 });
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x487342, roughness: 0.6 });
+  const flowerMats = [0xd84c5f, 0xf0c65a, 0x8db4dc].map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.45 }));
+
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.26, 32, 18), ceramicMat);
+  body.scale.set(0.9, 1.2, 0.9);
+  body.position.y = 0.26;
+  g.add(body);
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.16, 0.26, 32), ceramicMat);
+  neck.position.y = 0.53;
+  g.add(neck);
+
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.018, 10, 40), ceramicMat);
+  lip.rotation.x = Math.PI / 2;
+  lip.position.y = 0.67;
+  g.add(lip);
+
+  [-0.18, 0, 0.18].forEach((x, i) => {
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.018, 0.44, 10), stemMat);
+    stem.position.set(x * 0.35, 0.82, 0);
+    stem.rotation.z = x * -0.9;
+    g.add(stem);
+
+    const bloom = new THREE.Mesh(new THREE.SphereGeometry(0.095, 18, 12), flowerMats[i]);
+    bloom.scale.set(1.0, 0.65, 1.0);
+    bloom.position.set(x, 1.02 - Math.abs(x) * 0.22, 0);
+    g.add(bloom);
+  });
+
+  return g;
+}
+
+function createBronzeGardenFigure() {
+  const g = new THREE.Group();
+  const bodyMat = bronzeMat;
+
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.29, 0.08, 32), darkBronzeMat);
+  base.position.y = 0.04;
+  g.add(base);
+
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 0.38, 18), bodyMat);
+  torso.position.y = 0.34;
+  torso.rotation.z = -0.12;
+  g.add(torso);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.095, 20, 12), bodyMat);
+  head.position.y = 0.6;
+  g.add(head);
+
+  addCylinderBetween(g, new THREE.Vector3(-0.07, 0.43, 0), new THREE.Vector3(-0.28, 0.26, 0.05), 0.025, bodyMat);
+  addCylinderBetween(g, new THREE.Vector3(0.07, 0.43, 0), new THREE.Vector3(0.28, 0.52, -0.04), 0.025, bodyMat);
+  addCylinderBetween(g, new THREE.Vector3(-0.04, 0.16, 0), new THREE.Vector3(-0.2, 0.08, 0.12), 0.028, bodyMat);
+  addCylinderBetween(g, new THREE.Vector3(0.04, 0.16, 0), new THREE.Vector3(0.2, 0.08, -0.1), 0.028, bodyMat);
+
+  return g;
+}
+
+function createVanGoghChairForm() {
+  const g = new THREE.Group();
+  const yellowMat = new THREE.MeshStandardMaterial({ color: 0xcaa03a, roughness: 0.58 });
+  const blueMat = new THREE.MeshStandardMaterial({ color: 0x2d5f99, roughness: 0.62 });
+
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.42), yellowMat);
+  seat.position.y = 0.34;
+  g.add(seat);
+
+  const back = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.46, 0.07), yellowMat);
+  back.position.set(0, 0.58, -0.18);
+  back.rotation.x = -0.08;
+  g.add(back);
+
+  [-0.16, 0.16].forEach(x => {
+    [-0.16, 0.16].forEach(z => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.34, 10), blueMat);
+      leg.position.set(x, 0.17, z);
+      g.add(leg);
+    });
+  });
+
+  const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.42, 10), blueMat);
+  rung.position.set(0, 0.18, 0.18);
+  rung.rotation.z = Math.PI / 2;
+  g.add(rung);
+  return g;
+}
+
+function createCezanneAppleStack() {
+  const g = new THREE.Group();
+  const clothMat = new THREE.MeshStandardMaterial({ color: 0xe8d8ac, roughness: 0.78 });
+  const appleMats = [0xb63b2e, 0xc97833, 0x8a9f3d].map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.5 }));
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x4b2d1a, roughness: 0.6 });
+
+  const cloth = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.05, 0.46), clothMat);
+  cloth.position.y = 0.03;
+  cloth.rotation.y = 0.18;
+  g.add(cloth);
+
+  [
+    [-0.18, 0.17, 0.08],
+    [0.08, 0.2, -0.05],
+    [0.22, 0.16, 0.12]
+  ].forEach(([x, y, z], i) => {
+    const apple = new THREE.Mesh(new THREE.SphereGeometry(0.14, 24, 14), appleMats[i]);
+    apple.scale.set(1.0, 0.86, 1.0);
+    apple.position.set(x, y, z);
+    g.add(apple);
+
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.014, 0.1, 8), stemMat);
+    stem.position.set(x, y + 0.11, z);
+    stem.rotation.z = 0.28;
+    g.add(stem);
+  });
+
+  return g;
+}
+
+function createColorVesselForm() {
+  const g = new THREE.Group();
+  const blueMat = new THREE.MeshStandardMaterial({ color: 0x325fa8, roughness: 0.36, metalness: 0.08 });
+  const orangeMat = new THREE.MeshStandardMaterial({ color: 0xd66d2e, roughness: 0.46 });
+  const greenMat = new THREE.MeshStandardMaterial({ color: 0x4b8a58, roughness: 0.46 });
+
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.12, 36), blueMat);
+  base.position.y = 0.06;
+  g.add(base);
+
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 36, 18), orangeMat);
+  body.scale.set(0.78, 1.05, 0.78);
+  body.position.y = 0.34;
+  g.add(body);
+
+  const shoulder = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 10, 48), greenMat);
+  shoulder.rotation.x = Math.PI / 2;
+  shoulder.position.y = 0.51;
+  g.add(shoulder);
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.28, 32), blueMat);
+  neck.position.y = 0.66;
+  g.add(neck);
+
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.017, 8, 36), greenMat);
+  lip.rotation.x = Math.PI / 2;
+  lip.position.y = 0.81;
+  g.add(lip);
+  return g;
+}
+
+function createStoneLanternForm() {
+  const g = new THREE.Group();
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0xb8b2a2, roughness: 0.82 });
+  const shadowMat = new THREE.MeshStandardMaterial({ color: 0x6d675d, roughness: 0.86 });
+
+  const base = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.1, 0.48), stoneMat);
+  base.position.y = 0.05;
+  g.add(base);
+
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.38, 12), stoneMat);
+  post.position.y = 0.29;
+  g.add(post);
+
+  const housing = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.34), shadowMat);
+  housing.position.y = 0.62;
+  g.add(housing);
+
+  const windowMat = new THREE.MeshStandardMaterial({ color: 0xf0df9a, roughness: 0.35, emissive: 0x332400 });
+  const window = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.35), windowMat);
+  window.position.y = 0.62;
+  g.add(window);
+
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.2, 4), stoneMat);
+  roof.position.y = 0.84;
+  roof.rotation.y = Math.PI / 4;
+  g.add(roof);
+
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 10), stoneMat);
+  finial.position.y = 0.98;
+  g.add(finial);
+  return g;
+}
+
+function createBonsaiForm() {
+  const g = new THREE.Group();
+  const potMat = new THREE.MeshStandardMaterial({ color: 0x284f72, roughness: 0.52 });
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a331d, roughness: 0.7 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x315f3b, roughness: 0.62 });
+
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.22, 0.18, 32), potMat);
+  pot.position.y = 0.09;
+  g.add(pot);
+
+  addCylinderBetween(g, new THREE.Vector3(0, 0.18, 0), new THREE.Vector3(0.05, 0.55, 0.02), 0.035, trunkMat);
+  addCylinderBetween(g, new THREE.Vector3(0.04, 0.42, 0), new THREE.Vector3(-0.2, 0.63, 0.05), 0.024, trunkMat);
+  addCylinderBetween(g, new THREE.Vector3(0.04, 0.48, 0), new THREE.Vector3(0.25, 0.66, -0.03), 0.022, trunkMat);
+
+  [
+    [-0.22, 0.68, 0.06, 0.18],
+    [0.02, 0.78, 0, 0.22],
+    [0.27, 0.68, -0.04, 0.17]
+  ].forEach(([x, y, z, r]) => {
+    const canopy = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 12), leafMat);
+    canopy.scale.set(1.25, 0.62, 0.95);
+    canopy.position.set(x, y, z);
+    g.add(canopy);
+  });
+
+  return g;
+}
+
+function createPodiumSculptureObject(item) {
+  if (item.sculpture === 'water-lily-form') return createWaterLilyForm();
+  if (item.sculpture === 'garden-vase-form') return createGardenVaseForm();
+  if (item.sculpture === 'bronze-garden-figure') return createBronzeGardenFigure();
+  if (item.sculpture === 'van-gogh-chair-form') return createVanGoghChairForm();
+  if (item.sculpture === 'cezanne-apple-stack') return createCezanneAppleStack();
+  if (item.sculpture === 'color-vessel-form') return createColorVesselForm();
+  if (item.sculpture === 'stone-lantern-form') return createStoneLanternForm();
+  if (item.sculpture === 'bonsai-form') return createBonsaiForm();
+  return createColumnStudy(marbleMat);
+}
+
 function createSculptureStudy(item) {
   const material = item.material === 'bronze' ? bronzeMat : marbleMat;
   if (item.key === 'ancient-vase') return createVaseStudy(material);
@@ -1546,7 +1796,7 @@ function addRealModelExhibit(item) {
   // Performance note: avoid one SpotLight per model on Quest. Shared room lighting keeps the frame rate smoother.
   scene.add(group);
 
-  if (item.image) {
+  if (item.sculpture) {
     group.remove(loadingMarker);
     loadingMarker.geometry.dispose();
     loadingMarker.material.dispose();
@@ -1555,49 +1805,17 @@ function addRealModelExhibit(item) {
     holder.position.y = 1.02;
     holder.rotation.y = getModelFacingAngle(item, facingAngle);
 
-    const artHeight = item.displayHeight || 0.72;
-    const artWidth = artHeight * (item.aspect || 1.35);
-    const artFrameDepth = 0.045;
-    const frameThickness = 0.045;
+    const sculpture = createPodiumSculptureObject(item);
+    holder.add(sculpture);
 
-    const backing = new THREE.Mesh(
-      new THREE.BoxGeometry(artWidth + frameThickness * 2, artHeight + frameThickness * 2, artFrameDepth),
-      frameMat
-    );
-    backing.position.y = artHeight / 2;
-    holder.add(backing);
-
-    const artMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(artWidth, artHeight),
-      new THREE.MeshBasicMaterial({ color: 0x223344, side: THREE.DoubleSide })
-    );
-    artMesh.position.set(0, artHeight / 2, artFrameDepth / 2 + 0.003);
-    holder.add(artMesh);
-
-    loader.load(
-      item.image,
-      (tex) => {
-        tex.encoding = THREE.sRGBEncoding;
-        tex.anisotropy = 2;
-        tex.minFilter = THREE.LinearFilter;
-        tex.magFilter = THREE.LinearFilter;
-        tex.needsUpdate = true;
-        artMesh.material.dispose();
-        artMesh.material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide });
-        artMesh.material.needsUpdate = true;
-      },
-      undefined,
-      (error) => {
-        console.warn('Podium artwork image failed:', item.title, item.image, error);
-        artMesh.material.color.set(0x552222);
-      }
-    );
-
+    const grabHeight = Math.max(item.displayHeight || 0.75, 0.45);
+    const grabWidth = item.grabWidth || 0.9;
+    const grabDepth = item.grabDepth || 0.9;
     const grabHitBox = new THREE.Mesh(
-      new THREE.BoxGeometry(Math.max(artWidth, 0.45), Math.max(artHeight, 0.35), 0.12),
-      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0 })
+      new THREE.BoxGeometry(grabWidth, grabHeight, grabDepth),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, depthWrite: false })
     );
-    grabHitBox.position.y = artHeight / 2;
+    grabHitBox.position.y = grabHeight / 2;
     grabHitBox.userData.type = 'grabbableObject';
     grabHitBox.userData.item = item;
     grabHitBox.userData.grabTarget = holder;
