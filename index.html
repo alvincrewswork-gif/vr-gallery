@@ -641,10 +641,10 @@ const SCULPTURES = [];
 const REAL_OBJECTS = [
   {
     key: 'room1-water-lily-form',
-    title: 'Water Lily Glass Form',
+    title: 'Ceramic Water-Lily Bowl',
     artist: 'Impressionist garden study',
     year: 'Room 1 object',
-    description: 'A layered glass-like water lily form inspired by Monet, made for inspecting color, reflection, and garden shapes in three dimensions.',
+    description: 'A low ceramic bowl with lily pads, water, and a sculpted blossom, inspired by Monet-s garden subjects.',
     sculpture: 'water-lily-form',
     position: { x: -3.8, z: 2.35 },
     facePoint: { x: 0, z: 6 },
@@ -652,10 +652,10 @@ const REAL_OBJECTS = [
   },
   {
     key: 'room1-garden-vase-form',
-    title: 'Argenteuil Garden Vase',
+    title: 'Floral Ceramic Vase',
     artist: 'French Impressionist object study',
     year: 'Room 1 object',
-    description: 'A small floral ceramic form that connects the Impressionist room to garden color, outdoor light, and everyday French subject matter.',
+    description: 'A glazed studio vase with slender stems and soft floral forms, connecting Room 1 to French garden imagery.',
     sculpture: 'garden-vase-form',
     position: { x: 0, z: 2.35 },
     facePoint: { x: 0, z: 6 },
@@ -663,10 +663,10 @@ const REAL_OBJECTS = [
   },
   {
     key: 'room1-bronze-garden-figure',
-    title: 'Bronze Garden Figure',
+    title: 'Bronze Garden Figure Study',
     artist: 'French garden sculpture study',
     year: 'Room 1 object',
-    description: 'A compact bronze garden figure that gives the Impressionist room a sculptural object tied to outdoor leisure and landscape.',
+    description: 'A compact patinated bronze figure on a dark base, evoking outdoor garden sculpture and quiet leisure.',
     sculpture: 'bronze-garden-figure',
     position: { x: 3.8, z: 2.35 },
     facePoint: { x: 0, z: 6 },
@@ -674,10 +674,10 @@ const REAL_OBJECTS = [
   },
   {
     key: 'room2-van-gogh-chair-form',
-    title: 'Van Gogh Chair Study',
+    title: 'Van Gogh Studio Chair Model',
     artist: 'Post-Impressionist object study',
     year: 'Room 2 object',
-    description: 'A small chair-like sculpture inspired by Van Gogh, showing bold color, angled structure, and expressive everyday form.',
+    description: 'A small wood chair model with woven seat detail, inspired by Van Gogh-s focus on expressive everyday objects.',
     sculpture: 'van-gogh-chair-form',
     position: { x: 13.0, z: 2.5 },
     facePoint: { x: 8, z: 0 },
@@ -685,10 +685,10 @@ const REAL_OBJECTS = [
   },
   {
     key: 'room2-cezanne-apple-stack',
-    title: 'Cezanne Apple Stack',
+    title: 'Cezanne Apple Still Life',
     artist: 'Post-Impressionist still-life study',
     year: 'Room 2 object',
-    description: 'A three-dimensional apple still life that highlights Cezanne-like structure, simplified form, and color planes.',
+    description: 'A sculpted still life with varied apples, stems, leaves, and a folded cloth, emphasizing structure and volume.',
     sculpture: 'cezanne-apple-stack',
     position: { x: 17.0, z: 2.5 },
     facePoint: { x: 8, z: 0 },
@@ -696,10 +696,10 @@ const REAL_OBJECTS = [
   },
   {
     key: 'room2-color-vessel-form',
-    title: 'Bold Color Vessel',
+    title: 'Post-Impressionist Studio Vessel',
     artist: 'Post-Impressionist ceramic study',
     year: 'Room 2 object',
-    description: 'A colorful vessel form that connects Post-Impressionist color, contour, and simplified volume.',
+    description: 'A muted glazed vessel with shaped bands and simplified color planes, made as a studio object study.',
     sculpture: 'color-vessel-form',
     position: { x: 21.0, z: 2.5 },
     facePoint: { x: 8, z: 0 },
@@ -755,10 +755,10 @@ const REAL_OBJECTS = [
   },
   {
     key: 'room4-stone-lantern-form',
-    title: 'Stone Lantern Study',
+    title: 'Stone Garden Lantern',
     artist: 'Japanese garden object study',
     year: 'Room 4 object',
-    description: 'A small stone lantern form that connects the Asian art room to garden design, balance, and carved structure.',
+    description: 'A carved stone lantern form with stacked base, chamber, roof, and finial, designed like a garden object.',
     sculpture: 'stone-lantern-form',
     position: { x: -3.4, z: -12.2 },
     facePoint: { x: 0, z: -7 },
@@ -766,10 +766,10 @@ const REAL_OBJECTS = [
   },
   {
     key: 'room4-bonsai-form',
-    title: 'Bonsai Form Study',
+    title: 'Bonsai Ceramic Study',
     artist: 'Asian garden object study',
     year: 'Room 4 object',
-    description: 'A compact bonsai-inspired sculpture with trunk, branch, and canopy shapes for close inspection on a podium.',
+    description: 'A bonsai-inspired ceramic study with a low pot, branching trunk, and layered foliage masses.',
     sculpture: 'bonsai-form',
     position: { x: 3.4, z: -12.2 },
     facePoint: { x: 0, z: -7 },
@@ -1410,71 +1410,103 @@ function createHorseStudy(material) {
   return g;
 }
 
+function createLatheMesh(profile, material, segments = 56) {
+  const geometry = new THREE.LatheGeometry(
+    profile.map(([x, y]) => new THREE.Vector2(x, y)),
+    segments
+  );
+  geometry.computeVertexNormals();
+  return new THREE.Mesh(geometry, material);
+}
+
+function makeEllipsoid(radius, material, scale, position, rotation) {
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), material);
+  mesh.scale.set(scale.x, scale.y, scale.z);
+  mesh.position.set(position.x, position.y, position.z);
+  if (rotation) mesh.rotation.set(rotation.x || 0, rotation.y || 0, rotation.z || 0);
+  return mesh;
+}
+
 function createWaterLilyForm() {
   const g = new THREE.Group();
-  const waterMat = new THREE.MeshStandardMaterial({ color: 0x4aa3b8, roughness: 0.28, metalness: 0.15, transparent: true, opacity: 0.72 });
-  const leafMat = new THREE.MeshStandardMaterial({ color: 0x2f7d4c, roughness: 0.58 });
-  const petalMat = new THREE.MeshStandardMaterial({ color: 0xf5d7e8, roughness: 0.42 });
-  const centerMat = new THREE.MeshStandardMaterial({ color: 0xe0b84a, roughness: 0.48 });
+  const bowlMat = new THREE.MeshStandardMaterial({ color: 0xd7d0bd, roughness: 0.36, metalness: 0.04 });
+  const glazeMat = new THREE.MeshStandardMaterial({ color: 0x6f9ba2, roughness: 0.18, metalness: 0.08, transparent: true, opacity: 0.82 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x3d6b4a, roughness: 0.68 });
+  const petalMat = new THREE.MeshStandardMaterial({ color: 0xe6c7ce, roughness: 0.5 });
+  const centerMat = new THREE.MeshStandardMaterial({ color: 0xcaa45a, roughness: 0.45 });
 
-  const pond = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.46, 0.08, 48), waterMat);
-  pond.position.y = 0.05;
-  g.add(pond);
+  const bowl = createLatheMesh([[0.18, 0.02], [0.36, 0.07], [0.46, 0.16], [0.44, 0.23], [0.34, 0.28], [0.2, 0.3]], bowlMat);
+  g.add(bowl);
 
-  for (let i = 0; i < 5; i++) {
-    const angle = (i / 5) * Math.PI * 2;
-    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 12), leafMat);
-    leaf.scale.set(1.55, 0.12, 0.78);
-    leaf.position.set(Math.cos(angle) * 0.2, 0.13, Math.sin(angle) * 0.17);
-    leaf.rotation.y = -angle;
+  const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.07, 56), bowlMat);
+  foot.position.y = 0.04;
+  g.add(foot);
+
+  const water = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.34, 0.025, 56), glazeMat);
+  water.position.y = 0.285;
+  g.add(water);
+
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.43, 0.018, 12, 72), bowlMat);
+  rim.position.y = 0.3;
+  rim.rotation.x = Math.PI / 2;
+  g.add(rim);
+
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 + 0.2;
+    const leaf = makeEllipsoid(0.12, leafMat, { x: 1.65, y: 0.12, z: 0.82 }, {
+      x: Math.cos(angle) * 0.19,
+      y: 0.33,
+      z: Math.sin(angle) * 0.15
+    }, { y: -angle + 0.3, z: 0.04 });
     g.add(leaf);
   }
 
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2;
-    const petal = new THREE.Mesh(new THREE.SphereGeometry(0.095, 20, 10), petalMat);
-    petal.scale.set(1.0, 0.24, 1.85);
-    petal.position.set(Math.cos(angle) * 0.12, 0.25, Math.sin(angle) * 0.12);
-    petal.rotation.y = -angle;
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2;
+    const petal = makeEllipsoid(0.062, petalMat, { x: 0.72, y: 0.16, z: 1.95 }, {
+      x: Math.cos(angle) * 0.12,
+      y: 0.45 + (i % 2) * 0.015,
+      z: Math.sin(angle) * 0.12
+    }, { y: -angle });
     g.add(petal);
   }
 
-  const center = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 12), centerMat);
-  center.position.y = 0.3;
+  const center = new THREE.Mesh(new THREE.SphereGeometry(0.055, 24, 12), centerMat);
+  center.position.y = 0.48;
   g.add(center);
   return g;
 }
 
 function createGardenVaseForm() {
   const g = new THREE.Group();
-  const ceramicMat = new THREE.MeshStandardMaterial({ color: 0xded6c0, roughness: 0.44, metalness: 0.05 });
-  const stemMat = new THREE.MeshStandardMaterial({ color: 0x487342, roughness: 0.6 });
-  const flowerMats = [0xd84c5f, 0xf0c65a, 0x8db4dc].map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.45 }));
+  const ceramicMat = new THREE.MeshStandardMaterial({ color: 0xcfc8b6, roughness: 0.31, metalness: 0.05 });
+  const glazeBandMat = new THREE.MeshStandardMaterial({ color: 0x8a9a86, roughness: 0.38, metalness: 0.03 });
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x526a43, roughness: 0.62 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x65794e, roughness: 0.65 });
+  const bloomMats = [0xb56d75, 0xd2b66a, 0x8c9daf].map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.54 }));
 
-  const body = new THREE.Mesh(new THREE.SphereGeometry(0.26, 32, 18), ceramicMat);
-  body.scale.set(0.9, 1.2, 0.9);
-  body.position.y = 0.26;
-  g.add(body);
+  const vase = createLatheMesh([[0.12, 0.0], [0.22, 0.04], [0.27, 0.2], [0.23, 0.42], [0.13, 0.58], [0.11, 0.72], [0.16, 0.78]], ceramicMat);
+  g.add(vase);
 
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.16, 0.26, 32), ceramicMat);
-  neck.position.y = 0.53;
-  g.add(neck);
+  [0.12, 0.42, 0.72].forEach((y, i) => {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(i === 1 ? 0.235 : 0.145, 0.011, 8, 56), glazeBandMat);
+    ring.position.y = y;
+    ring.rotation.x = Math.PI / 2;
+    g.add(ring);
+  });
 
-  const lip = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.018, 10, 40), ceramicMat);
-  lip.rotation.x = Math.PI / 2;
-  lip.position.y = 0.67;
-  g.add(lip);
-
-  [-0.18, 0, 0.18].forEach((x, i) => {
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.018, 0.44, 10), stemMat);
-    stem.position.set(x * 0.35, 0.82, 0);
-    stem.rotation.z = x * -0.9;
-    g.add(stem);
-
-    const bloom = new THREE.Mesh(new THREE.SphereGeometry(0.095, 18, 12), flowerMats[i]);
-    bloom.scale.set(1.0, 0.65, 1.0);
-    bloom.position.set(x, 1.02 - Math.abs(x) * 0.22, 0);
+  [
+    [-0.16, 0.77, 0.03, -0.18, 0],
+    [0, 0.82, -0.02, 0.03, 1],
+    [0.16, 0.76, 0.04, 0.18, 2],
+    [-0.06, 0.79, -0.1, -0.08, 1]
+  ].forEach(([x, y, z, lean, matIndex]) => {
+    addCylinderBetween(g, new THREE.Vector3(0, 0.72, 0), new THREE.Vector3(x, y + 0.23, z), 0.01, stemMat);
+    const bloom = makeEllipsoid(0.065, bloomMats[matIndex], { x: 1.15, y: 0.65, z: 1.0 }, { x, y: y + 0.29, z }, { z: lean });
     g.add(bloom);
+
+    const leaf = makeEllipsoid(0.04, leafMat, { x: 1.7, y: 0.18, z: 0.72 }, { x: x * 0.65, y: y + 0.05, z: z + 0.02 }, { y: lean * 5 });
+    g.add(leaf);
   });
 
   return g;
@@ -1482,83 +1514,130 @@ function createGardenVaseForm() {
 
 function createBronzeGardenFigure() {
   const g = new THREE.Group();
-  const bodyMat = bronzeMat;
+  const patinaMat = new THREE.MeshStandardMaterial({ color: 0x6b4b34, roughness: 0.48, metalness: 0.72 });
+  const greenPatinaMat = new THREE.MeshStandardMaterial({ color: 0x5f7567, roughness: 0.7, metalness: 0.38 });
 
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.29, 0.08, 32), darkBronzeMat);
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.08, 40), darkBronzeMat);
   base.position.y = 0.04;
   g.add(base);
 
-  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 0.38, 18), bodyMat);
-  torso.position.y = 0.34;
-  torso.rotation.z = -0.12;
+  const torso = makeEllipsoid(0.15, patinaMat, { x: 0.55, y: 1.45, z: 0.42 }, { x: 0.0, y: 0.36, z: 0 }, { z: -0.12 });
   g.add(torso);
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.095, 20, 12), bodyMat);
-  head.position.y = 0.6;
+  const head = makeEllipsoid(0.08, patinaMat, { x: 0.86, y: 1.05, z: 0.78 }, { x: 0.03, y: 0.64, z: 0 }, { z: -0.08 });
   g.add(head);
 
-  addCylinderBetween(g, new THREE.Vector3(-0.07, 0.43, 0), new THREE.Vector3(-0.28, 0.26, 0.05), 0.025, bodyMat);
-  addCylinderBetween(g, new THREE.Vector3(0.07, 0.43, 0), new THREE.Vector3(0.28, 0.52, -0.04), 0.025, bodyMat);
-  addCylinderBetween(g, new THREE.Vector3(-0.04, 0.16, 0), new THREE.Vector3(-0.2, 0.08, 0.12), 0.028, bodyMat);
-  addCylinderBetween(g, new THREE.Vector3(0.04, 0.16, 0), new THREE.Vector3(0.2, 0.08, -0.1), 0.028, bodyMat);
+  addCylinderBetween(g, new THREE.Vector3(-0.045, 0.45, 0), new THREE.Vector3(-0.24, 0.24, 0.08), 0.022, patinaMat);
+  addCylinderBetween(g, new THREE.Vector3(0.05, 0.45, 0), new THREE.Vector3(0.24, 0.57, -0.05), 0.02, patinaMat);
+  addCylinderBetween(g, new THREE.Vector3(-0.035, 0.18, 0), new THREE.Vector3(-0.2, 0.08, 0.1), 0.026, patinaMat);
+  addCylinderBetween(g, new THREE.Vector3(0.04, 0.18, 0), new THREE.Vector3(0.21, 0.08, -0.09), 0.026, patinaMat);
 
+  const drape = makeEllipsoid(0.13, greenPatinaMat, { x: 0.5, y: 1.0, z: 0.18 }, { x: -0.03, y: 0.28, z: 0.08 }, { z: 0.2 });
+  g.add(drape);
+
+  const raisedHand = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 8), patinaMat);
+  raisedHand.position.set(0.25, 0.58, -0.05);
+  g.add(raisedHand);
   return g;
 }
 
 function createVanGoghChairForm() {
   const g = new THREE.Group();
-  const yellowMat = new THREE.MeshStandardMaterial({ color: 0xcaa03a, roughness: 0.58 });
-  const blueMat = new THREE.MeshStandardMaterial({ color: 0x2d5f99, roughness: 0.62 });
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x9a7445, roughness: 0.66, metalness: 0.02 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x5c4026, roughness: 0.74 });
+  const rushMat = new THREE.MeshStandardMaterial({ color: 0xb79b63, roughness: 0.86 });
 
-  const seat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.42), yellowMat);
-  seat.position.y = 0.34;
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.055, 0.42), rushMat);
+  seat.position.y = 0.33;
   g.add(seat);
 
-  const back = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.46, 0.07), yellowMat);
-  back.position.set(0, 0.58, -0.18);
-  back.rotation.x = -0.08;
-  g.add(back);
+  for (let i = -2; i <= 2; i++) {
+    const strandA = new THREE.Mesh(new THREE.BoxGeometry(0.43, 0.012, 0.008), darkWoodMat);
+    strandA.position.set(0, 0.365, i * 0.042);
+    g.add(strandA);
+    const strandB = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.014, 0.39), darkWoodMat);
+    strandB.position.set(i * 0.044, 0.372, 0);
+    g.add(strandB);
+  }
 
-  [-0.16, 0.16].forEach(x => {
-    [-0.16, 0.16].forEach(z => {
-      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.34, 10), blueMat);
-      leg.position.set(x, 0.17, z);
+  [-0.19, 0.19].forEach(x => {
+    [-0.17, 0.17].forEach(z => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.027, z < 0 ? 0.74 : 0.35, 12), woodMat);
+      leg.position.set(x, z < 0 ? 0.43 : 0.18, z);
+      leg.rotation.x = z < 0 ? 0.04 : -0.02;
       g.add(leg);
     });
   });
 
-  const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.42, 10), blueMat);
-  rung.position.set(0, 0.18, 0.18);
-  rung.rotation.z = Math.PI / 2;
-  g.add(rung);
+  const backTop = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.055, 0.055), woodMat);
+  backTop.position.set(0, 0.76, -0.19);
+  g.add(backTop);
+
+  [-0.12, 0.12].forEach(x => {
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.42, 12), woodMat);
+    rail.position.set(x, 0.59, -0.19);
+    rail.rotation.x = 0.02;
+    g.add(rail);
+  });
+
+  const frontRung = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.42, 10), darkWoodMat);
+  frontRung.position.set(0, 0.18, 0.19);
+  frontRung.rotation.z = Math.PI / 2;
+  g.add(frontRung);
+
+  const sideRung = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.36, 10), darkWoodMat);
+  sideRung.position.set(-0.21, 0.2, 0);
+  sideRung.rotation.x = Math.PI / 2;
+  g.add(sideRung);
   return g;
 }
 
 function createCezanneAppleStack() {
   const g = new THREE.Group();
-  const clothMat = new THREE.MeshStandardMaterial({ color: 0xe8d8ac, roughness: 0.78 });
-  const appleMats = [0xb63b2e, 0xc97833, 0x8a9f3d].map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.5 }));
-  const stemMat = new THREE.MeshStandardMaterial({ color: 0x4b2d1a, roughness: 0.6 });
+  const clothMat = new THREE.MeshStandardMaterial({ color: 0xd8c8a1, roughness: 0.84 });
+  const shadowClothMat = new THREE.MeshStandardMaterial({ color: 0xb9a886, roughness: 0.88 });
+  const appleMats = [
+    new THREE.MeshStandardMaterial({ color: 0x8e342a, roughness: 0.48 }),
+    new THREE.MeshStandardMaterial({ color: 0xa15a2d, roughness: 0.5 }),
+    new THREE.MeshStandardMaterial({ color: 0x7b813f, roughness: 0.52 }),
+    new THREE.MeshStandardMaterial({ color: 0xb06e38, roughness: 0.48 })
+  ];
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1b, roughness: 0.68 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x596c3a, roughness: 0.62 });
 
-  const cloth = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.05, 0.46), clothMat);
-  cloth.position.y = 0.03;
-  cloth.rotation.y = 0.18;
+  const cloth = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.035, 0.5), clothMat);
+  cloth.position.y = 0.025;
+  cloth.rotation.y = 0.15;
   g.add(cloth);
 
+  const fold = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.035, 0.08), shadowClothMat);
+  fold.position.set(-0.02, 0.055, -0.18);
+  fold.rotation.y = -0.2;
+  g.add(fold);
+
   [
-    [-0.18, 0.17, 0.08],
-    [0.08, 0.2, -0.05],
-    [0.22, 0.16, 0.12]
-  ].forEach(([x, y, z], i) => {
-    const apple = new THREE.Mesh(new THREE.SphereGeometry(0.14, 24, 14), appleMats[i]);
-    apple.scale.set(1.0, 0.86, 1.0);
-    apple.position.set(x, y, z);
+    [-0.22, 0.19, 0.08, 0],
+    [0.03, 0.22, -0.06, 1],
+    [0.24, 0.18, 0.1, 2],
+    [0.1, 0.38, 0.07, 3]
+  ].forEach(([x, y, z, matIndex]) => {
+    const apple = makeEllipsoid(0.14, appleMats[matIndex], { x: 1.02, y: 0.84, z: 0.96 }, { x, y, z }, { z: 0.06 * matIndex });
     g.add(apple);
 
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.014, 0.1, 8), stemMat);
-    stem.position.set(x, y + 0.11, z);
+    const dimple = new THREE.Mesh(new THREE.TorusGeometry(0.042, 0.006, 8, 24), stemMat);
+    dimple.position.set(x, y + 0.108, z);
+    dimple.rotation.x = Math.PI / 2;
+    g.add(dimple);
+
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.014, 0.1, 8), stemMat);
+    stem.position.set(x + 0.01, y + 0.15, z);
     stem.rotation.z = 0.28;
     g.add(stem);
+
+    if (matIndex < 2) {
+      const leaf = makeEllipsoid(0.035, leafMat, { x: 1.7, y: 0.25, z: 0.82 }, { x: x + 0.055, y: y + 0.16, z: z + 0.02 }, { y: 0.5 });
+      g.add(leaf);
+    }
   });
 
   return g;
@@ -1566,90 +1645,107 @@ function createCezanneAppleStack() {
 
 function createColorVesselForm() {
   const g = new THREE.Group();
-  const blueMat = new THREE.MeshStandardMaterial({ color: 0x325fa8, roughness: 0.36, metalness: 0.08 });
-  const orangeMat = new THREE.MeshStandardMaterial({ color: 0xd66d2e, roughness: 0.46 });
-  const greenMat = new THREE.MeshStandardMaterial({ color: 0x4b8a58, roughness: 0.46 });
+  const clayMat = new THREE.MeshStandardMaterial({ color: 0xb9784f, roughness: 0.5, metalness: 0.03 });
+  const blueGlazeMat = new THREE.MeshStandardMaterial({ color: 0x3d647a, roughness: 0.34, metalness: 0.04 });
+  const ochreMat = new THREE.MeshStandardMaterial({ color: 0xa58a55, roughness: 0.52 });
+  const darkLineMat = new THREE.MeshStandardMaterial({ color: 0x433326, roughness: 0.62 });
 
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.12, 36), blueMat);
-  base.position.y = 0.06;
-  g.add(base);
-
-  const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 36, 18), orangeMat);
-  body.scale.set(0.78, 1.05, 0.78);
-  body.position.y = 0.34;
+  const body = createLatheMesh([[0.12, 0.0], [0.25, 0.04], [0.34, 0.24], [0.31, 0.48], [0.18, 0.68], [0.11, 0.82], [0.16, 0.88]], clayMat);
   g.add(body);
 
-  const shoulder = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 10, 48), greenMat);
+  const shoulder = new THREE.Mesh(new THREE.TorusGeometry(0.285, 0.018, 10, 56), blueGlazeMat);
+  shoulder.position.y = 0.5;
   shoulder.rotation.x = Math.PI / 2;
-  shoulder.position.y = 0.51;
   g.add(shoulder);
 
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.28, 32), blueMat);
-  neck.position.y = 0.66;
-  g.add(neck);
+  [0.16, 0.31, 0.7].forEach((y, i) => {
+    const band = new THREE.Mesh(new THREE.TorusGeometry(i === 1 ? 0.315 : 0.145, 0.011, 8, 48), i === 1 ? ochreMat : darkLineMat);
+    band.position.y = y;
+    band.rotation.x = Math.PI / 2;
+    g.add(band);
+  });
 
-  const lip = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.017, 8, 36), greenMat);
-  lip.rotation.x = Math.PI / 2;
-  lip.position.y = 0.81;
-  g.add(lip);
+  const handleLeft = addCylinderBetween(g, new THREE.Vector3(-0.22, 0.58, 0), new THREE.Vector3(-0.34, 0.38, 0), 0.022, blueGlazeMat);
+  handleLeft.rotation.z += 0.08;
+  const handleRight = addCylinderBetween(g, new THREE.Vector3(0.22, 0.58, 0), new THREE.Vector3(0.34, 0.38, 0), 0.022, blueGlazeMat);
+  handleRight.rotation.z -= 0.08;
+
   return g;
 }
 
 function createStoneLanternForm() {
   const g = new THREE.Group();
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0xb8b2a2, roughness: 0.82 });
-  const shadowMat = new THREE.MeshStandardMaterial({ color: 0x6d675d, roughness: 0.86 });
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0xa9a392, roughness: 0.9 });
+  const darkStoneMat = new THREE.MeshStandardMaterial({ color: 0x6c675d, roughness: 0.92 });
+  const glowMat = new THREE.MeshStandardMaterial({ color: 0xe0c984, roughness: 0.42, emissive: 0x221600 });
 
-  const base = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.1, 0.48), stoneMat);
-  base.position.y = 0.05;
-  g.add(base);
+  const lowerBase = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.08, 0.58), stoneMat);
+  lowerBase.position.y = 0.04;
+  g.add(lowerBase);
 
-  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.38, 12), stoneMat);
-  post.position.y = 0.29;
+  const upperBase = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.42), stoneMat);
+  upperBase.position.y = 0.13;
+  g.add(upperBase);
+
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.11, 0.34, 16), stoneMat);
+  post.position.y = 0.34;
   g.add(post);
 
-  const housing = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.34), shadowMat);
-  housing.position.y = 0.62;
-  g.add(housing);
+  const chamber = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.24, 0.36), darkStoneMat);
+  chamber.position.y = 0.62;
+  g.add(chamber);
 
-  const windowMat = new THREE.MeshStandardMaterial({ color: 0xf0df9a, roughness: 0.35, emissive: 0x332400 });
-  const window = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.35), windowMat);
-  window.position.y = 0.62;
-  g.add(window);
+  [[0, 0, 0.181], [0, 0, -0.181], [0.181, 0, 0], [-0.181, 0, 0]].forEach(([x, y, z]) => {
+    const window = new THREE.Mesh(new THREE.BoxGeometry(z === 0 ? 0.018 : 0.18, 0.12, z === 0 ? 0.18 : 0.018), glowMat);
+    window.position.set(x, 0.62 + y, z);
+    g.add(window);
+  });
 
-  const roof = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.2, 4), stoneMat);
-  roof.position.y = 0.84;
+  const eave = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.07, 0.52), stoneMat);
+  eave.position.y = 0.77;
+  g.add(eave);
+
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(0.39, 0.18, 4), stoneMat);
+  roof.position.y = 0.89;
   roof.rotation.y = Math.PI / 4;
   g.add(roof);
 
-  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 10), stoneMat);
-  finial.position.y = 0.98;
+  const finialStem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.12, 12), stoneMat);
+  finialStem.position.y = 1.03;
+  g.add(finialStem);
+
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.055, 16, 10), stoneMat);
+  finial.position.y = 1.11;
   g.add(finial);
   return g;
 }
 
 function createBonsaiForm() {
   const g = new THREE.Group();
-  const potMat = new THREE.MeshStandardMaterial({ color: 0x284f72, roughness: 0.52 });
-  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5a331d, roughness: 0.7 });
-  const leafMat = new THREE.MeshStandardMaterial({ color: 0x315f3b, roughness: 0.62 });
+  const potMat = new THREE.MeshStandardMaterial({ color: 0x40576a, roughness: 0.46, metalness: 0.04 });
+  const soilMat = new THREE.MeshStandardMaterial({ color: 0x2d241d, roughness: 0.86 });
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c3c24, roughness: 0.78 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x354f35, roughness: 0.7 });
 
-  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.22, 0.18, 32), potMat);
-  pot.position.y = 0.09;
+  const pot = createLatheMesh([[0.18, 0.0], [0.34, 0.02], [0.31, 0.16], [0.26, 0.22], [0.19, 0.24]], potMat);
   g.add(pot);
 
-  addCylinderBetween(g, new THREE.Vector3(0, 0.18, 0), new THREE.Vector3(0.05, 0.55, 0.02), 0.035, trunkMat);
-  addCylinderBetween(g, new THREE.Vector3(0.04, 0.42, 0), new THREE.Vector3(-0.2, 0.63, 0.05), 0.024, trunkMat);
-  addCylinderBetween(g, new THREE.Vector3(0.04, 0.48, 0), new THREE.Vector3(0.25, 0.66, -0.03), 0.022, trunkMat);
+  const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.24, 0.03, 40), soilMat);
+  soil.position.y = 0.235;
+  g.add(soil);
+
+  addCylinderBetween(g, new THREE.Vector3(0, 0.24, 0), new THREE.Vector3(0.04, 0.55, 0.02), 0.038, trunkMat);
+  addCylinderBetween(g, new THREE.Vector3(0.03, 0.42, 0), new THREE.Vector3(-0.22, 0.63, 0.04), 0.026, trunkMat);
+  addCylinderBetween(g, new THREE.Vector3(0.04, 0.48, 0), new THREE.Vector3(0.28, 0.66, -0.03), 0.024, trunkMat);
+  addCylinderBetween(g, new THREE.Vector3(0.02, 0.55, 0.02), new THREE.Vector3(0.02, 0.78, 0.02), 0.02, trunkMat);
 
   [
-    [-0.22, 0.68, 0.06, 0.18],
-    [0.02, 0.78, 0, 0.22],
-    [0.27, 0.68, -0.04, 0.17]
-  ].forEach(([x, y, z, r]) => {
-    const canopy = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 12), leafMat);
-    canopy.scale.set(1.25, 0.62, 0.95);
-    canopy.position.set(x, y, z);
+    [-0.24, 0.68, 0.06, 0.18],
+    [-0.07, 0.82, 0.0, 0.2],
+    [0.25, 0.7, -0.04, 0.17],
+    [0.05, 0.9, 0.05, 0.15]
+  ].forEach(([x, y, z, r], i) => {
+    const canopy = makeEllipsoid(r, leafMat, { x: 1.35, y: 0.52, z: 0.95 }, { x, y, z }, { y: i * 0.45 });
     g.add(canopy);
   });
 
