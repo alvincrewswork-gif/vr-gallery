@@ -1306,7 +1306,7 @@ function getNearestPlaqueFaceAngle(facingAngle) {
 
 function getCenteredPlaqueAngle(item, facingAngle) {
   const { x, z } = item.position;
-  if (x >= -8 && x <= 8 && z >= -7 && z <= 7) return 0;
+  if (x >= -8 && x <= 8 && z >= -7 && z <= 7) return Math.PI;
   if (x >= 8 && x <= 26 && z >= -7 && z <= 7) return -Math.PI / 2;
   if (x >= -26 && x <= -8 && z >= -7 && z <= 7) return Math.PI / 2;
   if (x >= -8 && x <= 8 && z >= -21 && z <= -7) return 0;
