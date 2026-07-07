@@ -127,6 +127,15 @@ const PAINTINGS = [
     audio: "assets/audio/artist-house-argenteuil.wav"
   },
   {
+    title: "Cliff Walk at Pourville",
+    artist: "Claude Monet",
+    year: "1882",
+    description: "Monet uses bright outdoor color and broken brushwork to show figures, sea air, and sunlight along the Normandy coast.",
+    aspect: 1.25,
+    image: "assets/paintings/cliff-walk-pourville.jpg",
+    audio: "assets/audio/cliff-walk-pourville.wav"
+  },
+  {
     title: "Poppy Field (Giverny)",
     artist: "Claude Monet",
     year: "1890-91",
@@ -594,6 +603,24 @@ const PAINTINGS = [
     aspect: 1.37,
     image: "assets/paintings/arai-tokaido.jpg",
     audio: "assets/audio/arai-tokaido.wav"
+  },
+  {
+    title: "Oiso: Tora's Rain",
+    artist: "Utagawa Hiroshige",
+    year: "1833-34",
+    description: "Hiroshige turns a rainy travel scene into a poetic study of weather, movement, and mood along the Tokaido road.",
+    aspect: 1.48,
+    image: "assets/paintings/oiso-toras-rain.jpg",
+    audio: "assets/audio/oiso-toras-rain.wav"
+  },
+  {
+    title: "Kameyama: Weather Clearing after Snow",
+    artist: "Utagawa Hiroshige",
+    year: "1833-34",
+    description: "Snow, slope, and sky are arranged into a quiet winter scene from the Tokaido road.",
+    aspect: 1.49,
+    image: "assets/paintings/kameyama-weather-clearing.jpg",
+    audio: "assets/audio/kameyama-weather-clearing.wav"
   }
 ];
 
@@ -798,6 +825,7 @@ const room1Layout = [
   { x: 3.1,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
   { x: 6.2,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
   { x: -6.2, y: 2.0, z: -6.94, ry: 0, room: 'Room 1: Impressionism', wall: 'back wall' },
+  { x: -3.1, y: 2.0, z: -6.94, ry: 0, room: 'Room 1: Impressionism', wall: 'back wall' },
   { x: -7.94, y: 2.0, z: 5.8, ry: Math.PI / 2, room: 'Room 1: Impressionism', wall: 'left wall' },
   { x: 7.94,  y: 2.0, z: 5.2, ry: -Math.PI / 2, room: 'Room 1: Impressionism', wall: 'right divider wall' },
   { x: 7.94,  y: 2.0, z: -5.2, ry: -Math.PI / 2, room: 'Room 1: Impressionism', wall: 'right divider wall' }
@@ -858,7 +886,9 @@ const room4Layout = [
   { x: 7.94,  y: 2.0, z: -12.0, ry: -Math.PI / 2, room: 'Room 4: World Art / Objects / History', wall: 'right wall' },
   { x: -7.94, y: 2.0, z: -9.2, ry: Math.PI / 2, room: 'Room 4: World Art / Objects / History', wall: 'left entrance wall' },
   { x: 7.94,  y: 2.0, z: -9.2, ry: -Math.PI / 2, room: 'Room 4: World Art / Objects / History', wall: 'right entrance wall' },
-  { x: 6.0,   y: 2.0, z: -6.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'front right entrance wall' }
+  { x: 6.0,   y: 2.0, z: -6.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'front right entrance wall' },
+  { x: -7.0,  y: 2.0, z: -6.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'front left entrance wall' },
+  { x: -5.1,  y: 2.0, z: -6.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'front left entrance wall' }
 ];
 
 const layout = room1Layout;
