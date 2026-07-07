@@ -1195,6 +1195,7 @@ function makeAudioButtonTexture() {
 
 const pedestalMat = new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 0.75 });
 const pedestalTopMat = new THREE.MeshStandardMaterial({ color: 0xf2eee5, roughness: 0.65 });
+const plaqueBoardMat = new THREE.MeshStandardMaterial({ color: 0x6b5428, roughness: 0.7 });
 const marbleMat = new THREE.MeshStandardMaterial({ color: 0xf0eee8, roughness: 0.45, metalness: 0.0 });
 const bronzeMat = new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.55, metalness: 0.45 });
 const darkBronzeMat = new THREE.MeshStandardMaterial({ color: 0x4a2c15, roughness: 0.65, metalness: 0.35 });
@@ -1265,6 +1266,26 @@ function addPedestalBase(group) {
   const bottom = new THREE.Mesh(new THREE.BoxGeometry(1.28, 0.12, 1.28), pedestalTopMat);
   bottom.position.y = 0.06;
   group.add(bottom);
+}
+
+function createPodiumPlaque(item, facingAngle) {
+  const plaque = new THREE.Group();
+  const plaqueDistance = 0.84;
+  plaque.position.set(Math.sin(facingAngle) * plaqueDistance, 0.58, Math.cos(facingAngle) * plaqueDistance);
+  plaque.rotation.y = facingAngle;
+
+  const backing = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.40, 0.035), plaqueBoardMat);
+  backing.position.z = -0.016;
+  plaque.add(backing);
+
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.98, 0.34),
+    new THREE.MeshBasicMaterial({ map: makeSculpturePlaque(item) })
+  );
+  label.position.z = 0.006;
+  plaque.add(label);
+
+  return plaque;
 }
 
 function addCylinderBetween(group, start, end, radius, material) {
@@ -1872,17 +1893,7 @@ function addRealModelExhibit(item) {
   addPedestalBase(group);
 
   const facingAngle = getExhibitFacingAngle(item);
-  const labelDistance = 0.66;
-  const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.98, 0.34),
-    new THREE.MeshBasicMaterial({
-      map: makeSculpturePlaque(item),
-      side: THREE.DoubleSide
-    })
-  );
-  label.position.set(Math.sin(facingAngle) * labelDistance, 0.54, Math.cos(facingAngle) * labelDistance);
-  label.rotation.y = facingAngle;
-  group.add(label);
+  group.add(createPodiumPlaque(item, facingAngle));
 
   const loadingMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.75, transparent: true, opacity: 0.38 });
   const loadingMarker = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.9, 0.42), loadingMat);
