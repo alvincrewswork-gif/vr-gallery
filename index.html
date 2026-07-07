@@ -1330,8 +1330,8 @@ const room3Layout = [
 
 const room4Layout = [
   { x: -5.4, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
-  { x: -1.8, y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
-  { x: 1.8,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
+  { x: -7.94, y: 2.0, z: -20.0, ry: Math.PI / 2, room: 'Room 4: World Art / Objects / History', wall: 'left wall near Room 5 doorway' },
+  { x: 7.94,  y: 2.0, z: -20.0, ry: -Math.PI / 2, room: 'Room 4: World Art / Objects / History', wall: 'right wall near Room 5 doorway' },
   { x: 5.4,  y: 2.0, z: -20.94, ry: 0, room: 'Room 4: World Art / Objects / History', wall: 'back wall' },
   { x: -7.94, y: 2.0, z: -18.0, ry: Math.PI / 2, room: 'Room 4: World Art / Objects / History', wall: 'left wall' },
   { x: -7.94, y: 2.0, z: -15.0, ry: Math.PI / 2, room: 'Room 4: World Art / Objects / History', wall: 'left wall' },
@@ -1567,12 +1567,9 @@ function addRoomSigns() {
   addWallSign(['To Room 1', 'Impressionism'], 8.14, 2.9, 0, 16, 0, 1.6, 0.35);
   addWallSign(['To Room 1', 'Impressionism'], -8.14, 2.9, 0, -16, 0, 1.6, 0.35);
   addWallSign(['To Room 1', 'Impressionism'], 0, 2.9, -7.14, 0, -14, 1.6, 0.35);
-  addWallSign(['To Room 5', 'Renaissance / Old Masters'], 0, 2.9, -20.86, 0, -14, 2.0, 0.35);
-  addWallSign(['To Room 4', 'World Art / Objects'], 0, 2.9, -21.14, 0, -28, 1.8, 0.35);
-  addWallSign(['To Room 6', 'Baroque / Dramatic Light'], 0, 2.9, -34.86, 0, -28, 2.0, 0.35);
-  addWallSign(['To Room 5', 'Renaissance'], 0, 2.9, -35.14, 0, -42, 1.6, 0.35);
-  addWallSign(['To Room 7', 'Modern / Abstract'], 0, 2.9, -48.86, 0, -42, 1.8, 0.35);
-  addWallSign(['To Room 6', 'Baroque'], 0, 2.9, -49.14, 0, -56, 1.6, 0.35);
+  addWallSign(['To Room 5', 'Renaissance'], 0, 2.45, -20.86, 0, -14, 1.55, 0.30);
+  addWallSign(['To Room 6', 'Baroque'], 0, 2.45, -34.86, 0, -28, 1.55, 0.30);
+  addWallSign(['To Room 7', 'Modern'], 0, 2.45, -48.86, 0, -42, 1.55, 0.30);
 }
 function makeAudioButtonTexture() {
   const canvas = document.createElement('canvas');
