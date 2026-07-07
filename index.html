@@ -765,15 +765,15 @@ const REAL_OBJECTS = [
     displayHeight: 0.46
   },
   {
-    key: 'room4-pagoda',
-    title: 'Pagoda',
-    artist: 'Kaung Hlan',
+    key: 'room4-imari-bowl-cover',
+    title: 'Imari Ware Bowl and Cover',
+    artist: 'The Hunt Museum',
     year: 'Real 3D model',
-    description: 'A real 3D pagoda model used as an Asian architectural object for the World Art room.',
-    model: 'assets/models/podiums/pagoda.glb',
+    description: 'A real 3D Imari ware bowl and cover model used as a Japanese ceramic object for the World Art room.',
+    model: 'assets/models/podiums/imari-bowl-cover.glb',
     position: { x: 3.4, z: -12.2 },
     facePoint: { x: 0, z: -7 },
-    displayHeight: 0.78
+    displayHeight: 0.48
   }
 ];
 
@@ -1872,7 +1872,7 @@ function addRealModelExhibit(item) {
   addPedestalBase(group);
 
   const facingAngle = getExhibitFacingAngle(item);
-  const labelDistance = 0.72;
+  const labelDistance = 0.565;
   const label = new THREE.Mesh(
     new THREE.PlaneGeometry(1.15, 0.38),
     new THREE.MeshBasicMaterial({
@@ -1880,7 +1880,7 @@ function addRealModelExhibit(item) {
       side: THREE.DoubleSide
     })
   );
-  label.position.set(Math.sin(facingAngle) * labelDistance, 0.58, Math.cos(facingAngle) * labelDistance);
+  label.position.set(Math.sin(facingAngle) * labelDistance, 0.52, Math.cos(facingAngle) * labelDistance);
   label.rotation.y = facingAngle;
   group.add(label);
 

@@ -91,9 +91,20 @@ These files already existed in the project and are listed here so all podium mod
 - License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 - Room where used: Room 4
 
+### Imari ware bowl and cover
+- Local file: `assets/models/podiums/imari-bowl-cover.glb`
+- Creator / institution: TheHuntMuseum
+- Source URL: https://zenodo.org/records/10298087
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 4
+
+## Retained Unused Model
+
 ### Pagoda
 - Local file: `assets/models/podiums/pagoda.glb`
 - Creator / institution: KaungHlan123
 - Source URL: https://zenodo.org/records/10242608
 - License: Creative Commons Attribution 4.0 International (CC BY 4.0)
-- Room where used: Room 4
+- Room where used: Not currently used; retained from a previous version.
