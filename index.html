@@ -26,7 +26,7 @@
 </style>
 </head>
 <body>
-<div id="info">Four-room gallery loaded. Use doorways from Room 1 to visit each themed room. VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2</div>
+<div id="info">Seven-room gallery loaded. Continue past Room 4 to visit Renaissance, Baroque, and Modern galleries. VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2</div>
 <div id="desktop-help">Desktop mode: Do not press Enter VR. Click the scene, then use WASD/Arrows to walk and drag mouse to look. Enter VR is for headset use.</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -57,6 +57,7 @@
 // THEMED_ROOM_ART_FILL_V16
 // BALANCED_ROOM_ARTWORK_DISTRIBUTION_V17
 // ROOMS_2_3_4_EXTRA_ART_FILL_V18
+// THREE_THEMED_ROOM_EXPANSION_V19 - adds Rooms 5, 6, and 7 with local artwork, audio, and podium objects
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -627,6 +628,222 @@ const PAINTINGS = [
     aspect: 1.49,
     image: "assets/paintings/kameyama-weather-clearing.jpg",
     audio: "assets/audio/kameyama-weather-clearing.wav"
+  },
+  {
+    title: "Annunciation Triptych (Merode Altarpiece)",
+    artist: "Robert Campin",
+    year: "c. 1427-32",
+    description: "A richly detailed Northern Renaissance altarpiece where architecture, symbols, and careful observation turn a sacred scene into an intimate interior.",
+    aspect: 1.97,
+    image: "assets/paintings/annunciation-triptych-merode.jpg",
+    audio: "assets/audio/annunciation-triptych-merode.wav"
+  },
+  {
+    title: "Portrait of a Carthusian",
+    artist: "Petrus Christus",
+    year: "1446",
+    description: "This focused portrait uses precise detail and quiet light to make a fifteenth-century sitter feel present and alert.",
+    aspect: 0.73,
+    image: "assets/paintings/portrait-of-a-carthusian.jpg",
+    audio: "assets/audio/portrait-of-a-carthusian.wav"
+  },
+  {
+    title: "The Harvesters",
+    artist: "Pieter Bruegel the Elder",
+    year: "1565",
+    description: "Bruegel places labor, rest, and landscape together in a broad view of seasonal life in the Renaissance countryside.",
+    aspect: 1.36,
+    image: "assets/paintings/the-harvesters.jpg",
+    audio: "assets/audio/the-harvesters.wav"
+  },
+  {
+    title: "Madonna and Child",
+    artist: "Giovanni Bellini",
+    year: "late 1480s",
+    description: "Bellini uses soft color, calm figures, and devotional stillness to create a serene Renaissance image.",
+    aspect: 0.81,
+    image: "assets/paintings/bellini-madonna-child.jpg",
+    audio: "assets/audio/bellini-madonna-child.wav"
+  },
+  {
+    title: "Virgin and Child with Four Angels",
+    artist: "Gerard David",
+    year: "c. 1510-15",
+    description: "David combines polished surfaces, gentle color, and a balanced composition in this devotional Renaissance work.",
+    aspect: 0.62,
+    image: "assets/paintings/virgin-child-four-angels.jpg",
+    audio: "assets/audio/virgin-child-four-angels.wav"
+  },
+  {
+    title: "Saint George and the Dragon",
+    artist: "Bernat Martorell",
+    year: "1434-35",
+    description: "A dramatic medieval and early Renaissance panel where pattern, armor, and storytelling come together in a heroic scene.",
+    aspect: 0.62,
+    image: "assets/paintings/saint-george-dragon.jpg",
+    audio: "assets/audio/saint-george-dragon.wav"
+  },
+  {
+    title: "Saint Martin and the Beggar",
+    artist: "El Greco",
+    year: "c. 1597-1600",
+    description: "El Greco stretches form and color into a spiritual scene of charity, linking Old Master tradition with expressive drama.",
+    aspect: 0.57,
+    image: "assets/paintings/saint-martin-beggar.jpg",
+    audio: "assets/audio/saint-martin-beggar.wav"
+  },
+  {
+    title: "Fete champetre (Pastoral Gathering)",
+    artist: "Jean Antoine Watteau",
+    year: "c. 1718-21",
+    description: "Watteau shows elegant figures in a dreamlike outdoor gathering, adding a graceful late Old Master note to the room.",
+    aspect: 1.39,
+    image: "assets/paintings/pastoral-gathering.jpg",
+    audio: "assets/audio/pastoral-gathering.wav"
+  },
+  {
+    title: "The Musicians",
+    artist: "Caravaggio",
+    year: "1597",
+    description: "Caravaggio uses close figures, shadow, and warm light to make music feel immediate and theatrical.",
+    aspect: 1.29,
+    image: "assets/paintings/the-musicians.jpg",
+    audio: "assets/audio/the-musicians.wav"
+  },
+  {
+    title: "The Fortune-Teller",
+    artist: "Georges de La Tour",
+    year: "probably 1630s",
+    description: "A tense exchange unfolds through gesture, costume, and dramatic light in this Baroque scene of deception.",
+    aspect: 1.21,
+    image: "assets/paintings/fortune-teller.jpg",
+    audio: "assets/audio/fortune-teller.wav"
+  },
+  {
+    title: "Aristotle with a Bust of Homer",
+    artist: "Rembrandt van Rijn",
+    year: "1653",
+    description: "Rembrandt uses deep shadow and glowing light to turn thought, memory, and touch into a powerful Baroque meditation.",
+    aspect: 0.95,
+    image: "assets/paintings/aristotle-bust-homer.jpg",
+    audio: "assets/audio/aristotle-bust-homer.wav"
+  },
+  {
+    title: "Young Woman with a Lute",
+    artist: "Johannes Vermeer",
+    year: "c. 1662-63",
+    description: "Vermeer balances quiet light, music, and a paused gesture in a room that feels still and luminous.",
+    aspect: 0.87,
+    image: "assets/paintings/woman-with-a-lute.jpg",
+    audio: "assets/audio/woman-with-a-lute.wav"
+  },
+  {
+    title: "Old Man with a Gold Chain",
+    artist: "Rembrandt van Rijn",
+    year: "1631",
+    description: "Heavy shadow and a bright chain focus attention on age, texture, and character in this dramatic portrait.",
+    aspect: 0.92,
+    image: "assets/paintings/old-man-gold-chain.jpg",
+    audio: "assets/audio/old-man-gold-chain.wav"
+  },
+  {
+    title: "Juan de Pareja",
+    artist: "Diego Velazquez",
+    year: "1650",
+    description: "Velazquez gives the sitter dignity and presence through direct gaze, controlled color, and confident brushwork.",
+    aspect: 0.86,
+    image: "assets/paintings/juan-de-pareja.jpg",
+    audio: "assets/audio/juan-de-pareja.wav"
+  },
+  {
+    title: "Esther before Ahasuerus",
+    artist: "Artemisia Gentileschi",
+    year: "1628-35",
+    description: "Gentileschi turns a biblical moment into high drama through light, gesture, and emotional tension.",
+    aspect: 1.31,
+    image: "assets/paintings/esther-before-ahasuerus.jpg",
+    audio: "assets/audio/esther-before-ahasuerus.wav"
+  },
+  {
+    title: "Wolf and Fox Hunt",
+    artist: "Peter Paul Rubens",
+    year: "c. 1616",
+    description: "Rubens fills the canvas with Baroque motion, strong diagonals, and the energy of a hunt.",
+    aspect: 1.50,
+    image: "assets/paintings/wolf-and-fox-hunt.jpg",
+    audio: "assets/audio/wolf-and-fox-hunt.wav"
+  },
+  {
+    title: "Landscape with Two Poplars",
+    artist: "Vasily Kandinsky",
+    year: "1912",
+    description: "Kandinsky pushes landscape toward abstraction, using color and rhythm more than literal detail.",
+    aspect: 1.27,
+    image: "assets/paintings/landscape-two-poplars.jpg",
+    audio: "assets/audio/landscape-two-poplars.wav"
+  },
+  {
+    title: "Sita",
+    artist: "Odilon Redon",
+    year: "c. 1893",
+    description: "Redon creates a dreamlike image where symbol, color, and imagination matter more than everyday realism.",
+    aspect: 0.72,
+    image: "assets/paintings/sita-redon.jpg",
+    audio: "assets/audio/sita-redon.wav"
+  },
+  {
+    title: "Improvisation No. 30 (Cannons)",
+    artist: "Vasily Kandinsky",
+    year: "1913",
+    description: "Kandinsky turns sound, motion, and conflict into abstract color and energetic lines.",
+    aspect: 1.00,
+    image: "assets/paintings/improvisation-no-30.jpg",
+    audio: "assets/audio/improvisation-no-30.wav"
+  },
+  {
+    title: "Painting with Green Center",
+    artist: "Vasily Kandinsky",
+    year: "1913",
+    description: "Color fields and floating forms make this painting feel musical, experimental, and modern.",
+    aspect: 1.07,
+    image: "assets/paintings/painting-green-center.jpg",
+    audio: "assets/audio/painting-green-center.wav"
+  },
+  {
+    title: "Painting with Troika",
+    artist: "Vasily Kandinsky",
+    year: "1911",
+    description: "Kandinsky blends recognizable hints with expressive color as he moves toward abstraction.",
+    aspect: 1.36,
+    image: "assets/paintings/painting-with-troika.jpg",
+    audio: "assets/audio/painting-with-troika.wav"
+  },
+  {
+    title: "Movement",
+    artist: "Marsden Hartley",
+    year: "1913",
+    description: "Hartley builds a modern composition from compressed shapes, strong color, and a sense of visual motion.",
+    aspect: 0.99,
+    image: "assets/paintings/hartley-movement.jpg",
+    audio: "assets/audio/hartley-movement.wav"
+  },
+  {
+    title: "Still Life No. 15",
+    artist: "Marsden Hartley",
+    year: "c. 1917",
+    description: "Hartley turns still-life objects into bold shapes and patterns that feel modern and constructed.",
+    aspect: 0.83,
+    image: "assets/paintings/hartley-still-life-no-15.jpg",
+    audio: "assets/audio/hartley-still-life-no-15.wav"
+  },
+  {
+    title: "The Repast of the Lion",
+    artist: "Henri Rousseau",
+    year: "c. 1907",
+    description: "Rousseau imagines a dense jungle scene with simplified forms, strong pattern, and a mysterious modern mood.",
+    aspect: 1.42,
+    image: "assets/paintings/repast-of-the-lion.jpg",
+    audio: "assets/audio/repast-of-the-lion.wav"
   }
 ];
 
@@ -774,6 +991,114 @@ const REAL_OBJECTS = [
     position: { x: 3.4, z: -12.2 },
     facePoint: { x: 0, z: -7 },
     displayHeight: 0.48
+  },
+  {
+    key: 'room5-renaissance-vessel',
+    title: 'Renaissance Vessel Study',
+    artist: 'Wirtualne Muzea Malopolski',
+    year: 'Real 3D model',
+    description: 'A real decorative vessel model presented as an Old Masters object study for Room 5.',
+    model: 'assets/models/podiums/decorative-vase.glb',
+    position: { x: -3.4, z: -25.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.70
+  },
+  {
+    key: 'room5-classical-urn',
+    title: 'Classical Urn Study',
+    artist: 'Stepan Kashtanov',
+    year: 'Real 3D model',
+    description: 'A real urn-like decorative object used to connect Renaissance painting with classical forms.',
+    model: 'assets/models/podiums/pot-a-feu.glb',
+    position: { x: 0, z: -25.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.70
+  },
+  {
+    key: 'room5-devotional-pitcher',
+    title: 'Devotional Pitcher Study',
+    artist: 'capmsu',
+    year: 'Real 3D model',
+    description: 'A real ceramic pitcher model used as a small museum object for the Old Masters room.',
+    model: 'assets/models/podiums/historic-ceramic-pitcher.glb',
+    position: { x: 3.4, z: -25.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.66
+  },
+  {
+    key: 'room6-baroque-chair',
+    title: 'Baroque Studio Chair',
+    artist: 'Smithsonian',
+    year: '1750-60',
+    description: 'A real chair model used as a dramatic studio object for the Baroque room.',
+    model: 'assets/models/podiums/chair-england-1750.glb',
+    position: { x: -3.4, z: -39.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.74
+  },
+  {
+    key: 'room6-bronze-vase',
+    title: 'Dramatic Vase Study',
+    artist: 'Jorgen Nelson',
+    year: 'Real 3D model',
+    description: 'A real vase model displayed under dramatic room lighting as a Baroque-inspired object study.',
+    model: 'assets/models/podiums/vintage-ceramic-vase.glb',
+    position: { x: 0, z: -39.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.72
+  },
+  {
+    key: 'room6-porcelain-object',
+    title: 'Porcelain Light Study',
+    artist: 'Jingdezhen ware, China',
+    year: '1662-1722',
+    description: 'A real porcelain vase scan used to study reflective surfaces, shape, and dramatic light.',
+    model: 'assets/models/beaker-vase.glb',
+    position: { x: 3.4, z: -39.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.74
+  },
+  {
+    key: 'room7-modern-ceramic',
+    title: 'Modern Ceramic Form',
+    artist: 'visionfountain',
+    year: 'Real 3D model',
+    description: 'A real ceramic bowl model used as a simplified modern form for the abstract gallery.',
+    model: 'assets/models/podiums/japanese-matcha-bowl.glb',
+    position: { x: -3.4, z: -53.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.46
+  },
+  {
+    key: 'room7-geometric-vase',
+    title: 'Geometric Vase Study',
+    artist: 'connectionsxr',
+    year: 'Real 3D model',
+    description: 'A real vase model chosen for its simplified geometry and modern studio-object feel.',
+    model: 'assets/models/podiums/french-vase.glb',
+    position: { x: 0, z: -53.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.68
+  },
+  {
+    key: 'room7-imari-form',
+    title: 'Patterned Form Study',
+    artist: 'The Hunt Museum',
+    year: 'Real 3D model',
+    description: 'A real bowl-and-cover model used to compare pattern, contour, and abstraction in object form.',
+    model: 'assets/models/podiums/imari-bowl-cover.glb',
+    position: { x: 3.4, z: -53.2 },
+    labelAngle: 0,
+    modelAngle: Math.PI,
+    displayHeight: 0.48
   }
 ];
 
@@ -791,9 +1116,9 @@ function setStatus(message) {
 // ── SCENE ──────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1008);
-scene.fog = new THREE.Fog(0x1a1008, 12, 46);
+scene.fog = new THREE.Fog(0x1a1008, 18, 78);
 
-const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 85);
 camera.position.set(0, 1.6, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
@@ -806,9 +1131,13 @@ scene.add(new THREE.AmbientLight(0xfff5e0, 0.9));
 const keyLight = new THREE.DirectionalLight(0xfff5cc, 0.55);
 keyLight.position.set(0, 6, 5);
 scene.add(keyLight);
-[-5, 5, 16, 24].forEach(x => {
+[
+  [-5, -1], [5, -1], [16, -1], [24, -1],
+  [-4, -14], [4, -14], [-4, -28], [4, -28],
+  [-4, -42], [4, -42], [-4, -56], [4, -56]
+].forEach(([x, z]) => {
   const pt = new THREE.PointLight(0xfff5cc, 0.32, 8);
-  pt.position.set(x, 3.0, -1);
+  pt.position.set(x, 3.0, z);
   scene.add(pt);
 });
 
@@ -823,14 +1152,17 @@ const trimMat    = new THREE.MeshStandardMaterial({ color: 0xc8b890 });
 // Room 2: Post-Impressionism, directly right of Room 1, x 8..26 and z -7..7.
 // Room 3: American Art, directly left of Room 1, x -26..-8 and z -7..7.
 // Room 4: World Art / Objects / History, straight ahead from Room 1, x -8..8 and z -21..-7.
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(52, 28), floorMat);
+// Room 5: Renaissance / Old Masters, beyond Room 4, x -8..8 and z -35..-21.
+// Room 6: Baroque / Dramatic Light, beyond Room 5, x -8..8 and z -49..-35.
+// Room 7: Modern / Abstract / Cubism, beyond Room 6, x -8..8 and z -63..-49.
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(52, 70), floorMat);
 floor.rotation.x = -Math.PI / 2;
-floor.position.set(0, 0, -7);
+floor.position.set(0, 0, -28);
 scene.add(floor);
 
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(52, 28), ceilingMat);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(52, 70), ceilingMat);
 ceiling.rotation.x = Math.PI / 2;
-ceiling.position.set(0, 4, -7);
+ceiling.position.set(0, 4, -28);
 scene.add(ceiling);
 
 function addWallPlane(x, y, z, ry, w) {
@@ -841,7 +1173,6 @@ function addWallPlane(x, y, z, ry, w) {
 }
 
 [
-  [0, 2, -21, 0, 52],
   [0, 2, 7, Math.PI, 52],
   [-26, 2, -7, Math.PI / 2, 28],
   [26, 2, -7, -Math.PI / 2, 28],
@@ -852,7 +1183,20 @@ function addWallPlane(x, y, z, ry, w) {
   [-15, 2, -7, 0, 22],
   [15, 2, -7, 0, 22],
   [-8, 2, -14, Math.PI / 2, 14],
-  [8, 2, -14, -Math.PI / 2, 14]
+  [8, 2, -14, -Math.PI / 2, 14],
+  [-15, 2, -21, 0, 22],
+  [15, 2, -21, 0, 22],
+  [-8, 2, -28, Math.PI / 2, 14],
+  [8, 2, -28, -Math.PI / 2, 14],
+  [-6, 2, -35, 0, 4],
+  [6, 2, -35, 0, 4],
+  [-8, 2, -42, Math.PI / 2, 14],
+  [8, 2, -42, -Math.PI / 2, 14],
+  [-6, 2, -49, 0, 4],
+  [6, 2, -49, 0, 4],
+  [-8, 2, -56, Math.PI / 2, 14],
+  [8, 2, -56, -Math.PI / 2, 14],
+  [0, 2, -63, 0, 16]
 ].forEach(([x, y, z, ry, w]) => addWallPlane(x, y, z, ry, w));
 
 function addTrim(x, y, z, w, h, ry) {
@@ -884,7 +1228,6 @@ function addDoorwayHeader(x, z, length, alongZ) {
 }
 
 const wallSpecs = [
-  [0, -21, 52, 0],
   [0, 7, 52, Math.PI],
   [-26, -7, 28, Math.PI / 2],
   [26, -7, 28, -Math.PI / 2],
@@ -895,7 +1238,20 @@ const wallSpecs = [
   [-15, -7, 22, 0],
   [15, -7, 22, 0],
   [-8, -14, 14, Math.PI / 2],
-  [8, -14, 14, -Math.PI / 2]
+  [8, -14, 14, -Math.PI / 2],
+  [-15, -21, 22, 0],
+  [15, -21, 22, 0],
+  [-8, -28, 14, Math.PI / 2],
+  [8, -28, 14, -Math.PI / 2],
+  [-6, -35, 4, 0],
+  [6, -35, 4, 0],
+  [-8, -42, 14, Math.PI / 2],
+  [8, -42, 14, -Math.PI / 2],
+  [-6, -49, 4, 0],
+  [6, -49, 4, 0],
+  [-8, -56, 14, Math.PI / 2],
+  [8, -56, 14, -Math.PI / 2],
+  [0, -63, 16, 0]
 ];
 wallSpecs.forEach(([x, z, w, ry]) => {
   addTrim(x, 0.1, z, w, 0.2, ry);
@@ -911,6 +1267,11 @@ addDoorwayHeader(-8, 0, 6.15, true);
 addHorizontalDoorwayPost(-4, -7);
 addHorizontalDoorwayPost(4, -7);
 addDoorwayHeader(0, -7, 8.15, false);
+[-21, -35, -49].forEach(z => {
+  addHorizontalDoorwayPost(-4, z);
+  addHorizontalDoorwayPost(4, z);
+  addDoorwayHeader(0, z, 8.15, false);
+});
 
 const room1Layout = [
   { x: -6.2, y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
@@ -985,8 +1346,43 @@ const room4Layout = [
   { x: 6.0,   y: 2.0, z: -7.06, ry: Math.PI, room: 'Room 4: World Art / Objects / History', wall: 'front right entrance wall' }
 ];
 
+
+
+const room5Layout = [
+  { x: -7.94, y: 2.0, z: -31.0, ry: Math.PI / 2, room: 'Room 5: Renaissance / Old Masters', wall: 'left wall' },
+  { x: -7.94, y: 2.0, z: -27.0, ry: Math.PI / 2, room: 'Room 5: Renaissance / Old Masters', wall: 'left wall' },
+  { x: -7.94, y: 2.0, z: -23.0, ry: Math.PI / 2, room: 'Room 5: Renaissance / Old Masters', wall: 'left wall' },
+  { x: 7.94,  y: 2.0, z: -31.0, ry: -Math.PI / 2, room: 'Room 5: Renaissance / Old Masters', wall: 'right wall' },
+  { x: 7.94,  y: 2.0, z: -27.0, ry: -Math.PI / 2, room: 'Room 5: Renaissance / Old Masters', wall: 'right wall' },
+  { x: 7.94,  y: 2.0, z: -23.0, ry: -Math.PI / 2, room: 'Room 5: Renaissance / Old Masters', wall: 'right wall' },
+  { x: -6.0,  y: 2.0, z: -34.94, ry: 0, room: 'Room 5: Renaissance / Old Masters', wall: 'back wall' },
+  { x: 6.0,   y: 2.0, z: -34.94, ry: 0, room: 'Room 5: Renaissance / Old Masters', wall: 'back wall' }
+];
+
+const room6Layout = [
+  { x: -7.94, y: 2.0, z: -45.0, ry: Math.PI / 2, room: 'Room 6: Baroque / Dramatic Light', wall: 'left wall' },
+  { x: -7.94, y: 2.0, z: -41.0, ry: Math.PI / 2, room: 'Room 6: Baroque / Dramatic Light', wall: 'left wall' },
+  { x: -7.94, y: 2.0, z: -37.0, ry: Math.PI / 2, room: 'Room 6: Baroque / Dramatic Light', wall: 'left wall' },
+  { x: 7.94,  y: 2.0, z: -45.0, ry: -Math.PI / 2, room: 'Room 6: Baroque / Dramatic Light', wall: 'right wall' },
+  { x: 7.94,  y: 2.0, z: -41.0, ry: -Math.PI / 2, room: 'Room 6: Baroque / Dramatic Light', wall: 'right wall' },
+  { x: 7.94,  y: 2.0, z: -37.0, ry: -Math.PI / 2, room: 'Room 6: Baroque / Dramatic Light', wall: 'right wall' },
+  { x: -6.0,  y: 2.0, z: -48.94, ry: 0, room: 'Room 6: Baroque / Dramatic Light', wall: 'back wall' },
+  { x: 6.0,   y: 2.0, z: -48.94, ry: 0, room: 'Room 6: Baroque / Dramatic Light', wall: 'back wall' }
+];
+
+const room7Layout = [
+  { x: -7.94, y: 2.0, z: -59.0, ry: Math.PI / 2, room: 'Room 7: Modern / Abstract / Cubism', wall: 'left wall' },
+  { x: -7.94, y: 2.0, z: -55.0, ry: Math.PI / 2, room: 'Room 7: Modern / Abstract / Cubism', wall: 'left wall' },
+  { x: -7.94, y: 2.0, z: -51.0, ry: Math.PI / 2, room: 'Room 7: Modern / Abstract / Cubism', wall: 'left wall' },
+  { x: 7.94,  y: 2.0, z: -59.0, ry: -Math.PI / 2, room: 'Room 7: Modern / Abstract / Cubism', wall: 'right wall' },
+  { x: 7.94,  y: 2.0, z: -55.0, ry: -Math.PI / 2, room: 'Room 7: Modern / Abstract / Cubism', wall: 'right wall' },
+  { x: 7.94,  y: 2.0, z: -51.0, ry: -Math.PI / 2, room: 'Room 7: Modern / Abstract / Cubism', wall: 'right wall' },
+  { x: -4.8,  y: 2.0, z: -62.94, ry: 0, room: 'Room 7: Modern / Abstract / Cubism', wall: 'back wall' },
+  { x: 4.8,   y: 2.0, z: -62.94, ry: 0, room: 'Room 7: Modern / Abstract / Cubism', wall: 'back wall' }
+];
+
 const layout = room1Layout;
-const annexLayout = room2Layout.concat(room3Layout, room4Layout);
+const annexLayout = room2Layout.concat(room3Layout, room4Layout, room5Layout, room6Layout, room7Layout);
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.4, metalness: 0.3 });
 const loader = new THREE.TextureLoader();
 const gltfLoader = new THREE.GLTFLoader();
@@ -1161,6 +1557,9 @@ function addRoomSigns() {
   addWallSign(['Room 2: Post-Impressionism'], 25.86, 3.0, 0, 18, 0, 2.0, 0.45);
   addWallSign(['Room 3: American Art'], -25.86, 3.0, 0, -18, 0, 2.0, 0.45);
   addWallSign(['Room 4: World Art / Objects / History'], 0, 3.0, -20.86, 0, -14, 2.0, 0.45);
+  addWallSign(['Room 5: Renaissance / Old Masters'], 0, 3.0, -34.86, 0, -28, 2.2, 0.45);
+  addWallSign(['Room 6: Baroque / Dramatic Light'], 0, 3.0, -48.86, 0, -42, 2.2, 0.45);
+  addWallSign(['Room 7: Modern / Abstract / Cubism'], 0, 3.0, -62.86, 0, -56, 2.2, 0.45);
 
   addWallSign(['To Room 2', 'Post-Impressionism'], 7.86, 2.9, 0, 0, 0, 1.6, 0.35);
   addWallSign(['To Room 3', 'American Art'], -7.86, 2.9, 0, 0, 0, 1.6, 0.35);
@@ -1168,6 +1567,12 @@ function addRoomSigns() {
   addWallSign(['To Room 1', 'Impressionism'], 8.14, 2.9, 0, 16, 0, 1.6, 0.35);
   addWallSign(['To Room 1', 'Impressionism'], -8.14, 2.9, 0, -16, 0, 1.6, 0.35);
   addWallSign(['To Room 1', 'Impressionism'], 0, 2.9, -7.14, 0, -14, 1.6, 0.35);
+  addWallSign(['To Room 5', 'Renaissance / Old Masters'], 0, 2.9, -20.86, 0, -14, 2.0, 0.35);
+  addWallSign(['To Room 4', 'World Art / Objects'], 0, 2.9, -21.14, 0, -28, 1.8, 0.35);
+  addWallSign(['To Room 6', 'Baroque / Dramatic Light'], 0, 2.9, -34.86, 0, -28, 2.0, 0.35);
+  addWallSign(['To Room 5', 'Renaissance'], 0, 2.9, -35.14, 0, -42, 1.6, 0.35);
+  addWallSign(['To Room 7', 'Modern / Abstract'], 0, 2.9, -48.86, 0, -42, 1.8, 0.35);
+  addWallSign(['To Room 6', 'Baroque'], 0, 2.9, -49.14, 0, -56, 1.6, 0.35);
 }
 function makeAudioButtonTexture() {
   const canvas = document.createElement('canvas');
@@ -1309,7 +1714,7 @@ function getCenteredPlaqueAngle(item, facingAngle) {
   if (x >= -8 && x <= 8 && z >= -7 && z <= 7) return Math.PI;
   if (x >= 8 && x <= 26 && z >= -7 && z <= 7) return -Math.PI / 2;
   if (x >= -26 && x <= -8 && z >= -7 && z <= 7) return Math.PI / 2;
-  if (x >= -8 && x <= 8 && z >= -21 && z <= -7) return 0;
+  if (x >= -8 && x <= 8 && z >= -63 && z <= -7) return 0;
   return getNearestPlaqueFaceAngle(facingAngle);
 }
 
@@ -2475,7 +2880,7 @@ function getRightController() {
 
 function clampToGalleryBounds(position) {
   position.x = Math.max(-24.5, Math.min(24.5, position.x));
-  position.z = Math.max(-19.5, Math.min(5.5, position.z));
+  position.z = Math.max(-61.5, Math.min(5.5, position.z));
   return position;
 }
 
@@ -2495,7 +2900,7 @@ function updateTeleportTarget() {
 
   const hit = hits[0].point;
   const x = Math.max(-24.5, Math.min(24.5, hit.x));
-  const z = Math.max(-19.5, Math.min(5.5, hit.z));
+  const z = Math.max(-61.5, Math.min(5.5, hit.z));
 
   teleportTarget.set(x, 0, z);
   teleportRing.position.set(x, 0.025, z);
