@@ -14,6 +14,11 @@
     border: 2px solid #e0c080; border-radius: 8px; z-index: 10; cursor: pointer; letter-spacing: 1px;
   }
   #vr-button:disabled { background: #333; color: #666; border-color: #444; }
+  #desktop-help {
+    position: absolute; bottom: 78px; width: 100%; text-align: center;
+    color: #e8d9a8; font-size: 13px; z-index: 10; pointer-events: none;
+    text-shadow: 0 1px 3px #000;
+  }
   #info {
     position: absolute; top: 16px; width: 100%; text-align: center;
     color: #e0c080; font-size: 13px; z-index: 10; pointer-events: none;
@@ -22,6 +27,7 @@
 </head>
 <body>
 <div id="info">Four-room gallery loaded. Use doorways from Room 1 to visit each themed room. VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2</div>
+<div id="desktop-help">Desktop: WASD/Arrows move, drag mouse to look, Shift speeds up</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/js/GLTFLoader.js"></script>
@@ -2099,12 +2105,100 @@ function updateTeleportHud(rightSource, buttonState) {
 
 const tempMatrix = new THREE.Matrix4();
 const moveDir = new THREE.Vector3();
+const desktopForward = new THREE.Vector3();
+const desktopRight = new THREE.Vector3();
+const desktopKeys = {};
 let lastSnap = 0;
+let lastDesktopFrameTime = 0;
+let desktopDragLook = false;
+let lastPointerX = 0;
+let lastPointerY = 0;
 
-renderer.setAnimationLoop(() => {
+window.addEventListener('keydown', (event) => {
+  if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight'].includes(event.code)) {
+    desktopKeys[event.code] = true;
+    event.preventDefault();
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (event.code in desktopKeys) {
+    desktopKeys[event.code] = false;
+    event.preventDefault();
+  }
+});
+
+renderer.domElement.addEventListener('pointerdown', (event) => {
+  if (renderer.xr.isPresenting) return;
+  desktopDragLook = true;
+  lastPointerX = event.clientX;
+  lastPointerY = event.clientY;
+  renderer.domElement.setPointerCapture(event.pointerId);
+});
+
+renderer.domElement.addEventListener('pointermove', (event) => {
+  if (!desktopDragLook || renderer.xr.isPresenting) return;
+
+  const dx = event.clientX - lastPointerX;
+  const dy = event.clientY - lastPointerY;
+  lastPointerX = event.clientX;
+  lastPointerY = event.clientY;
+
+  player.rotation.y -= dx * 0.004;
+  camera.rotation.x -= dy * 0.003;
+  camera.rotation.x = Math.max(-0.75, Math.min(0.75, camera.rotation.x));
+});
+
+function stopDesktopLook(event) {
+  desktopDragLook = false;
+  if (event && renderer.domElement.hasPointerCapture && renderer.domElement.hasPointerCapture(event.pointerId)) {
+    renderer.domElement.releasePointerCapture(event.pointerId);
+  }
+}
+
+renderer.domElement.addEventListener('pointerup', stopDesktopLook);
+renderer.domElement.addEventListener('pointercancel', stopDesktopLook);
+renderer.domElement.addEventListener('pointerleave', () => {
+  desktopDragLook = false;
+});
+
+function updateDesktopControls(time) {
+  if (activeGrab) restoreGrabbedObject();
+
+  const dt = lastDesktopFrameTime ? Math.min(0.05, (time - lastDesktopFrameTime) / 1000) : 0.016;
+  lastDesktopFrameTime = time;
+
+  let inputX = 0;
+  let inputZ = 0;
+  if (desktopKeys.KeyW || desktopKeys.ArrowUp) inputZ += 1;
+  if (desktopKeys.KeyS || desktopKeys.ArrowDown) inputZ -= 1;
+  if (desktopKeys.KeyD || desktopKeys.ArrowRight) inputX += 1;
+  if (desktopKeys.KeyA || desktopKeys.ArrowLeft) inputX -= 1;
+
+  if (inputX !== 0 || inputZ !== 0) {
+    const yaw = player.rotation.y;
+    desktopForward.set(-Math.sin(yaw), 0, -Math.cos(yaw));
+    desktopRight.set(Math.cos(yaw), 0, -Math.sin(yaw));
+
+    moveDir.set(0, 0, 0);
+    moveDir.addScaledVector(desktopForward, inputZ);
+    moveDir.addScaledVector(desktopRight, inputX);
+    moveDir.normalize();
+    moveDir.multiplyScalar((desktopKeys.ShiftLeft || desktopKeys.ShiftRight ? 4.2 : 2.0) * dt);
+
+    player.position.add(moveDir);
+    clampToGalleryBounds(player.position);
+  }
+
+  player.position.y = 0;
+  camera.position.y = 1.6;
+}
+
+renderer.setAnimationLoop((time) => {
   const session = renderer.xr.getSession();
 
   if (session && renderer.xr.isPresenting) {
+    lastDesktopFrameTime = 0;
     if (activeGrab) {
       // While inspecting an object, thumbsticks control the object only.
       // They should not move the student's body or snap-turn the player.
@@ -2162,7 +2256,7 @@ renderer.setAnimationLoop(() => {
       lastTeleportButtonPressed = buttonState.teleportPressed;
     }
   } else {
-    if (activeGrab) restoreGrabbedObject();
+    updateDesktopControls(time || 0);
     teleportTargetValid = false;
     teleportRing.visible = false;
     hideDebugPanel();
