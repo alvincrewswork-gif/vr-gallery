@@ -27,7 +27,7 @@
 </head>
 <body>
 <div id="info">Four-room gallery loaded. Use doorways from Room 1 to visit each themed room. VR Art Gallery — Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects | Turn right for Room 2</div>
-<div id="desktop-help">Desktop: WASD/Arrows move, drag mouse to look, Shift speeds up</div>
+<div id="desktop-help">Desktop mode: Do not press Enter VR. Click the scene, then use WASD/Arrows to walk and drag mouse to look. Enter VR is for headset use.</div>
 <button id="vr-button" disabled>Checking VR support...</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/js/GLTFLoader.js"></script>
@@ -730,7 +730,7 @@ scene.background = new THREE.Color(0x1a1008);
 scene.fog = new THREE.Fog(0x1a1008, 12, 46);
 
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
-camera.position.set(0, 1.6, 6);
+camera.position.set(0, 1.6, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
 renderer.setPixelRatio(1);
