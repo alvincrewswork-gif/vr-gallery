@@ -100,6 +100,93 @@ These files already existed in the project and are listed here so all podium mod
 - Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
 - Room where used: Room 4
 
+## Room 5: Renaissance / Old Masters Objects
+
+### Baluster Vase, One of Three in a Five-Piece
+- Local file: `assets/models/podiums/baluster-vase-one-of-three.glb`
+- Creator / institution: Smithsonian
+- Source URL: https://zenodo.org/records/10219067
+- License: Creative Commons Zero v1.0 Universal (CC0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 5
+
+### Medieval Candlestick
+- Local file: `assets/models/podiums/medieval-candlestick.glb`
+- Creator / institution: blendercreation
+- Source URL: https://zenodo.org/records/10319647
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 5
+
+### Life Cast of Left Forearm and Hand
+- Local file: `assets/models/podiums/life-cast-forearm-hand.glb`
+- Creator / institution: Smithsonian
+- Source URL: https://zenodo.org/records/10316499
+- License: Creative Commons Zero v1.0 Universal (CC0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 5
+
+## Room 6: Baroque / Dramatic Light Objects
+
+### Armchair With Slip Seat
+- Local file: `assets/models/podiums/armchair-slip-seat.glb`
+- Creator / institution: Smithsonian
+- Source URL: https://zenodo.org/records/10310191
+- License: Creative Commons Zero v1.0 Universal (CC0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 6
+
+### Lidded ritual ewer (guang)
+- Local file: `assets/models/podiums/lidded-ritual-ewer-guang.glb`
+- Creator / institution: Smithsonian
+- Source URL: https://zenodo.org/records/10308901
+- License: Creative Commons Zero v1.0 Universal (CC0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 6
+
+### Lidded ritual ewer (huo)
+- Local file: `assets/models/podiums/lidded-ritual-ewer-huo.glb`
+- Creator / institution: Smithsonian
+- Source URL: https://zenodo.org/records/10226843
+- License: Creative Commons Zero v1.0 Universal (CC0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 6
+
+## Room 7: Modern / Abstract / Cubism Objects
+
+### Tete by Henri Laurens
+- Local file: `assets/models/podiums/tete-henri-laurens.glb`
+- Creator / institution: mauricesvay
+- Source URL: https://zenodo.org/records/10229886
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 7
+
+### L'Oiseau dans l'espace by Constantin Brancusi
+- Local file: `assets/models/podiums/bird-in-space.glb`
+- Creator / institution: nebulousflynn
+- Source URL: https://zenodo.org/records/10221383
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 7
+
+### Cubism Sculpture
+- Local file: `assets/models/podiums/cubism-sculpture.glb`
+- Creator / institution: estherk
+- Source URL: https://zenodo.org/records/10256168
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+- Downloaded date: 2026-07-07
+- Modifications/conversion: no model file conversion or editing; scaled/centered/rotated at runtime in `index.html`
+- Room where used: Room 7
+
 ## Retained Unused Model
 
 ### Pagoda
