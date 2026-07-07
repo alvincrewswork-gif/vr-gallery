@@ -1288,6 +1288,31 @@ function createPodiumPlaque(item, facingAngle) {
   return plaque;
 }
 
+function getNearestPlaqueFaceAngle(facingAngle) {
+  const faceAngles = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+  let bestAngle = faceAngles[0];
+  let bestDelta = Infinity;
+
+  faceAngles.forEach(angle => {
+    const delta = Math.abs(Math.atan2(Math.sin(facingAngle - angle), Math.cos(facingAngle - angle)));
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      bestAngle = angle;
+    }
+  });
+
+  return bestAngle;
+}
+
+function getCenteredPlaqueAngle(item, facingAngle) {
+  const { x, z } = item.position;
+  if (x >= -8 && x <= 8 && z >= -7 && z <= 7) return 0;
+  if (x >= 8 && x <= 26 && z >= -7 && z <= 7) return -Math.PI / 2;
+  if (x >= -26 && x <= -8 && z >= -7 && z <= 7) return Math.PI / 2;
+  if (x >= -8 && x <= 8 && z >= -21 && z <= -7) return 0;
+  return getNearestPlaqueFaceAngle(facingAngle);
+}
+
 function addCylinderBetween(group, start, end, radius, material) {
   const direction = new THREE.Vector3().subVectors(end, start);
   const length = direction.length();
@@ -1893,7 +1918,7 @@ function addRealModelExhibit(item) {
   addPedestalBase(group);
 
   const facingAngle = getExhibitFacingAngle(item);
-  group.add(createPodiumPlaque(item, facingAngle));
+  group.add(createPodiumPlaque(item, getCenteredPlaqueAngle(item, facingAngle)));
 
   const loadingMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.75, transparent: true, opacity: 0.38 });
   const loadingMarker = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.9, 0.42), loadingMat);
