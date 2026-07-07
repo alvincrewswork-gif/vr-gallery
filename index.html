@@ -640,28 +640,76 @@ const SCULPTURES = [];
 
 const REAL_OBJECTS = [
   {
-    key: 'room1-vase-form-study',
-    title: 'Vase Form Study',
-    artist: 'Jingdezhen ware, China',
-    year: '1662-1722',
-    description: 'A grabbable object display that lets students inspect ceramic form, symmetry, and decorative surface from close range.',
-    model: 'assets/models/beaker-vase.glb',
-    position: { x: 3.8, z: 2.4 },
+    key: 'room1-water-lilies-study',
+    title: 'Water Lilies Podium Study',
+    artist: 'Claude Monet',
+    year: '1906',
+    description: 'A close-up podium display of Monet-s water garden, connecting color, reflection, and Impressionist brushwork.',
+    image: 'assets/paintings/water-lilies.jpg',
+    aspect: 1.58,
+    position: { x: -3.8, z: 2.35 },
     facePoint: { x: 0, z: 6 },
-    rotationOffsetY: Math.PI,
-    displayHeight: 0.68
+    displayHeight: 0.72
   },
   {
-    key: 'room2-apollo-study',
-    title: 'Apollo 11 Command Module Study',
-    artist: 'Smithsonian 3D scan',
-    year: '1969',
-    description: 'A grabbable display object for close inspection of shape, surface, and engineered form.',
-    model: 'assets/models/apollo-command-module.glb',
-    position: { x: 14.0, z: 3.0 },
+    key: 'room1-artist-house-study',
+    title: 'Argenteuil Garden Podium Study',
+    artist: 'Claude Monet',
+    year: '1873',
+    description: 'A podium display of Monet-s home and garden at Argenteuil, emphasizing outdoor light and everyday Impressionist subject matter.',
+    image: 'assets/paintings/artist-house-argenteuil.jpg',
+    aspect: 1.22,
+    position: { x: 0, z: 2.35 },
+    facePoint: { x: 0, z: 6 },
+    displayHeight: 0.72
+  },
+  {
+    key: 'room1-poppy-field-study',
+    title: 'Poppy Field Podium Study',
+    artist: 'Claude Monet',
+    year: '1890-91',
+    description: 'A podium display of Monet-s flowers and light, tying the Room 1 theme to color, atmosphere, and landscape.',
+    image: 'assets/paintings/poppy-field-giverny.jpg',
+    aspect: 1.54,
+    position: { x: 3.8, z: 2.35 },
+    facePoint: { x: 0, z: 6 },
+    displayHeight: 0.72
+  },
+  {
+    key: 'room2-bedroom-study',
+    title: 'Van Gogh Bedroom Podium Study',
+    artist: 'Vincent van Gogh',
+    year: '1889',
+    description: 'A close display of Van Gogh-s color and perspective, made for inspecting Post-Impressionist expression and structure.',
+    image: 'assets/paintings/bedroom.jpg',
+    aspect: 1.26,
+    position: { x: 13.0, z: 2.5 },
     facePoint: { x: 8, z: 0 },
-    rotationOffsetY: Math.PI,
-    displayHeight: 0.62
+    displayHeight: 0.72
+  },
+  {
+    key: 'room2-grande-jatte-study',
+    title: 'Grande Jatte Podium Study',
+    artist: 'Georges Seurat',
+    year: '1884-86',
+    description: 'A podium display for inspecting Seurat-s dots, structure, and carefully planned Post-Impressionist composition.',
+    image: 'assets/paintings/grande-jatte.jpg',
+    aspect: 1.52,
+    position: { x: 17.0, z: 2.5 },
+    facePoint: { x: 8, z: 0 },
+    displayHeight: 0.72
+  },
+  {
+    key: 'room2-cezanne-apples-study',
+    title: 'Cezanne Apples Podium Study',
+    artist: 'Paul Cezanne',
+    year: 'c. 1893',
+    description: 'A podium display that highlights Cezanne-s simplified forms, color planes, and still-life structure.',
+    image: 'assets/paintings/basket-of-apples.jpg',
+    aspect: 1.28,
+    position: { x: 21.0, z: 2.5 },
+    facePoint: { x: 8, z: 0 },
+    displayHeight: 0.72
   },
   {
     key: 'lincoln-life-mask',
@@ -710,6 +758,30 @@ const REAL_OBJECTS = [
     labelAngle: 0,
     modelAngle: Math.PI,
     displayHeight: 0.78
+  },
+  {
+    key: 'room4-great-wave-study',
+    title: 'Great Wave Podium Study',
+    artist: 'Katsushika Hokusai',
+    year: '1830-33',
+    description: 'A podium display of Hokusai-s wave design, connecting line, rhythm, and Japanese printmaking.',
+    image: 'assets/paintings/great-wave.jpg',
+    aspect: 1.48,
+    position: { x: -3.4, z: -12.2 },
+    facePoint: { x: 0, z: -7 },
+    displayHeight: 0.72
+  },
+  {
+    key: 'room4-plum-garden-study',
+    title: 'Plum Garden Podium Study',
+    artist: 'Utagawa Hiroshige',
+    year: '1857',
+    description: 'A podium display of Hiroshige-s bold framing and color in a Japanese garden scene.',
+    image: 'assets/paintings/plum-garden-kameido.jpg',
+    aspect: 0.67,
+    position: { x: 3.4, z: -12.2 },
+    facePoint: { x: 0, z: -7 },
+    displayHeight: 0.72
   }
 ];
 
@@ -855,8 +927,8 @@ const room1Layout = [
   { x: 3.1,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
   { x: 6.2,  y: 2.0, z: 6.94, ry: Math.PI, room: 'Room 1: Impressionism', wall: 'front wall' },
   { x: -6.2, y: 2.0, z: -6.94, ry: 0, room: 'Room 1: Impressionism', wall: 'back wall' },
-  { x: -7.94, y: 2.0, z: 3.9, ry: Math.PI / 2, room: 'Room 1: Impressionism', wall: 'left divider wall' },
-  { x: -7.94, y: 2.0, z: 5.8, ry: Math.PI / 2, room: 'Room 1: Impressionism', wall: 'left wall' },
+  { x: -7.94, y: 2.0, z: -5.0, ry: Math.PI / 2, room: 'Room 1: Impressionism', wall: 'left divider wall' },
+  { x: -7.94, y: 2.0, z: 5.0, ry: Math.PI / 2, room: 'Room 1: Impressionism', wall: 'left wall' },
   { x: 7.94,  y: 2.0, z: 5.2, ry: -Math.PI / 2, room: 'Room 1: Impressionism', wall: 'right divider wall' },
   { x: 7.94,  y: 2.0, z: -5.2, ry: -Math.PI / 2, room: 'Room 1: Impressionism', wall: 'right divider wall' }
 ];
@@ -1473,6 +1545,70 @@ function addRealModelExhibit(item) {
 
   // Performance note: avoid one SpotLight per model on Quest. Shared room lighting keeps the frame rate smoother.
   scene.add(group);
+
+  if (item.image) {
+    group.remove(loadingMarker);
+    loadingMarker.geometry.dispose();
+    loadingMarker.material.dispose();
+
+    const holder = new THREE.Group();
+    holder.position.y = 1.02;
+    holder.rotation.y = getModelFacingAngle(item, facingAngle);
+
+    const artHeight = item.displayHeight || 0.72;
+    const artWidth = artHeight * (item.aspect || 1.35);
+    const artFrameDepth = 0.045;
+    const frameThickness = 0.045;
+
+    const backing = new THREE.Mesh(
+      new THREE.BoxGeometry(artWidth + frameThickness * 2, artHeight + frameThickness * 2, artFrameDepth),
+      frameMat
+    );
+    backing.position.y = artHeight / 2;
+    holder.add(backing);
+
+    const artMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(artWidth, artHeight),
+      new THREE.MeshBasicMaterial({ color: 0x223344, side: THREE.DoubleSide })
+    );
+    artMesh.position.set(0, artHeight / 2, artFrameDepth / 2 + 0.003);
+    holder.add(artMesh);
+
+    loader.load(
+      item.image,
+      (tex) => {
+        tex.encoding = THREE.sRGBEncoding;
+        tex.anisotropy = 2;
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.needsUpdate = true;
+        artMesh.material.dispose();
+        artMesh.material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide });
+        artMesh.material.needsUpdate = true;
+      },
+      undefined,
+      (error) => {
+        console.warn('Podium artwork image failed:', item.title, item.image, error);
+        artMesh.material.color.set(0x552222);
+      }
+    );
+
+    const grabHitBox = new THREE.Mesh(
+      new THREE.BoxGeometry(Math.max(artWidth, 0.45), Math.max(artHeight, 0.35), 0.12),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0 })
+    );
+    grabHitBox.position.y = artHeight / 2;
+    grabHitBox.userData.type = 'grabbableObject';
+    grabHitBox.userData.item = item;
+    grabHitBox.userData.grabTarget = holder;
+    grabbableObjects.push(grabHitBox);
+    holder.add(grabHitBox);
+
+    holder.userData.item = item;
+    holder.userData.originalParent = group;
+    group.add(holder);
+    return;
+  }
 
   if (!THREE.GLTFLoader) {
     loadingMarker.material.color.set(0xaa2222);
