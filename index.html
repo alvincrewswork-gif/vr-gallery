@@ -634,6 +634,30 @@ const SCULPTURES = [];
 
 const REAL_OBJECTS = [
   {
+    key: 'room1-vase-form-study',
+    title: 'Vase Form Study',
+    artist: 'Jingdezhen ware, China',
+    year: '1662-1722',
+    description: 'A grabbable object display that lets students inspect ceramic form, symmetry, and decorative surface from close range.',
+    model: 'assets/models/beaker-vase.glb',
+    position: { x: 3.8, z: 2.4 },
+    facePoint: { x: 0, z: 6 },
+    rotationOffsetY: Math.PI,
+    displayHeight: 0.68
+  },
+  {
+    key: 'room2-apollo-study',
+    title: 'Apollo 11 Command Module Study',
+    artist: 'Smithsonian 3D scan',
+    year: '1969',
+    description: 'A grabbable display object for close inspection of shape, surface, and engineered form.',
+    model: 'assets/models/apollo-command-module.glb',
+    position: { x: 14.0, z: 3.0 },
+    facePoint: { x: 8, z: 0 },
+    rotationOffsetY: Math.PI,
+    displayHeight: 0.62
+  },
+  {
     key: 'lincoln-life-mask',
     title: 'Abraham Lincoln Life Mask',
     artist: 'Cast after Clark Mills',
@@ -1529,7 +1553,6 @@ function addGalleryDecor() {
   REAL_OBJECTS.forEach(addRealModelExhibit);
 
   // Benches removed in GRABBABLE_REAL_OBJECTS_V3 to keep the gallery floor open for teleporting and inspection.
-  addRopeLine(0.15);
 
   const centerRug = new THREE.Mesh(
     new THREE.PlaneGeometry(5.2, 2.0),
