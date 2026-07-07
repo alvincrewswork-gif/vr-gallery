@@ -1872,15 +1872,15 @@ function addRealModelExhibit(item) {
   addPedestalBase(group);
 
   const facingAngle = getExhibitFacingAngle(item);
-  const labelDistance = 0.565;
+  const labelDistance = 0.66;
   const label = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.15, 0.38),
+    new THREE.PlaneGeometry(0.98, 0.34),
     new THREE.MeshBasicMaterial({
       map: makeSculpturePlaque(item),
       side: THREE.DoubleSide
     })
   );
-  label.position.set(Math.sin(facingAngle) * labelDistance, 0.52, Math.cos(facingAngle) * labelDistance);
+  label.position.set(Math.sin(facingAngle) * labelDistance, 0.54, Math.cos(facingAngle) * labelDistance);
   label.rotation.y = facingAngle;
   group.add(label);
 
