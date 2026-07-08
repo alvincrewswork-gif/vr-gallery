@@ -59,6 +59,7 @@
 // ROOMS_2_3_4_EXTRA_ART_FILL_V18
 // THREE_THEMED_ROOM_EXPANSION_V19 - adds Rooms 5, 6, and 7 with local artwork, audio, and podium objects
 // PERFORMANCE_OPTIMIZATION_PASS_V20 - reuses UI textures, staggers GLB loads, and trims unnecessary GPU work
+// QUEST_CLARITY_BALANCE_V21 - raises headset render scale and improves painting texture sampling
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -1122,12 +1123,16 @@ scene.fog = new THREE.Fog(0x1a1008, 18, 78);
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 85);
 camera.position.set(0, 1.6, 0);
 
+const DESKTOP_PIXEL_RATIO = Math.min(window.devicePixelRatio || 1, 1.25);
+const QUEST_XR_FRAMEBUFFER_SCALE = 1.25;
+const PAINTING_MAX_ANISOTROPY = 4;
+
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
-renderer.setPixelRatio(1);
+renderer.setPixelRatio(DESKTOP_PIXEL_RATIO);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.xr.enabled = true;
 if (renderer.xr.setFramebufferScaleFactor) {
-  renderer.xr.setFramebufferScaleFactor(0.85);
+  renderer.xr.setFramebufferScaleFactor(QUEST_XR_FRAMEBUFFER_SCALE);
 }
 document.body.appendChild(renderer.domElement);
 
@@ -1401,6 +1406,15 @@ function configureCanvasTexture(texture, anisotropy = 1) {
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
   texture.anisotropy = anisotropy;
+  return texture;
+}
+
+function configurePaintingTexture(texture) {
+  texture.encoding = THREE.sRGBEncoding;
+  texture.generateMipmaps = true;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), PAINTING_MAX_ANISOTROPY);
   return texture;
 }
 
@@ -2622,11 +2636,7 @@ function buildFrame(p, pos) {
   loader.load(
     p.image,
     (tex) => {
-      tex.encoding = THREE.sRGBEncoding;
-      tex.generateMipmaps = false;
-      tex.anisotropy = 2;
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
+      configurePaintingTexture(tex);
       tex.needsUpdate = true;
 
       canvasMesh.material.dispose();
@@ -3255,7 +3265,7 @@ if (navigator.xr) {
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setPixelRatio(1);
+  renderer.setPixelRatio(DESKTOP_PIXEL_RATIO);
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
