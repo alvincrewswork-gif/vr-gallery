@@ -60,6 +60,7 @@
 // THREE_THEMED_ROOM_EXPANSION_V19 - adds Rooms 5, 6, and 7 with local artwork, audio, and podium objects
 // PERFORMANCE_OPTIMIZATION_PASS_V20 - reuses UI textures, staggers GLB loads, and trims unnecessary GPU work
 // QUEST_CLARITY_BALANCE_V21 - raises headset render scale and improves painting texture sampling
+// QUEST_OPTIMIZED_MODE_V22 - defers heavy podium models and simplifies headset rendering
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -1108,11 +1109,37 @@ const SPAWN_POINT = new THREE.Vector3(0, 0, 4);
 
 
 const statusEl = document.getElementById('info');
+const perfDebugEl = document.createElement('div');
+perfDebugEl.style.cssText = 'position:fixed;right:10px;bottom:10px;z-index:20;padding:6px 8px;background:rgba(0,0,0,0.65);color:#f7e7b1;font:12px monospace;border:1px solid #8b6914;display:none;white-space:pre;pointer-events:none;';
+document.body.appendChild(perfDebugEl);
+let perfFrameCount = 0;
+let perfLastSampleTime = 0;
+let perfLastFps = 0;
 
 function setStatus(message) {
   if (statusEl) {
     statusEl.textContent = message;
   }
+}
+
+function updatePerfDebug(time) {
+  if (!DEBUG_PERF_REQUESTED) return;
+  perfDebugEl.style.display = 'block';
+  perfFrameCount++;
+  if (!perfLastSampleTime) perfLastSampleTime = time || performance.now();
+  const elapsed = (time || performance.now()) - perfLastSampleTime;
+  if (elapsed >= 1000) {
+    perfLastFps = Math.round((perfFrameCount * 1000) / elapsed);
+    perfFrameCount = 0;
+    perfLastSampleTime = time || performance.now();
+  }
+  perfDebugEl.textContent = [
+    'Quest mode: ' + (questModeActive ? 'on' : 'off'),
+    'FPS approx: ' + perfLastFps,
+    'Draw calls: ' + renderer.info.render.calls,
+    'Triangles: ' + renderer.info.render.triangles,
+    'Deferred models: ' + questDeferredModelJobs.filter(job => !job.loaded).length
+  ].join('\n');
 }
 
 // ── SCENE ──────────────────────────────────────────────────────────────────
@@ -1123,9 +1150,18 @@ scene.fog = new THREE.Fog(0x1a1008, 18, 78);
 const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 85);
 camera.position.set(0, 1.6, 0);
 
+const urlParams = new URLSearchParams(window.location.search);
+const QUEST_MODE_REQUESTED = urlParams.get('quest') === '1';
+const DEBUG_PERF_REQUESTED = urlParams.get('debugPerf') === '1';
+const QUEST_BROWSER_HINT = /Quest|OculusBrowser|Meta Quest/i.test(navigator.userAgent || '');
+let questModeActive = QUEST_MODE_REQUESTED || QUEST_BROWSER_HINT;
 const DESKTOP_PIXEL_RATIO = Math.min(window.devicePixelRatio || 1, 1.25);
-const QUEST_XR_FRAMEBUFFER_SCALE = 1.25;
-const PAINTING_MAX_ANISOTROPY = 4;
+const QUEST_XR_FRAMEBUFFER_SCALE = 1.1;
+const PAINTING_MAX_ANISOTROPY = 6;
+const QUEST_MODEL_LOAD_DISTANCE = 12;
+const QUEST_MODEL_HIDE_DISTANCE = 18;
+const QUEST_MODEL_VISIBILITY_CHECK_MS = 450;
+let lastQuestModelVisibilityCheck = 0;
 
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
 renderer.setPixelRatio(DESKTOP_PIXEL_RATIO);
@@ -1140,6 +1176,7 @@ scene.add(new THREE.AmbientLight(0xfff5e0, 0.9));
 const keyLight = new THREE.DirectionalLight(0xfff5cc, 0.55);
 keyLight.position.set(0, 6, 5);
 scene.add(keyLight);
+const galleryPointLights = [];
 [
   [-5, -1], [5, -1], [16, -1], [24, -1],
   [-4, -14], [4, -14], [-4, -28], [4, -28],
@@ -1147,6 +1184,8 @@ scene.add(keyLight);
 ].forEach(([x, z]) => {
   const pt = new THREE.PointLight(0xfff5cc, 0.32, 8);
   pt.position.set(x, 3.0, z);
+  pt.visible = !questModeActive;
+  galleryPointLights.push(pt);
   scene.add(pt);
 });
 
@@ -1431,6 +1470,8 @@ const audioHitBoxMaterial = new THREE.MeshBasicMaterial({
 const MAX_CONCURRENT_MODEL_LOADS = 2;
 const modelLoadQueue = [];
 let activeModelLoads = 0;
+const questDeferredModelJobs = [];
+const questManagedModelHolders = [];
 
 function pumpModelLoadQueue() {
   while (activeModelLoads < MAX_CONCURRENT_MODEL_LOADS && modelLoadQueue.length) {
@@ -1456,6 +1497,20 @@ function pumpModelLoadQueue() {
 function queueModelLoad(url, onLoad, onProgress, onError) {
   modelLoadQueue.push({ url, onLoad, onProgress, onError });
   pumpModelLoadQueue();
+}
+
+function setQuestModeActive(active) {
+  const shouldEnable = !!active;
+  if (questModeActive === shouldEnable) return;
+  questModeActive = shouldEnable;
+  galleryPointLights.forEach(light => {
+    light.visible = !questModeActive;
+  });
+  if (!questModeActive) {
+    questManagedModelHolders.forEach(entry => {
+      if (entry.holder) entry.holder.visible = true;
+    });
+  }
 }
 
 const teleportRingGeo = new THREE.RingGeometry(0.18, 0.26, 48);
@@ -1670,6 +1725,8 @@ const plaqueBoardMat = new THREE.MeshStandardMaterial({ color: 0x6b5428, roughne
 const marbleMat = new THREE.MeshStandardMaterial({ color: 0xf0eee8, roughness: 0.45, metalness: 0.0 });
 const bronzeMat = new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.55, metalness: 0.45 });
 const darkBronzeMat = new THREE.MeshStandardMaterial({ color: 0x4a2c15, roughness: 0.65, metalness: 0.35 });
+const questSilhouetteMat = new THREE.MeshStandardMaterial({ color: 0xd8d2c4, roughness: 0.82, metalness: 0.0 });
+const questSilhouetteAccentMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.7, metalness: 0.08 });
 const benchMat = new THREE.MeshStandardMaterial({ color: 0x6b3f1d, roughness: 0.72 });
 const benchLegMat = new THREE.MeshStandardMaterial({ color: 0x1e1a16, roughness: 0.55, metalness: 0.35 });
 const ropeMat = new THREE.MeshStandardMaterial({ color: 0x7a1414, roughness: 0.5 });
@@ -1735,6 +1792,39 @@ function addPedestalBase(group) {
   const bottom = new THREE.Mesh(new THREE.BoxGeometry(1.28, 0.12, 1.28), pedestalTopMat);
   bottom.position.y = 0.06;
   group.add(bottom);
+}
+
+function createQuestModelSilhouette(item, facingAngle) {
+  const holder = new THREE.Group();
+  holder.position.y = 1.02;
+  holder.rotation.y = getModelFacingAngle(item, facingAngle);
+  holder.userData.type = 'questModelSilhouette';
+  holder.userData.item = item;
+
+  const height = Math.max(item.displayHeight || 0.65, 0.46);
+  const body = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.22, 0.28, height * 0.78, 18),
+    questSilhouetteMat
+  );
+  body.position.y = height * 0.39;
+  holder.add(body);
+
+  const shoulder = new THREE.Mesh(
+    new THREE.SphereGeometry(0.25, 18, 10),
+    questSilhouetteMat
+  );
+  shoulder.scale.set(1, 0.45, 1);
+  shoulder.position.y = height * 0.8;
+  holder.add(shoulder);
+
+  const foot = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.32, 0.32, 0.05, 18),
+    questSilhouetteAccentMat
+  );
+  foot.position.y = 0.025;
+  holder.add(foot);
+
+  return holder;
 }
 
 function createPodiumPlaque(item, facingAngle) {
@@ -2380,68 +2470,27 @@ function getModelFacingAngle(item, labelFacingAngle) {
   return labelFacingAngle + (item.rotationOffsetY || 0);
 }
 
-function addRealModelExhibit(item) {
-  const group = new THREE.Group();
-  group.position.set(item.position.x, 0, item.position.z);
+function disposeLoadingMarker(loadingMarker) {
+  if (!loadingMarker) return;
+  if (loadingMarker.parent) loadingMarker.parent.remove(loadingMarker);
+  loadingMarker.geometry.dispose();
+  loadingMarker.material.dispose();
+}
 
-  addPedestalBase(group);
-
-  const facingAngle = getExhibitFacingAngle(item);
-  group.add(createPodiumPlaque(item, getCenteredPlaqueAngle(item, facingAngle)));
-
-  const loadingMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.75, transparent: true, opacity: 0.38 });
-  const loadingMarker = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.9, 0.42), loadingMat);
-  loadingMarker.position.y = 1.45;
-  group.add(loadingMarker);
-
-  // Performance note: avoid one SpotLight per model on Quest. Shared room lighting keeps the frame rate smoother.
-  scene.add(group);
-
-  if (item.sculpture) {
-    group.remove(loadingMarker);
-    loadingMarker.geometry.dispose();
-    loadingMarker.material.dispose();
-
-    const holder = new THREE.Group();
-    holder.position.y = 1.02;
-    holder.rotation.y = getModelFacingAngle(item, facingAngle);
-
-    const sculpture = createPodiumSculptureObject(item);
-    holder.add(sculpture);
-
-    const grabHeight = Math.max(item.displayHeight || 0.75, 0.45);
-    const grabWidth = item.grabWidth || 0.9;
-    const grabDepth = item.grabDepth || 0.9;
-    const grabHitBox = new THREE.Mesh(
-      new THREE.BoxGeometry(grabWidth, grabHeight, grabDepth),
-      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, depthWrite: false })
-    );
-    grabHitBox.position.y = grabHeight / 2;
-    grabHitBox.userData.type = 'grabbableObject';
-    grabHitBox.userData.item = item;
-    grabHitBox.userData.grabTarget = holder;
-    grabbableObjects.push(grabHitBox);
-    holder.add(grabHitBox);
-
-    holder.userData.item = item;
-    holder.userData.originalParent = group;
-    group.add(holder);
-    return;
-  }
-
+function loadRealModelForExhibit(item, group, loadingMarker, facingAngle, placeholder, onLoaded, onError) {
   if (!THREE.GLTFLoader) {
-    loadingMarker.material.color.set(0xaa2222);
+    if (loadingMarker) loadingMarker.material.color.set(0xaa2222);
     console.warn('GLTFLoader is not available. Cannot load:', item.model);
     setStatus('GLTFLoader missing. Real model could not load.');
+    if (onError) onError();
     return;
   }
 
   queueModelLoad(
     item.model,
     (gltf) => {
-      group.remove(loadingMarker);
-      loadingMarker.geometry.dispose();
-      loadingMarker.material.dispose();
+      disposeLoadingMarker(loadingMarker);
+      if (placeholder && placeholder.parent) placeholder.parent.remove(placeholder);
 
       const model = gltf.scene;
       model.updateMatrixWorld(true);
@@ -2495,18 +2544,92 @@ function addRealModelExhibit(item) {
       grabbableObjects.push(grabHitBox);
 
       group.add(modelHolder);
+      questManagedModelHolders.push({ holder: modelHolder, item, group });
 
-      setStatus('Performance mode loaded. Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
+      if (onLoaded) onLoaded(modelHolder);
+      setStatus(questModeActive
+        ? 'Quest optimized mode loaded. Wall art stays sharp; nearby podium objects load as you approach.'
+        : 'Performance mode loaded. Left stick: walk | Right stick: turn | A: teleport | Grip: inspect objects');
     },
     undefined,
     (error) => {
-      loadingMarker.material.color.set(0xaa2222);
-      loadingMarker.material.opacity = 0.7;
-      loadingMarker.material.needsUpdate = true;
+      if (loadingMarker) {
+        loadingMarker.material.color.set(0xaa2222);
+        loadingMarker.material.opacity = 0.7;
+        loadingMarker.material.needsUpdate = true;
+      }
+      if (placeholder) placeholder.visible = true;
       console.warn('Real GLB model failed to load:', item.model, error);
       setStatus('Real model failed to load. Check ' + item.model);
+      if (onError) onError();
     }
   );
+}
+
+function addRealModelExhibit(item) {
+  const group = new THREE.Group();
+  group.position.set(item.position.x, 0, item.position.z);
+
+  addPedestalBase(group);
+
+  const facingAngle = getExhibitFacingAngle(item);
+  group.add(createPodiumPlaque(item, getCenteredPlaqueAngle(item, facingAngle)));
+
+  const loadingMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.75, transparent: true, opacity: 0.38 });
+  const loadingMarker = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.9, 0.42), loadingMat);
+  loadingMarker.position.y = 1.45;
+  group.add(loadingMarker);
+
+  // Performance note: avoid one SpotLight per model on Quest. Shared room lighting keeps the frame rate smoother.
+  scene.add(group);
+
+  if (item.sculpture) {
+    disposeLoadingMarker(loadingMarker);
+
+    const holder = new THREE.Group();
+    holder.position.y = 1.02;
+    holder.rotation.y = getModelFacingAngle(item, facingAngle);
+
+    const sculpture = createPodiumSculptureObject(item);
+    holder.add(sculpture);
+
+    const grabHeight = Math.max(item.displayHeight || 0.75, 0.45);
+    const grabWidth = item.grabWidth || 0.9;
+    const grabDepth = item.grabDepth || 0.9;
+    const grabHitBox = new THREE.Mesh(
+      new THREE.BoxGeometry(grabWidth, grabHeight, grabDepth),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, depthWrite: false })
+    );
+    grabHitBox.position.y = grabHeight / 2;
+    grabHitBox.userData.type = 'grabbableObject';
+    grabHitBox.userData.item = item;
+    grabHitBox.userData.grabTarget = holder;
+    grabbableObjects.push(grabHitBox);
+    holder.add(grabHitBox);
+
+    holder.userData.item = item;
+    holder.userData.originalParent = group;
+    group.add(holder);
+    questManagedModelHolders.push({ holder, item, group });
+    return;
+  }
+
+  if (questModeActive) {
+    disposeLoadingMarker(loadingMarker);
+    const placeholder = createQuestModelSilhouette(item, facingAngle);
+    group.add(placeholder);
+    questDeferredModelJobs.push({
+      item,
+      group,
+      facingAngle,
+      placeholder,
+      loading: false,
+      loaded: false
+    });
+    return;
+  }
+
+  loadRealModelForExhibit(item, group, loadingMarker, facingAngle, null);
 }
 
 function addGalleryDecor() {
@@ -3054,6 +3177,52 @@ function updateTeleportHud(rightSource, buttonState) {
   ]);
 }
 
+function loadDeferredQuestModel(job) {
+  if (job.loading || job.loaded) return;
+  job.loading = true;
+  loadRealModelForExhibit(
+    job.item,
+    job.group,
+    null,
+    job.facingAngle,
+    job.placeholder,
+    () => {
+      job.loaded = true;
+      job.loading = false;
+    },
+    () => {
+      job.loading = false;
+    }
+  );
+}
+
+function updateQuestOptimizedRendering(time) {
+  if (!questModeActive) return;
+  if (time - lastQuestModelVisibilityCheck < QUEST_MODEL_VISIBILITY_CHECK_MS) return;
+  lastQuestModelVisibilityCheck = time;
+
+  const px = player.position.x;
+  const pz = player.position.z;
+
+  questDeferredModelJobs.forEach((job) => {
+    if (job.loaded || job.loading) return;
+    const dx = job.group.position.x - px;
+    const dz = job.group.position.z - pz;
+    const distance = Math.sqrt(dx * dx + dz * dz);
+    if (distance <= QUEST_MODEL_LOAD_DISTANCE) {
+      loadDeferredQuestModel(job);
+    }
+  });
+
+  questManagedModelHolders.forEach((entry) => {
+    if (!entry.holder || activeGrab && activeGrab.holder === entry.holder) return;
+    const dx = entry.group.position.x - px;
+    const dz = entry.group.position.z - pz;
+    const distance = Math.sqrt(dx * dx + dz * dz);
+    entry.holder.visible = distance <= QUEST_MODEL_HIDE_DISTANCE;
+  });
+}
+
 
 const tempMatrix = new THREE.Matrix4();
 const moveDir = new THREE.Vector3();
@@ -3150,6 +3319,7 @@ renderer.setAnimationLoop((time) => {
   const session = renderer.xr.getSession();
 
   if (session && renderer.xr.isPresenting) {
+    setQuestModeActive(true);
     lastDesktopFrameTime = 0;
     if (activeGrab) {
       // While inspecting an object, thumbsticks control the object only.
@@ -3216,7 +3386,9 @@ renderer.setAnimationLoop((time) => {
     lastTeleportButtonPressed = false;
   }
 
+  updateQuestOptimizedRendering(time || performance.now());
   renderer.render(scene, camera);
+  updatePerfDebug(time || performance.now());
 });
 
 // ── VR BUTTON ──────────────────────────────────────────────────────────────
@@ -3230,6 +3402,10 @@ async function onVRClick() {
   }
 
   try {
+    setQuestModeActive(true);
+    if (renderer.xr.setFramebufferScaleFactor) {
+      renderer.xr.setFramebufferScaleFactor(QUEST_XR_FRAMEBUFFER_SCALE);
+    }
     const session = await navigator.xr.requestSession('immersive-vr', {
       optionalFeatures: ['local-floor', 'bounded-floor']
     });
@@ -3239,12 +3415,18 @@ async function onVRClick() {
       if (activeGrab) restoreGrabbedObject();
       xrSession = null;
       vrBtn.textContent = 'Enter VR';
+      if (!QUEST_MODE_REQUESTED && !QUEST_BROWSER_HINT) {
+        setQuestModeActive(false);
+      }
     });
 
     await renderer.xr.setSession(session);
     vrBtn.textContent = 'Exit VR';
   } catch (e) {
     vrBtn.textContent = 'VR failed: ' + e.message;
+    if (!QUEST_MODE_REQUESTED && !QUEST_BROWSER_HINT) {
+      setQuestModeActive(false);
+    }
   }
 }
 
