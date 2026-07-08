@@ -58,6 +58,7 @@
 // BALANCED_ROOM_ARTWORK_DISTRIBUTION_V17
 // ROOMS_2_3_4_EXTRA_ART_FILL_V18
 // THREE_THEMED_ROOM_EXPANSION_V19 - adds Rooms 5, 6, and 7 with local artwork, audio, and podium objects
+// PERFORMANCE_OPTIMIZATION_PASS_V20 - reuses UI textures, staggers GLB loads, and trims unnecessary GPU work
 // IMPORTANT:
 // These image paths must match files inside your GitHub repo exactly.
 // Folder expected:
@@ -1125,6 +1126,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'h
 renderer.setPixelRatio(1);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.xr.enabled = true;
+if (renderer.xr.setFramebufferScaleFactor) {
+  renderer.xr.setFramebufferScaleFactor(0.85);
+}
 document.body.appendChild(renderer.domElement);
 
 scene.add(new THREE.AmbientLight(0xfff5e0, 0.9));
@@ -1391,6 +1395,55 @@ const controllers = [];
 const grabbableObjects = [];
 let activeGrab = null;
 
+function configureCanvasTexture(texture, anisotropy = 1) {
+  texture.encoding = THREE.sRGBEncoding;
+  texture.generateMipmaps = false;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = anisotropy;
+  return texture;
+}
+
+const audioButtonGeometry = new THREE.PlaneGeometry(0.9, 0.28);
+const audioHitBoxGeometry = new THREE.PlaneGeometry(1.15, 0.42);
+const audioHitBoxMaterial = new THREE.MeshBasicMaterial({
+  transparent: true,
+  opacity: 0.0,
+  depthWrite: false,
+  colorWrite: false,
+  side: THREE.DoubleSide
+});
+
+const MAX_CONCURRENT_MODEL_LOADS = 2;
+const modelLoadQueue = [];
+let activeModelLoads = 0;
+
+function pumpModelLoadQueue() {
+  while (activeModelLoads < MAX_CONCURRENT_MODEL_LOADS && modelLoadQueue.length) {
+    const job = modelLoadQueue.shift();
+    activeModelLoads++;
+    gltfLoader.load(
+      job.url,
+      (gltf) => {
+        activeModelLoads--;
+        job.onLoad(gltf);
+        pumpModelLoadQueue();
+      },
+      job.onProgress,
+      (error) => {
+        activeModelLoads--;
+        job.onError(error);
+        pumpModelLoadQueue();
+      }
+    );
+  }
+}
+
+function queueModelLoad(url, onLoad, onProgress, onError) {
+  modelLoadQueue.push({ url, onLoad, onProgress, onError });
+  pumpModelLoadQueue();
+}
+
 const teleportRingGeo = new THREE.RingGeometry(0.18, 0.26, 48);
 const teleportRingMat = new THREE.MeshBasicMaterial({
   color: 0x66ff99,
@@ -1416,7 +1469,7 @@ const debugCanvas = document.createElement('canvas');
 debugCanvas.width = 1024;
 debugCanvas.height = 320;
 const debugCtx = debugCanvas.getContext('2d');
-const debugTexture = new THREE.CanvasTexture(debugCanvas);
+const debugTexture = configureCanvasTexture(new THREE.CanvasTexture(debugCanvas));
 const debugPanel = new THREE.Mesh(
   new THREE.PlaneGeometry(1.6, 0.5),
   new THREE.MeshBasicMaterial({
@@ -1505,9 +1558,7 @@ function makeLabel(p) {
 
   if (y <= 228) ctx.fillText(line.trim(), 28, y);
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.encoding = THREE.sRGBEncoding;
-  return texture;
+  return configureCanvasTexture(new THREE.CanvasTexture(canvas));
 }
 
 function makeRoomSignTexture(lines) {
@@ -1530,10 +1581,7 @@ function makeRoomSignTexture(lines) {
   const lineStep = lines.length === 2 ? 52 : 48;
   lines.forEach((line, i) => ctx.fillText(line, 512, startY + i * lineStep));
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.encoding = THREE.sRGBEncoding;
-  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  return texture;
+  return configureCanvasTexture(new THREE.CanvasTexture(canvas), 2);
 }
 
 function faceObjectAtXZ(object, targetX, targetZ) {
@@ -1589,9 +1637,16 @@ function makeAudioButtonTexture() {
   ctx.textBaseline = 'middle';
   ctx.fillText('▶ AUDIO', 256, 82);
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.encoding = THREE.sRGBEncoding;
-  return texture;
+  return configureCanvasTexture(new THREE.CanvasTexture(canvas));
+}
+
+let sharedAudioButtonTexture = null;
+
+function getAudioButtonTexture() {
+  if (!sharedAudioButtonTexture) {
+    sharedAudioButtonTexture = makeAudioButtonTexture();
+  }
+  return sharedAudioButtonTexture;
 }
 
 
@@ -1651,9 +1706,7 @@ function makeSculpturePlaque(item) {
 
   if (y <= 330) ctx.fillText(line.trim(), 30, y);
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.encoding = THREE.sRGBEncoding;
-  return texture;
+  return configureCanvasTexture(new THREE.CanvasTexture(canvas));
 }
 
 function addPedestalBase(group) {
@@ -2369,7 +2422,7 @@ function addRealModelExhibit(item) {
     return;
   }
 
-  gltfLoader.load(
+  queueModelLoad(
     item.model,
     (gltf) => {
       group.remove(loadingMarker);
@@ -2570,6 +2623,7 @@ function buildFrame(p, pos) {
     p.image,
     (tex) => {
       tex.encoding = THREE.sRGBEncoding;
+      tex.generateMipmaps = false;
       tex.anisotropy = 2;
       tex.minFilter = THREE.LinearFilter;
       tex.magFilter = THREE.LinearFilter;
@@ -2597,8 +2651,8 @@ function buildFrame(p, pos) {
 
   // Audio button below the plaque
   const audioButtonMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.9, 0.28),
-    new THREE.MeshBasicMaterial({ map: makeAudioButtonTexture(), color: 0xffffff, side: THREE.DoubleSide })
+    audioButtonGeometry,
+    new THREE.MeshBasicMaterial({ map: getAudioButtonTexture(), color: 0xffffff, side: THREE.DoubleSide })
   );
   audioButtonMesh.position.set(0, -(ph / 2 + 0.74), fd / 2 + 0.003);
   audioButtonMesh.userData.type = 'audioButton';
@@ -2607,8 +2661,8 @@ function buildFrame(p, pos) {
 
   // Invisible larger hit box so the controller ray is easier to aim.
   const audioHitBox = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.15, 0.42),
-    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, side: THREE.DoubleSide })
+    audioHitBoxGeometry,
+    audioHitBoxMaterial
   );
   audioHitBox.position.copy(audioButtonMesh.position);
   audioHitBox.position.z += 0.004;
